@@ -11,6 +11,7 @@
 # NOTE: Incorporate covariate GSx in selection criteria? Good for tie breakers.
 
 ### Libraries ###
+import gc
 import warnings
 import numpy as np
 import pandas as pd
@@ -24,61 +25,86 @@ def TreeEnsembleQBCFunction(Model, df_Candidate, df_Train, UniqueErrorsInput):
     np.seterr(all = 'ignore') 
     warnings.filterwarnings("ignore", category=UserWarning)
 
+    # Set Up #
+    TreeCounts = Model.get_tree_count()
+    PredictionList = []
+    BatchSize = 1000
+
     ### Predicted Values ###
     ## Rashomon Classification ##
     if 'TREEFARMS' in str(type(Model)):
-        TreeCounts = Model.get_tree_count()
 
-        # Duplicate #
-        PredictionArray_Duplicate = pd.DataFrame(np.array([Model[i].predict(df_Candidate.loc[:, df_Candidate.columns != "Y"]) for i in range(TreeCounts)]))
-        PredictionArray_Duplicate.columns = df_Candidate.index.astype(str)
-        EnsemblePrediction_Duplicate = pd.Series(stats.mode(PredictionArray_Duplicate)[0])
-        EnsemblePrediction_Duplicate.index = df_Candidate["Y"].index
-        AllTreeCount = PredictionArray_Duplicate.shape[0]
-
-        # Unique #
-        PredictionArray_Unique = pd.DataFrame(PredictionArray_Duplicate).drop_duplicates()
-        EnsemblePrediction_Unique = pd.Series(stats.mode(PredictionArray_Unique)[0])
-        EnsemblePrediction_Unique.index = df_Candidate["Y"].index
-        UniqueTreeCount = PredictionArray_Unique.shape[0]
-
+        # Batch Prediction #
+        for i in range(0, TreeCounts, BatchSize):
+            batch_end = min(i + BatchSize, TreeCounts)
+            batch_predictions = []
+            
+            for tree_idx in range(i, batch_end):
+                pred = Model[tree_idx].predict(
+                    df_Candidate.loc[:, df_Candidate.columns != "Y"]
+                )
+                batch_predictions.append(pred)
+            
+            PredictionList.extend(batch_predictions)
+            gc.collect()
+        
+        # Prediction Array #
+        PredictionArray_Duplicate = pd.DataFrame(
+            np.array(PredictionList),
+            columns=df_Candidate.index.astype(str)
+        )
+        AllTreeCount = len(PredictionList)
+        
+        # Unique vs. Duplicate #
         if UniqueErrorsInput:
-            PredictedValues = PredictionArray_Unique
+            PredictedValues = PredictionArray_Duplicate.drop_duplicates()
+            UniqueTreeCount = len(PredictedValues)
         else:
             PredictedValues = PredictionArray_Duplicate
-
-        Output = {"AllTreeCount": AllTreeCount,
-                  "UniqueTreeCount": UniqueTreeCount}
+            UniqueTreeCount = len(PredictedValues.drop_duplicates())
+        
+        Output = {
+            "AllTreeCount": AllTreeCount,
+            "UniqueTreeCount": UniqueTreeCount
+        }
 
     ## Random Forest Classification ###
     elif 'RandomForestClassifier' in str(type(Model)):
-        PredictedValues = [Model.estimators_[tree].predict(df_Candidate.loc[:, df_Candidate.columns != "Y"]) for tree in range(Model.n_estimators)] 
-        PredictedValues = np.vstack(PredictedValues)
+        
+        # Batch Prediction #
+        for i in range(0, Model.n_estimators, BatchSize):
+            batch_end = min(i + BatchSize, Model.n_estimators)
+            batch_predictions = []
+            
+            for tree_idx in range(i, batch_end):
+                pred = Model.estimators_[tree_idx].predict(
+                    df_Candidate.loc[:, df_Candidate.columns != "Y"]
+                )
+                batch_predictions.append(pred)
+            
+            PredictionList.extend(batch_predictions)
+            gc.collect()
+        
+        # Prediction Array #
+        PredictedValues = np.vstack(PredictionList)
         Output = {}
 
-    ### Vote Entropy ###
-    VoteC = {}
-    LogVoteC = {}
-    VoteEntropy = {}
+    ### Calculate vote entropy ###
     UniqueClasses = set(df_Train["Y"])
+    VoteEntropy = np.zeros(len(df_Candidate))
 
-    # Vote entropy per class #
+    ## Vote entropy per class ##
     for classes in UniqueClasses:
-        VoteC[classes] = np.mean(PredictedValues == classes, axis=0)
-        LogVoteC[classes] = np.log(VoteC[classes])
-        VoteEntropy[classes] =  - VoteC[classes] * LogVoteC[classes]
-        VoteEntropy[classes] = np.nan_to_num(VoteEntropy[classes], nan=0)
-        
-    # Vote Entropy #
-    VoteEntropyMatrix = np.stack(list(VoteEntropy.values()), axis=1)
-    VoteEntropyFinal = np.sum(VoteEntropyMatrix, axis=1)
+        VoteC = np.mean(PredictedValues == classes, axis=0)
+        LogVoteC = np.log(VoteC)
+        CurrentEntropy = -VoteC * LogVoteC
+        VoteEntropy += np.nan_to_num(CurrentEntropy, nan=0)
 
-    ### Uncertainty Metric ###
-    df_Candidate["UncertaintyMetric"] = VoteEntropyFinal
-    IndexRecommendation = int(df_Candidate.sort_values(by = "UncertaintyMetric", ascending = False).index[0])
+    ## Query Recommendation  ##
+    df_Candidate["UncertaintyMetric"] = VoteEntropy
+    IndexRecommendation = int(df_Candidate.sort_values(by="UncertaintyMetric", ascending=False).index[0])
     df_Candidate.drop('UncertaintyMetric', axis=1, inplace=True)
-
-    # Output #
     Output["IndexRecommendation"] = IndexRecommendation
-
+    
+    ### Output ###
     return Output

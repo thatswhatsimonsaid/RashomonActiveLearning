@@ -20,12 +20,15 @@
 #   TreeCount: A dictionary that contains two keys: {AllTreeCount, UniqueTreeCount} indicating
 #                          the number of trees in the Rashomon set from TreeFarms and the number of unique classification patterns.
 
+### Import packages ###
+import gc
+import pandas as pd
+
 ### Import functions ###
 from utils.Main import *
 from utils.Selector import *
 from utils.Auxiliary import *
 from utils.Prediction import *
-import pandas as pd
 
 ### Function ###
 def LearningProcedure(SimulationConfigInputUpdated):
@@ -34,29 +37,38 @@ def LearningProcedure(SimulationConfigInputUpdated):
     ErrorVec = []
     SelectedObservationHistory = []
     TreeCount = {"AllTreeCount": [], "UniqueTreeCount": []}
+    TotalIterations = len(SimulationConfigInputUpdated["df_Candidate"])
 
     ### Algorithm ###
     for i in range(len(SimulationConfigInputUpdated["df_Candidate"])):
 
+        ### Set Up ###
+        gc.collect()
+        print(f"Iteration: {i}/{TotalIterations}")
+
         ### Prediction Model ###
-        print("Iteration: " + str(i))
         ModelType = globals().get(SimulationConfigInputUpdated["ModelType"], None)
         ModelArgsFiltered = FilterArguments(ModelType, SimulationConfigInputUpdated)
         Model = ModelType(**ModelArgsFiltered)
         SimulationConfigInputUpdated['Model'] = Model
 
         ### Test Error ###
-        TestErrorOutput = TestErrorFunction(InputModel = Model, df_Test = SimulationConfigInputUpdated["df_Test"], Type = SimulationConfigInputUpdated["Type"])
-        if('TREEFARMS' in str(type(Model))):                                                       # If Rashomon
-            CurrentError = TestErrorOutput["Error_Duplicate"]
-        else: 
-            CurrentError = TestErrorOutput["ErrorVal"]                                               # One output for non-Rashomon
+        TestErrorOutput = TestErrorFunction(InputModel = Model, 
+                                            df_Test = SimulationConfigInputUpdated["df_Test"], 
+                                            Type = SimulationConfigInputUpdated["Type"])
+        
+        ### Store error ###
+        CurrentError = (TestErrorOutput["Error_Duplicate"] 
+                       if 'TREEFARMS' in str(type(Model)) 
+                       else TestErrorOutput["ErrorVal"])
         ErrorVec.append(CurrentError)
 
         ### Sampling Procedure ###
         SelectorType = globals().get(SimulationConfigInputUpdated["SelectorType"], None)
         SelectorArgsFiltered = FilterArguments(SelectorType, SimulationConfigInputUpdated)
         SelectorFuncOutput = SelectorType(**SelectorArgsFiltered)
+
+        ### Get Query Observation ###
         QueryObservationIndex = SelectorFuncOutput["IndexRecommendation"]
         QueryObservation = SimulationConfigInputUpdated["df_Candidate"].loc[[QueryObservationIndex]]
         SelectedObservationHistory.append(QueryObservationIndex)
@@ -70,9 +82,11 @@ def LearningProcedure(SimulationConfigInputUpdated):
             TreeCount["AllTreeCount"].append(SelectorFuncOutput["AllTreeCount"])          # Store number of trees
             TreeCount["UniqueTreeCount"].append(SelectorFuncOutput["UniqueTreeCount"])    # Store number of unique/duplicate trees
 
-    ### RETURN ###
-    LearningProcedureOutput = {"ErrorVec": ErrorVec,
-                               "TreeCount": TreeCount,
-                               "SelectedObservationHistory": SelectedObservationHistory}
-                              
-    return LearningProcedureOutput
+        ### Clean ###
+        del Model
+        gc.collect()
+
+    ### Return ###          
+    return {"ErrorVec": ErrorVec,
+            "TreeCount": TreeCount,
+            "SelectedObservationHistory": SelectedObservationHistory}

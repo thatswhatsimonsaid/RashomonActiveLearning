@@ -8,3 +8,4 @@ from .SelectionHistoryRank import *
 from .StoppingCriteria import *
 from .WilcoxonRankSignedTest import *
 from .PreProcessData import *
+from .OptimizeDataFrame import *

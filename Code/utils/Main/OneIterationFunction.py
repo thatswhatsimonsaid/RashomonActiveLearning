@@ -20,6 +20,7 @@
 #   ElapsedTime: Time for the entire learning process.
 
 ### Import packages ###
+import gc
 import time
 import numpy as np
 import math as math
@@ -32,11 +33,6 @@ from utils.Selector import *
 from utils.Auxiliary import *
 from utils.Prediction import *
 
-import json
-import networkx as nx
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-
 ### Function ###
 def OneIterationFunction(SimulationConfigInput):
     
@@ -44,37 +40,48 @@ def OneIterationFunction(SimulationConfigInput):
     StartTime = time.time()
     random.seed(SimulationConfigInput["Seed"])
     np.random.seed(SimulationConfigInput["Seed"])
+    gc.collect()                                                             # Collect garbage before starting
 
     ### Generate Data ###
     df = LoadData(SimulationConfigInput["DataFileInput"])
+    df = OptimizeDataFrame(df)
 
     ### Train Test Candidate Split ###
     from utils.Main import TrainTestCandidateSplit                           ### NOTE: Why is this not imported from utils.Main import *
     df_Train, df_Test, df_Candidate = TrainTestCandidateSplit(df, SimulationConfigInput["TestProportion"], SimulationConfigInput["CandidateProportion"])
+    del df
+    gc.collect()
 
     ### Update SimulationConfig Arguments ###
-    SimulationConfigInput['df_Train'] = df_Train
-    SimulationConfigInput["df_Test"] = df_Test                                     # NOTE: Change to df_Test if there is a test set
-    SimulationConfigInput["df_Candidate"] = df_Candidate
+    SimulationConfigInput.update(
+        {
+        'df_Train': OptimizeDataFrame(df_Train),
+        'df_Test': OptimizeDataFrame(df_Test),
+        'df_Candidate': OptimizeDataFrame(df_Candidate)
+        })
     
     ### Learning Process ###
     from utils.Main import LearningProcedure                                 ### NOTE: Why is this not imported from utils.Main import *
     LearningProcedureOutput = LearningProcedure(SimulationConfigInputUpdated = SimulationConfigInput)
     
     ### Return Simulation Parameters ###
-    SimulationParameters = {"DataFileInput" : str(SimulationConfigInput["DataFileInput"]),
-                            "Seed" : str(SimulationConfigInput["Seed"]),
-                            "TestProportion" : str(SimulationConfigInput["TestProportion"]),
-                            "CandidateProportion" : str(SimulationConfigInput["CandidateProportion"]),
-                            "SelectorType" :  str(SimulationConfigInput["SelectorType"]),
-                            "ModelType" :  str(SimulationConfigInput["ModelType"]),
-                            'UniqueErrorsInput': str(SimulationConfigInput["UniqueErrorsInput"]),
-                            'n_estimators': str(SimulationConfigInput["n_estimators"]),
-                            'regularization': str(SimulationConfigInput["regularization"]),
-                            'RashomonThresholdType': str(SimulationConfigInput["RashomonThresholdType"]),
-                            'RashomonThreshold': str(SimulationConfigInput["RashomonThreshold"]),
-                            'Type': 'Classification'
-                            }
+    SimulationParameters = {
+        str(k): str(v) for k, v in SimulationConfigInput.items() 
+        if k in [
+            "DataFileInput", 
+            "Seed", 
+            "TestProportion", 
+            "CandidateProportion",
+            "SelectorType", 
+            "ModelType", 
+            "UniqueErrorsInput", 
+            "n_estimators",
+            "regularization", 
+            "RashomonThresholdType", 
+            "RashomonThreshold"
+        ]
+    }
+    SimulationParameters['Type'] = 'Classification'
     
     ### Return Time ###
     ElapsedTime = time.time() - StartTime
@@ -86,6 +93,5 @@ def OneIterationFunction(SimulationConfigInput):
                                                            columns = ["ObservationID"]),
                          "SimulationParameters" : SimulationParameters,
                          "ElapsedTime" : ElapsedTime}
-
-
+    
     return SimulationResults
