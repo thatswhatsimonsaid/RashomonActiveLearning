@@ -17,14 +17,14 @@ python Code/utils/Auxiliary/ProcessSimulationResults.py \
     --ModelType "RandomForestClassification" \
     --Categories "RFA0.pkl"
 
-# ### Extract Duplicate TREEFARMS Results ###
-# python Code/utils/Auxiliary/ProcessSimulationResults.py \
-#     --DataType "$CURRENT_DIR" \
-#     --ModelType "TreeFarms" \
-#     --Categories "DA0.02.pkl"
+### Extract Duplicate TREEFARMS Results ###
+python Code/utils/Auxiliary/ProcessSimulationResults.py \
+    --DataType "$CURRENT_DIR" \
+    --ModelType "TreeFarms" \
+    --Categories "DA0.015.pkl"
 
-# ### Extract Unique TREEFARMS Results ###
-# python Code/utils/Auxiliary/ProcessSimulationResults.py \
-#     --DataType "$CURRENT_DIR" \
-#     --ModelType "TreeFarms" \
-#     --Categories "UA0.02.pkl"
+### Extract Unique TREEFARMS Results ###
+python Code/utils/Auxiliary/ProcessSimulationResults.py \
+    --DataType "$CURRENT_DIR" \
+    --ModelType "TreeFarms" \
+    --Categories "UA0.015.pkl"
