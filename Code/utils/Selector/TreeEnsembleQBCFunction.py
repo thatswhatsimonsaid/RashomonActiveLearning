@@ -25,8 +25,7 @@ def TreeEnsembleQBCFunction(Model, df_Candidate, df_Train, UniqueErrorsInput):
     np.seterr(all = 'ignore') 
     warnings.filterwarnings("ignore", category=UserWarning)
 
-    # Set Up #
-    TreeCounts = Model.get_tree_count()
+    ### Set Up ###
     PredictionList = []
     BatchSize = 1000
 
@@ -35,6 +34,7 @@ def TreeEnsembleQBCFunction(Model, df_Candidate, df_Train, UniqueErrorsInput):
     if 'TREEFARMS' in str(type(Model)):
 
         # Batch Prediction #
+        TreeCounts = Model.get_tree_count()
         for i in range(0, TreeCounts, BatchSize):
             batch_end = min(i + BatchSize, TreeCounts)
             batch_predictions = []
