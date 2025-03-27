@@ -18,3 +18,4 @@ from .GreedySampling import *
 from .PassiveSampling import *
 from .TreeEnsembleQBCFunction import *
 from .MetaLearnerSampling_Logistic import *
+from .IPD_Selection import *

@@ -50,7 +50,7 @@ def GSyFunction(df_Train, df_Candidate, Model, distance = "euclidean"):  ### NOT
     IndexRecommendation = df_Candidate.iloc[[MaxRowNumber]].index[0]
 
     ### Output ###
-    Output = {"IndexRecommendation": float(IndexRecommendation)}
+    Output = {"IndexRecommendation": int(IndexRecommendation)}
     return(Output)
     
 ### iGS ###
@@ -76,5 +76,5 @@ def iGSFunction(df_Train, df_Candidate, Model, distance = "euclidean"):
     IndexRecommendation = df_Candidate.iloc[[MaxRowNumber]].index[0]
 
     ### Output ###
-    Output = {"IndexRecommendation": float(IndexRecommendation)}
+    Output = {"IndexRecommendation": int(IndexRecommendation)}
     return(Output)
