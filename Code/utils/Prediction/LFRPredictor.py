@@ -40,7 +40,7 @@ class LFRPredictor:
                  RashomonThresholdType: str = "Adder",
                  **kwargs):
         self.regularization = regularization
-        self.full_epsilon = RashomonThreshold # full_epsilon is the last threshold used in the last full enumeration of the RSet
+        self.full_epsilon = 2*RashomonThreshold # full_epsilon is the last threshold used in the last full enumeration of the RSet
         self.epsilon = RashomonThreshold      # current tuned epsilon (will be updated)
         self.RashomonThresholdType = RashomonThresholdType
         self.static_config = DEFAULT_STATIC_CONFIG.copy()
@@ -62,11 +62,20 @@ class LFRPredictor:
 
 
     ### Fit Model ###
-    def fit(self, X_train_df: pd.DataFrame, y_train_series: pd.Series):
+    def fit(self, X_train_df: pd.DataFrame, y_train_series: pd.Series, epsilon: float = None):
         """
-        Performs a full fit of the TreeFarms model using the maximum epsilon (full enumeration of Rashomon set).
+        Performs a full fit of the TreeFarms model using the maximum epsilon (full enumeration of Rashomon set), 
+        then if epsilon is None, tunes to find the best epsilon. 
+        Otherwise sets current epsilon to match provided epsilon and does not tune (but persists all trees in the larger Rashomon set).
         This also updates the current cumulative training data.
+        Assumes that if epsilon is provided as not None, it will always be provided in calls to this class and no tuning
+        is needed, meaning we don't need to update structures used to store predictions of each tree which are only
+        used in tuning)
         """
+
+        if epsilon is not None and epsilon > self.full_epsilon:
+            warnings.warn(f"Provided epsilon {epsilon} exceeds full_epsilon {self.full_epsilon}. Setting full_epsilon to epsilon.")
+            self.full_epsilon = epsilon
 
         ## Update current cumulative training data ##
         self.X_train_current = X_train_df.copy()
@@ -106,7 +115,11 @@ class LFRPredictor:
         self.predictions_all_trees = np.array(predictions_raw_list).T
 
         # Tune epsilon and update trees_in_scope based on these accuracies
-        self._tune_eps(all_accuracies[self.accuracy_ordering]) 
+        if epsilon is not None:
+            self.epsilon = epsilon
+            self.trees_in_scope = [self.all_trees[k] for k in self.accuracy_ordering if all_accuracies[k] >= all_accuracies[0] - self.epsilon]
+        else:
+            self._tune_eps(all_accuracies[self.accuracy_ordering]) 
 
         # Update epsilon and iteration
         self.epsilon_at_last_full_refit = self.epsilon                          # Store the tuned epsilon from this full refit
@@ -156,8 +169,8 @@ class LFRPredictor:
 
         # Execute the decision: full refit or online update (subsetting)
         if perform_full_refit_this_time:
-            self.full_epsilon = nominal_rashomon_threshold_input # Update full_epsilon to the new input value
-            self.fit(self.X_train_current, self.y_train_current) # Call self.fit for a full retraining
+            self.full_epsilon = 2*nominal_rashomon_threshold_input # Update full_epsilon to the new input value (times two, so that we can avoid future refits)
+            self.fit(self.X_train_current, self.y_train_current, epsilon=nominal_rashomon_threshold_input) # Call self.fit for a full retraining
         else:
             # Online update: recalculate accuracies of all trees on the new cumulative data
             predictions_raw_list = []
@@ -185,8 +198,10 @@ class LFRPredictor:
             self.accuracy_ordering = self.accuracy_ordering[map_cur_to_new_ordering]
             self.predictions_all_trees = self.predictions_all_trees[:, map_cur_to_new_ordering]
 
-            # Tune epsilon based on updated accuracies
-            self._tune_eps(objectives[self.accuracy_ordering])
+            # Apply epsilon based on updated accuracies
+            self.epsilon = nominal_rashomon_threshold_input
+            self.trees_in_scope = [self.all_trees[k] for k in self.accuracy_ordering if objectives[k] >= objectives[self.accuracy_ordering[0]] - self.epsilon]
+            # No tuning in current version, so this line is deprecated: self._tune_eps(objectives[self.accuracy_ordering])
 
         ### Return Decision ro refit or not ###
         return perform_full_refit_this_time 
