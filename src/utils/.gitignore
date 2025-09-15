@@ -1,0 +1,12 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Build artifacts
+build/
+
+# Results folder
+results/
+
+# OS-specific files
+.DS_Store
