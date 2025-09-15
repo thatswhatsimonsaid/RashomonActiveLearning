@@ -1,39 +1,15 @@
-# Ignore everything by default...
-*
+# .gitignore
 
-# except
-!README.md
-!requirements.txt
-!src/
-!src/**
-!.gitignore
+# Python cache and artifacts
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Standard Python ignores (within allowed directories)
-src/**/__pycache__/
-src/**/*.py[cod]
-src/**/*$py.class
-src/**/*.so
+# Virtual Environment
+# This prevents the entire RAL folder from being uploaded
+RAL/
 
-# Distribution / packaging (within allowed directories)
-src/**/build/
-src/**/develop-eggs/
-src/**/dist/
-src/**/downloads/
-src/**/eggs/
-src/**/.eggs/
-
-# Jupyter/notebook checkpoints (within allowed directories)
-src/**/.ipynb_checkpoints/
-
-# Virtual environments (within allowed directories)
-src/**/venv/
-src/**/env/
-src/**/ENV/
-
-# IDE files (within allowed directories)
-src/**/.vscode/
-src/**/.idea/
-
-# System files (within allowed directories)
-src/**/.DS_Store
-src/**/Thumbs.db
+# IDE and System specific files
+.vscode/
+.idea/
+.DS_Store
