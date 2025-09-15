@@ -18,7 +18,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.metrics import f1_score, accuracy_score
-from treefarms.treefarms.model.treefarms import TREEFARMS
+from treefarms import TREEFARMS
 
 ### MODEL WRAPPER INTERFACE ###
 class ModelWrapper(ABC):

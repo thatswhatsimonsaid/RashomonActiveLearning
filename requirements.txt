@@ -1,8 +1,13 @@
-# requirements.txt
-pandas
-numpy
-scikit-learn
-torch
-scipy
-tqdm
+attrs
+editables
+gmpy2
 matplotlib
+numpy
+packaging
+pandas
+scikit-learn
+scipy
+sortedcontainers
+torch
+tqdm
+treefarms

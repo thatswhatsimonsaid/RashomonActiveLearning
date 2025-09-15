@@ -71,7 +71,7 @@ def main():
     print(f"Additional Config: {additional_config}")
 
     # 1. Load and split data
-    df = load_data(args.dataset)
+    df = load_data(args.dataset, base_path=Path("src/data/processed"))
     df_train, df_test, df_candidate = split_data(
         df,
         test_proportion=args.test_prop,
