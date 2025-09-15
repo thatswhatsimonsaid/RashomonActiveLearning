@@ -101,7 +101,7 @@ def main():
     results = run_learning_procedure(sim_config)
 
     # 5. Save the results
-    output_dir = Path(f"results/{args.dataset}")
+    output_dir = Path(f"src/results/{args.dataset}")
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Create a unique filename for the experiment
