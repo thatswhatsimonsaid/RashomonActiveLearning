@@ -4,7 +4,8 @@ Contains the main engine for running an active learning simulation.
 
 ### LIBRARIES ###
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+import time
+from typing import List, Dict, Optional, Any
 import pandas as pd
 import numpy as np
 from tqdm import tqdm 
@@ -26,6 +27,7 @@ class SimulationResult:
     """A structured class to hold the results of a simulation."""
     accuracy_history: List[float] = field(default_factory=list)
     f1_history: List[float] = field(default_factory=list)
+    elapsed_time: Optional[float] = None
     selection_history: List[int] = field(default_factory=list)
 
 ### RUN LEARNING PROCEDURE ###
@@ -40,6 +42,8 @@ def run_learning_procedure(config: SimulationConfig) -> SimulationResult:
     Returns:
         A SimulationResult object containing the history of the run.
     """
+    ## Time ##
+    start_time = time.time()
 
     ## Copy data ##
     df_train = config.df_train.copy()
@@ -71,7 +75,7 @@ def run_learning_procedure(config: SimulationConfig) -> SimulationResult:
             df_train=df_train,
             df_candidate=df_candidate
         )
-        queried_index = selection_output["IndexRecommendation"]
+        queried_index = int(selection_output["IndexRecommendation"])
         
         if queried_index is None:
             print("No more candidates to select. Ending simulation.")
@@ -84,4 +88,8 @@ def run_learning_procedure(config: SimulationConfig) -> SimulationResult:
         df_train = pd.concat([df_train, queried_observation], ignore_index=True)
         df_candidate = df_candidate.drop(queried_index)
 
+    ## Time ##
+    results.elapsed_time = time.time() - start_time
+    
+    ## Return ##
     return results
