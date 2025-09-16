@@ -48,7 +48,7 @@ class PassiveSelector(Selector):
         if len(df_candidate) == 0:
             return {"IndexRecommendation": None}
         recommended_index = df_candidate.sample(n=1, random_state=self.random_state).index[0]
-        return {"IndexRecommendation": recommended_index}
+        return {"IndexRecommendation": int(recommended_index)}
 
 ### QUERY-BY-COMMITTEE SELECTOR ###
 class QBCSelector(Selector):
@@ -90,7 +90,7 @@ class QBCSelector(Selector):
         uncertainty_scores = self._calculate_vote_entropy(committee_preds)
         top_local_index = np.argmax(uncertainty_scores)
         recommended_index = df_candidate.index[top_local_index]
-        return {"IndexRecommendation": recommended_index}
+        return {"IndexRecommendation": int(recommended_index)}
 
 ### BALD SELECTOR ###
 class BALDSelector(Selector):
@@ -137,4 +137,4 @@ class BALDSelector(Selector):
         top_local_index = torch.argmax(bald_scores).item()
         recommended_index = df_candidate.index[top_local_index]
 
-        return {"IndexRecommendation": recommended_index}
+        return {"IndexRecommendation": int(recommended_index)}

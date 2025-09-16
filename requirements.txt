@@ -5,6 +5,7 @@ matplotlib
 numpy
 packaging
 pandas
+pytest
 scikit-learn
 scipy
 sortedcontainers

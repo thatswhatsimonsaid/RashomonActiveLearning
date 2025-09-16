@@ -75,7 +75,7 @@ def run_learning_procedure(config: SimulationConfig) -> SimulationResult:
             df_train=df_train,
             df_candidate=df_candidate
         )
-        queried_index = int(selection_output["IndexRecommendation"])
+        queried_index = selection_output["IndexRecommendation"]
         
         if queried_index is None:
             print("No more candidates to select. Ending simulation.")
