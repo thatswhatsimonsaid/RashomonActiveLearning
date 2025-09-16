@@ -1,0 +1,2 @@
+/var/spool/slurmd/job4248610/slurm_script: line 18: RAL/bin/activate: No such file or directory
+/usr/bin/python: Error while finding module specification for 'src.utils.run_experiment' (ModuleNotFoundError: No module named 'src')
