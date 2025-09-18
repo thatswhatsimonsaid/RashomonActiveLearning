@@ -59,21 +59,21 @@ def split_data(
     Returns:
         A tuple containing the initial training, test, and candidate DataFrames.
     """
-    # Separate features (X) and target (y)
+    ## 1. Separate features (X) and target (y) ##
     X = df.drop(columns="Y")
     y = df["Y"]
 
-    # 1. First split: separate the test set
+    ## 2. First split: separate the test set ##
     X_train_cand, X_test, y_train_cand, y_test = train_test_split(
         X, y, test_size=test_proportion, random_state=42 # Add random_state for reproducibility
     )
 
-    # 2. Second split: separate initial training and candidate sets
+    ## 3. Second split: separate initial training and candidate sets ##
     X_train, X_cand, y_train, y_cand = train_test_split(
         X_train_cand, y_train_cand, test_size=candidate_proportion_of_remainder, random_state=42
     )
 
-    # Reconstruct DataFrames
+    ## 4. Reconstruct DataFrames ##
     df_train = pd.concat([y_train, X_train], axis=1)
     df_test = pd.concat([y_test, X_test], axis=1)
     df_candidate = pd.concat([y_cand, X_cand], axis=1)

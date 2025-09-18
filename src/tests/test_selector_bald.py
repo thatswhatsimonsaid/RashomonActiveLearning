@@ -42,6 +42,7 @@ def mock_bald_model():
     return MockBaldModel(log_probs), expected_winner_index, candidate_indices
 
 
+### TEST FUNCTION ###
 def test_bald_selector_picks_highest_disagreement(mock_bald_model):
     """
     Tests that BALDSelector picks the candidate with the highest confident disagreement.
