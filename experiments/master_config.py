@@ -1,7 +1,7 @@
 # --- SLURM Configuration ---
 SLURM_CONFIG = {
     "partition": "short",
-    "time": "01:00:00",
+    "time": "11:59:00",
     "mem_per_cpu": "8G",
     "mail_user": "simondn@uw.edu",
     "mail_type": "FAIL"
