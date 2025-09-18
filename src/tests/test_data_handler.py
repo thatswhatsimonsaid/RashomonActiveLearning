@@ -56,14 +56,3 @@ def test_split_data_no_overlap():
     assert train_indices.isdisjoint(test_indices)
     assert train_indices.isdisjoint(candidate_indices)
     assert test_indices.isdisjoint(candidate_indices)
-
-
-
-Passive Learning with RF
-Passive Learning with GPC
-Passive Learning with BNN
-BALD with BNN
-BALD with GPC 
-QBC with TreeFarms with only the unique trees (is this implemented yet?)
-QBC with TreeFarms with all trees, including duplicate trees (is this implemented yet?)
-QBC with RF 

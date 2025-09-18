@@ -56,50 +56,63 @@ def parse_additional_args(args: list) -> Dict[str, Any]:
 
 ### MAIN FUNCTION ###
 def main():
-
-    ## Parser ##
     parser = argparse.ArgumentParser(description="Run an active learning experiment.")
-    parser.add_argument("--dataset", type=str, required=True, help="Name of the dataset to load.")
-    parser.add_argument("--model", type=str, required=True, choices=MODEL_REGISTRY.keys(), help="Model to use.")
-    parser.add_argument("--selector", type=str, required=True, choices=SELECTOR_REGISTRY.keys(), help="Selector to use.")
-    parser.add_argument("--seed", type=int, required=True, help="Random seed for this replication.")
+    parser.add_argument("--dataset", type=str, required=True)
+    parser.add_argument("--model", type=str, required=True, choices=MODEL_REGISTRY.keys())
+    parser.add_argument("--selector", type=str, required=True, choices=SELECTOR_REGISTRY.keys())
+    parser.add_argument("--seed", type=int, required=True)
     
     args, unknown_args = parser.parse_known_args()
     additional_config = parse_additional_args(unknown_args)
 
-    # print("--- Starting Experiment ---")
-    # print(f"Dataset: {args.dataset}, Model: {args.model}, Selector: {args.selector}, Seed: {args.seed}")
-    # print(f"Additional Config: {additional_config}")
+    print("--- Starting Experiment ---")
+    print(f"Dataset: {args.dataset}, Model: {args.model}, Selector: {args.selector}, Seed: {args.seed}")
+    print(f"Additional Config: {additional_config}")
 
-    ## Load and split data ##
+    # 1. Load and split data
     df = load_data(args.dataset, base_path=Path("src/data/processed"))
     df_train, df_test, df_candidate = split_data(
         df, test_proportion=0.2, candidate_proportion_of_remainder=0.8
     )
 
-    ## Instantiate model and selector from registry ##
+    # 2. Instantiate model and selector
     model_class = MODEL_REGISTRY[args.model]
     selector_class = SELECTOR_REGISTRY[args.selector]
     config_params = {"random_state": args.seed, **additional_config}
     model = model_class(**config_params)
     selector = selector_class(**config_params)
+
+    # 3. Create simulation config
     sim_config = SimulationConfig(
         model=model, selector=selector, df_train=df_train,
         df_test=df_test, df_candidate=df_candidate
     )
 
-    ## Results ##
+    # 4. Run the learning procedure
     results = run_learning_procedure(sim_config)
-    output_dir = Path(f"src/results/{args.dataset}")
+
+    # 5. Save the results
+    output_dir = Path(f"results/{args.dataset}")
     output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # --- CORRECTED FILENAME LOGIC ---
     config_str = "_".join(f"{k}={v}" for k, v in additional_config.items())
-    filename = f"{args.model}_{args.selector}_{config_str}_seed{args.seed}.pkl"
+    
+    # Conditionally build the parts of the filename
+    name_parts = [args.model, args.selector]
+    if config_str:
+        name_parts.append(config_str)
+    name_parts.append(f"seed{args.seed}")
+    
+    filename = "_".join(name_parts) + ".pkl"
+    # --- END CORRECTED LOGIC ---
+
     output_path = output_dir / filename
     with open(output_path, "wb") as f:
         pickle.dump(results, f)
 
-    # print(f"\n--- Experiment Complete ---")
-    # print(f"Results saved to: {output_path}")
+    print(f"\n--- Experiment Complete ---")
+    print(f"Results saved to: {output_path}")
 
 if __name__ == "__main__":
     main()

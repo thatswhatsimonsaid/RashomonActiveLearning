@@ -8,7 +8,7 @@ SLURM_CONFIG = {
 }
 
 ### Replications ###
-N_REPLICATIONS = 1
+N_REPLICATIONS = 50
 
 ### Experiment Configurations ###
 EXPERIMENT_CONFIGS = [
