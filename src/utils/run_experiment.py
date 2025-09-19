@@ -1,3 +1,4 @@
+### SUMMARY ###
 """
 Main entry point for running active learning simulations.
 
@@ -85,7 +86,7 @@ def main():
     results = run_learning_procedure(sim_config)
 
     ## 5. Save the results ##
-    output_dir = Path(f"results/{args.dataset}")
+    output_dir = Path(f"results/{args.dataset}/M{args.method_number}")
     output_dir.mkdir(parents=True, exist_ok=True)    
     filename = f"M{args.method_number}_S{args.seed}.pkl"
     output_path = output_dir / filename

@@ -1,3 +1,4 @@
+### SUMMARY ###
 """
 Defines selection strategies for the active learning process.
 
