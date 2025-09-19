@@ -146,14 +146,16 @@ echo "Aggregation complete for ${{DATASET_NAME}}."
         
         # 3. PLOT RESULTS SCRIPT #
         plot_results_content = f"""#!/bin/bash
-# This is a placeholder for your plotting script.
-# For now, it just provides instructions.
-echo "Plotting for dataset: {dataset}"
-echo "To analyze and plot these results, you can start a Jupyter Notebook."
-echo "From the project root, run:"
-echo "  jupyter notebook"
-echo "Then open a notebook and load the aggregated CSV files from:"
-echo "  results/{dataset}/aggregated/"
+# This script generates plots for the {dataset} dataset.
+SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
+PROJECT_ROOT=$( cd -- "${{SCRIPT_DIR}}/../../../" &> /dev/null && pwd )
+DATASET_NAME=$(basename "$SCRIPT_DIR")
+PYTHON_EXEC="${{PROJECT_ROOT}}/.RAL/bin/python"
+
+echo "Generating plots for dataset: ${{DATASET_NAME}}"
+cd "${{PROJECT_ROOT}}"
+"${{PYTHON_EXEC}}" -m src.utils.plot_results --dataset "${{DATASET_NAME}}"
+echo "Plotting complete for ${{DATASET_NAME}}. Images are in results/images/${{DATASET_NAME}}/"
 """
         plot_results_path = dataset_sbatch_dir / "3_plot_results.sh"
         with open(plot_results_path, 'w') as f:

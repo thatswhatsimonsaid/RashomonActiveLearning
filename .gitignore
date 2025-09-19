@@ -7,7 +7,7 @@ __pycache__/
 
 # Virtual Environment
 # This prevents the entire RAL folder from being uploaded
-RAL/
+.RAL/
 
 # IDE and System specific files
 .vscode/
