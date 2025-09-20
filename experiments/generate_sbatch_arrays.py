@@ -7,7 +7,7 @@ from master_config import EXPERIMENT_CONFIGS, N_REPLICATIONS, SLURM_CONFIG
 ### PATHS ###
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-LOG_DIR = SCRIPT_DIR / "job_logs"
+LOG_DIR = SCRIPT_DIR / "slurm_logs"
 SBATCH_DIR = SCRIPT_DIR / "job_scripts"
 DATA_DIR = PROJECT_ROOT / "src" / "data" / "processed"
 
@@ -169,7 +169,7 @@ echo "Plotting complete for ${{DATASET_NAME}}. Images are in results/images/${{D
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 PROJECT_ROOT=$( cd -- "${{SCRIPT_DIR}}/../../../" &> /dev/null && pwd )
 DATASET_NAME=$(basename "$SCRIPT_DIR")
-DATASET_LOG_DIR="${{PROJECT_ROOT}}/experiments/job_logs/${{DATASET_NAME}}"
+DATASET_LOG_DIR="${{PROJECT_ROOT}}/experiments/slurm_logs/${{DATASET_NAME}}"
 echo "Cleaning up logs and sbatch files for dataset: ${{DATASET_NAME}}"
 echo "  -> Deleting .sbatch files in current directory..."
 find . -maxdepth 1 -type f -name "*.sbatch" -delete
