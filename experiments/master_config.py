@@ -45,13 +45,13 @@ EXPERIMENT_CONFIGS = [
     ### 6. UNREAL ###
     {"model": "TreeFarms", 
      "selector": "QBC",
-     "params": {"regularization": 0.01, "rashomon_threshold": 0.025, "use_unique_trees": True}
+     "params": {"regularization": 0.01, "rashomon_threshold": 0.02, "use_unique_trees": True}
     },
 
     ### 7. DUREAL ###
     {"model": "TreeFarms", 
      "selector": "QBC",
-     "params": {"regularization": 0.01, "rashomon_threshold": 0.025, "use_unique_trees": False}
+     "params": {"regularization": 0.01, "rashomon_threshold": 0.02, "use_unique_trees": False}
     },
 
     ### 8. RF and QBC ###
@@ -60,3 +60,10 @@ EXPERIMENT_CONFIGS = [
     "params": {"n_estimators": 100, "use_unique_trees": False}
     },
 ]
+
+## NB
+# Bar7: .01
+# # Iris: 0.025
+# MONK1: 0.025
+# MONK3: 0.01
+# COMPAS: 0.02
