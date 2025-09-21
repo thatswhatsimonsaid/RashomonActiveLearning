@@ -71349,3 +71349,2359 @@ Finding Optimal Objective...
   },
   "type": "integral"
 }
+null
+Finding Optimal Objective...
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.04359672963619232,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.00544959120452404,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.024523161351680756,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02179836481809616,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.01089918240904808,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.04359672963619232,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.00544959120452404,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.024523161351680756,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.01089918240904808,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02179836481809616,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.00544959120452404,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04359672963619232,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.024523161351680756,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02179836481809616,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.01089918240904808,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.024523161351680756,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04359672963619232,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.00544959120452404,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.01089918240904808,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02179836481809616,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.04359672963619232,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.024523161351680756,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.00544959120452404,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02179836481809616,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.01089918240904808,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.00544959120452404,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.024523161351680756,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.04359672963619232,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02179836481809616,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.01089918240904808,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.04359672963619232,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.024523161351680756,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.00544959120452404,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.01089918240904808,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02179836481809616,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.00544959120452404,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04359672963619232,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.024523161351680756,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.01089918240904808,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02179836481809616,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.024523161351680756,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.00544959120452404,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.04359672963619232,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02179836481809616,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.01089918240904808,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.024523161351680756,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04359672963619232,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.00544959120452404,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02179836481809616,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.01089918240904808,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.00544959120452404,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.024523161351680756,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.04359672963619232,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.01089918240904808,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02179836481809616,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.07356948405504227,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.024523161351680756,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.00544959120452404,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.04359672963619232,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.046321526169776917,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.01089918240904808,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02179836481809616,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.344305157661438,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03814713656902313,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+null
+Finding Optimal Objective...
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.043478261679410934,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.005434782709926367,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02445652149617672,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.021739130839705467,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.010869565419852734,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.34358692169189453,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.043478261679410934,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.005434782709926367,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02445652149617672,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.010869565419852734,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.021739130839705467,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.34358692169189453,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.005434782709926367,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02445652149617672,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.043478261679410934,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.021739130839705467,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.010869565419852734,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.3435869812965393,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.02445652149617672,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.043478261679410934,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.005434782709926367,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.010869565419852734,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.021739130839705467,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.3435869812965393,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.043478261679410934,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02445652149617672,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.005434782709926367,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.021739130839705467,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.010869565419852734,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.34358692169189453,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.005434782709926367,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.043478261679410934,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02445652149617672,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.021739130839705467,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.010869565419852734,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.34358692169189453,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.005434782709926367,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.043478261679410934,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 10,
+      "name": "Bar2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.02445652149617672,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.010869565419852734,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.021739130839705467,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.34358692169189453,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.02445652149617672,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.005434782709926367,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.043478261679410934,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.021739130839705467,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.010869565419852734,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.3435869812965393,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.02445652149617672,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 8,
+        "name": "Bar0",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.043478261679410934,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.005434782709926367,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 3,
+        "name": "age2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.021739130839705467,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 4,
+      "name": "age3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.010869565419852734,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.3435869812965393,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 10,
+          "name": "Bar2",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.02445652149617672,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 9,
+        "name": "Bar1",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.005434782709926367,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.043478261679410934,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.010869565419852734,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.021739130839705467,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.3435869812965393,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 8,
+          "name": "Bar0",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.043478261679410934,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02445652149617672,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 9,
+      "name": "Bar1",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.005434782709926367,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.010869565419852734,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.021739130839705467,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.34358692169189453,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "false": {
+          "false": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.0733695700764656,
+            "name": "Y",
+            "prediction": 0
+          },
+          "feature": 9,
+          "name": "Bar1",
+          "reference": 1,
+          "relation": "==",
+          "true": {
+            "complexity": 0.009999999776482582,
+            "loss": 0.005434782709926367,
+            "name": "Y",
+            "prediction": 1
+          },
+          "type": "integral"
+        },
+        "feature": 10,
+        "name": "Bar2",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.02445652149617672,
+          "name": "Y",
+          "prediction": 1
+        },
+        "type": "integral"
+      },
+      "feature": 8,
+      "name": "Bar0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.043478261679410934,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "Bar3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "false": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.04619565233588219,
+          "name": "Y",
+          "prediction": 1
+        },
+        "feature": 4,
+        "name": "age3",
+        "reference": 1,
+        "relation": "==",
+        "true": {
+          "complexity": 0.009999999776482582,
+          "loss": 0.010869565419852734,
+          "name": "Y",
+          "prediction": 0
+        },
+        "type": "integral"
+      },
+      "feature": 3,
+      "name": "age2",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.021739130839705467,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 0,
+  "model_objective": 0.3435869812965393,
+  "name": "passanger2",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.03804348036646843,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}

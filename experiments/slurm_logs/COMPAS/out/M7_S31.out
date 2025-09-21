@@ -8729,3 +8729,467 @@ Finding Optimal Objective...
   },
   "type": "integral"
 }
+null
+Finding Optimal Objective...
+{
+  "false": {
+    "false": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.13475176692008972,
+      "name": "Y",
+      "prediction": 0
+    },
+    "feature": 3,
+    "name": "age:<26",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.05407801270484924,
+        "name": "Y",
+        "prediction": 1
+      },
+      "feature": 8,
+      "name": "priors:=0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.04964538663625717,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 11,
+  "model_objective": 0.3821985721588135,
+  "name": "priors:>3",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.10372339934110641,
+    "name": "Y",
+    "prediction": 1
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08510638028383255,
+        "name": "Y",
+        "prediction": 0
+      },
+      "feature": 3,
+      "name": "age:<26",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.05407801270484924,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 8,
+    "name": "priors:=0",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.09929077327251434,
+      "name": "Y",
+      "prediction": 0
+    },
+    "type": "integral"
+  },
+  "feature": 11,
+  "model_objective": 0.3821985423564911,
+  "name": "priors:>3",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.10372339934110641,
+    "name": "Y",
+    "prediction": 1
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08510638028383255,
+        "name": "Y",
+        "prediction": 0
+      },
+      "feature": 11,
+      "name": "priors:>3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08510638028383255,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 3,
+    "name": "age:<26",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.07269503176212311,
+      "name": "Y",
+      "prediction": 1
+    },
+    "type": "integral"
+  },
+  "feature": 8,
+  "model_objective": 0.3821985423564911,
+  "name": "priors:=0",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.09929077327251434,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08510638028383255,
+        "name": "Y",
+        "prediction": 0
+      },
+      "feature": 3,
+      "name": "age:<26",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.05407801270484924,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "priors:>3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.10372339934110641,
+      "name": "Y",
+      "prediction": 1
+    },
+    "type": "integral"
+  },
+  "feature": 8,
+  "model_objective": 0.3821985423564911,
+  "name": "priors:=0",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.09929077327251434,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.13475176692008972,
+      "name": "Y",
+      "prediction": 0
+    },
+    "feature": 11,
+    "name": "priors:>3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.08510638028383255,
+      "name": "Y",
+      "prediction": 1
+    },
+    "type": "integral"
+  },
+  "feature": 3,
+  "model_objective": 0.3821985423564911,
+  "name": "age:<26",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "false": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.07269503176212311,
+      "name": "Y",
+      "prediction": 1
+    },
+    "feature": 8,
+    "name": "priors:=0",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.04964538663625717,
+      "name": "Y",
+      "prediction": 0
+    },
+    "type": "integral"
+  },
+  "type": "integral"
+}
+null
+Finding Optimal Objective...
+{
+  "false": {
+    "false": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.134632408618927,
+      "name": "Y",
+      "prediction": 0
+    },
+    "feature": 3,
+    "name": "age:<26",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.05403011292219162,
+        "name": "Y",
+        "prediction": 1
+      },
+      "feature": 8,
+      "name": "priors:=0",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.049601417034864426,
+        "name": "Y",
+        "prediction": 0
+      },
+      "type": "integral"
+    },
+    "type": "integral"
+  },
+  "feature": 11,
+  "model_objective": 0.3818954527378082,
+  "name": "priors:>3",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.10363153368234634,
+    "name": "Y",
+    "prediction": 1
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08503100275993347,
+        "name": "Y",
+        "prediction": 0
+      },
+      "feature": 3,
+      "name": "age:<26",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.05403011292219162,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 8,
+    "name": "priors:=0",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.09920283406972885,
+      "name": "Y",
+      "prediction": 0
+    },
+    "type": "integral"
+  },
+  "feature": 11,
+  "model_objective": 0.3818954825401306,
+  "name": "priors:>3",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.10363153368234634,
+    "name": "Y",
+    "prediction": 1
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08503100275993347,
+        "name": "Y",
+        "prediction": 0
+      },
+      "feature": 3,
+      "name": "age:<26",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.05403011292219162,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 11,
+    "name": "priors:>3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.10363153368234634,
+      "name": "Y",
+      "prediction": 1
+    },
+    "type": "integral"
+  },
+  "feature": 8,
+  "model_objective": 0.3818954825401306,
+  "name": "priors:=0",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.09920283406972885,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "false": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08503100275993347,
+        "name": "Y",
+        "prediction": 0
+      },
+      "feature": 11,
+      "name": "priors:>3",
+      "reference": 1,
+      "relation": "==",
+      "true": {
+        "complexity": 0.009999999776482582,
+        "loss": 0.08503100275993347,
+        "name": "Y",
+        "prediction": 1
+      },
+      "type": "integral"
+    },
+    "feature": 3,
+    "name": "age:<26",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.07263064384460449,
+      "name": "Y",
+      "prediction": 1
+    },
+    "type": "integral"
+  },
+  "feature": 8,
+  "model_objective": 0.3818954825401306,
+  "name": "priors:=0",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "complexity": 0.009999999776482582,
+    "loss": 0.09920283406972885,
+    "name": "Y",
+    "prediction": 0
+  },
+  "type": "integral"
+}
+{
+  "false": {
+    "false": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.134632408618927,
+      "name": "Y",
+      "prediction": 0
+    },
+    "feature": 11,
+    "name": "priors:>3",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.08503100275993347,
+      "name": "Y",
+      "prediction": 1
+    },
+    "type": "integral"
+  },
+  "feature": 3,
+  "model_objective": 0.3818954527378082,
+  "name": "age:<26",
+  "reference": 1,
+  "relation": "==",
+  "true": {
+    "false": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.07263064384460449,
+      "name": "Y",
+      "prediction": 1
+    },
+    "feature": 8,
+    "name": "priors:=0",
+    "reference": 1,
+    "relation": "==",
+    "true": {
+      "complexity": 0.009999999776482582,
+      "loss": 0.049601417034864426,
+      "name": "Y",
+      "prediction": 0
+    },
+    "type": "integral"
+  },
+  "type": "integral"
+}
