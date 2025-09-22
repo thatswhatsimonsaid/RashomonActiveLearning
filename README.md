@@ -1,5 +1,7 @@
 # Unique Rashomon Ensembled Active Learning (UNREAL)
 
+🚧 This repository is currently being refactored in the `refactor_project` branch. 🚧
+
 ## Abstract
 [NeurIPS Paper/Presentation](https://neurips.cc/virtual/2024/98966)
 
