@@ -114,3 +114,7 @@ The project is organized into a modular structure to separate configuration, cor
         * `M*/`: Subdirectories containing the raw `.pkl` results for each method.
         * `aggregated/`: Contains the compiled `.csv` files.
     * `images/`: Contains the final, saved plot images.
+
+## Citing
+
+If you use this code in your research, please consider citing our paper: [Arxiv](https://arxiv.org/abs/2503.06770)
