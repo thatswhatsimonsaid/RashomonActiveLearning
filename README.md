@@ -1,96 +1,82 @@
 # Unique Rashomon Ensembled Active Learning (UNREAL)
 
+🚧 This repository is currently under construction. 🚧
+
+This repository contains the complete source code and experimental framework for the research paper on UNique Rashomon Ensembled Active Learning (UNREAL). The framework is designed for running, managing, and analyzing a large number of active learning simulations on a SLURM-based high-performance computing (HPC) cluster.
+
 ## Abstract
+
 [NeurIPS Paper/Presentation](https://neurips.cc/virtual/2024/98966)
 
-Active learning is based on selecting informative data points to enhance model predictions often using uncertainty as a selection criterion. However, when ensemble models such as random forests are used, there is a risk of the ensemble containing models with poor predictive accuracy or duplicates with the same interpretation. To address these challenges, we develop a novel approach called *UNique Rashomon Ensembled Active Learning (UNREAL)* to only ensemble the distinct set of near-optimal models called the Rashomon set. By ensembling over the Rashomon set, our method accounts for noise by capturing uncertainty across diverse yet plausible explanations, thereby improving the robustness of the query selection in the active learning procedure. We extensively evaluate *UNREAL* against current active learning procedures on five benchmark datasets. We demonstrate how taking a Rashomon approach can improve not only the accuracy and rate of convergence of the active learning procedure but can also lead to improved interpretability compared to traditional approaches. 
+Active learning is based on selecting informative data points to enhance model predictions often using uncertainty as a selection criterion. However, when ensemble models such as random forests are used, there is a risk of the ensemble containing models with poor predictive accuracy or duplicates with the same interpretation. To address these challenges, we develop a novel approach called *UNique Rashomon Ensembled Active Learning (UNREAL)* to only ensemble the distinct set of near-optimal models called the Rashomon set. By ensembling over the Rashomon set, our method accounts for noise by capturing uncertainty across diverse yet plausible explanations, thereby improving the robustness of the query selection in the active learning procedure. We extensively evaluate *UNREAL* against current active learning procedures on five benchmark datasets. We demonstrate how taking a Rashomon approach can improve not only the accuracy and rate of convergence of the active learning procedure but can also lead to improved interpretability compared to traditional approaches. 
+
+## Table of Contents
+
+* [Project Overview](#project-overview)
+* [Setup](#setup)
+* [Workflow: How to Run Experiments](#workflow-how-to-run-experiments)
+* [Project Structure](#project-structure)
+* [Citing](#citing)
+
+## Project Overview
+
+This project is built around a highly automated and reproducible workflow. The entire experimental process, from job generation to final plotting, is controlled by a central configuration file. A generator script reads this configuration and automatically creates all the necessary SLURM job arrays and helper scripts for each dataset.
+
+[Image of a flowchart of the project workflow]
+
+The workflow is designed to be executed sequentially through a series of numbered shell scripts, which handle running simulations, aggregating results, generating plots, and cleaning up.
 
 ## Setup
 
-Python 3.9.18 was used in both the local and high-performance computing (HPC) cluster simulations. The following packages were used:
+This project uses Python 3.9 and manages dependencies through a virtual environment.
 
-- `argparse` (version 1.1)
-- `importlib` (part of Python standard library)
-- `inspect` (part of Python standard library)
-- `itertools` (part of Python standard library)
-- `math` (part of Python standard library)
-- `matplotlib` (version 3.9.2)
-- `numpy` (version 1.26.2)
-- `os` (part of Python standard library)
-- `pickle` (part of Python standard library)
-- `pandas` (version 2.1.4)
-- `scikit-learn` (version 1.5.1)
-- `scipy` (version 1.13.1)
-- `treeFarms` (version from [GitHub](https://github.com/ubc-systopia/treeFarms))
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/thatswhatsimonsaid/RashomonActiveLearning.git](https://github.com/thatswhatsimonsaid/RashomonActiveLearning.git)
+    cd RashomonActiveLearning
+    ```
 
-## Run Simulations
+2.  **Create and activate a Python virtual environment:**
+    ```bash
+    python3 -m venv .RAL
+    source .RAL/bin/activate
+    ```
 
-Before running the simulation locally or using an HPC cluster, create the parameter vector in the `CreateParameterVector.ipynb` notebook. It is preferred to run the simulations on the HPC.
+3.  **Install the required packages:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Running Locally
-Simulations can be ran locally in the `LocalSimulation.ipynb` notebook. The notebook will loop over each simulation version from the parameter vector and store it in `SimulationResults`. 
+## Workflow: How to Run Experiments
 
-### Running on High-Performance Computing Clusters
-This section will describe the functions used to run the simulations.
+The entire experimental pipeline is designed to be run from the command line.
 
-There are four main terminal functions in each of the folders Cluster dataset folders. They are numbered in the order that they should be ran to run the simulations.
-1. `1_CreateSimulationSbatch.sh` creates an `.sbatch` file in the folder `RunSimulations` for each of the simulation set ups in the respective `ParameterVector` file. Note the `.sbatch` files are formatted to the University of Washington, Seattle's Department of Statistics high-performance computing cluster and may need to be edited in `CreateRunSimSbatch.py` to a user's institution.
-2. `2_RunAllSimulations.sh` will submit each of the `.sbatch` file to the University of Washington, Seattle's Department of Statistics high-performance computing cluster to conduct the simulation. Optional emails for when the job starts, finishes, or incurs an error can be sent to the email address listed in `CreateRunSimSbatch`.
-3. `3_ProcessSimResults.sh` will run the script `ProcessSimulationResults.py` to extract the error and time for each of the simulations grouped by the active learning strategies. It accesses each of the .pkl result files from the simulations, and places each error (time) into a row into the respective `ErrorMatrix.csv` (`TimeMatrix.csv`) file of each active learning strategy..
-4. `4_DeleteSimulationFiles.sh` When conducting the simulations a large number of `.sbatch`, `.err`, `.out`, and `.pkl` files will be created. When the simulations are finished and collected after running '3_ProcessSimulations.sh', these excessive files become obsolete and may cause difficulty when uploading to a remote repository such as Github. As such `4_DeleteFiles` runs the following functions to delete these extra files when the simulation results have been processed.
-    - `delete_sbatch.sh` deletes the `.sbatch` file used to run each simulation.
-    - `delete_error.sh` deletes the error messages from each simulation.
-    - `delete_out.sh` deletes the output messages from each simulation.
-    - `delete_results.sh` deletes the unprocessed results from each simulation.
+### Step 1: Configure Your Experiments
 
-**WARNING:** Do not run `4_DeleteSimulationFiles.sh` before processing results with `3_ProcessSimulations.sh` .
+All experiment parameters are defined in a single file: `experiments/master_config.py`. Before running, you should edit this file to:
 
-Results will be stored in the Results folder under the respective dataset name and predictive model type (eg. RandomForestClassification or TreeFarms). The files
-- ProcessedResults/ElapsedTime contains a `.csv` file with the run time of each of the iterations.
-- ProcessedResults/ErrorVec contains a `.csv` file whose rows indicate the simulation iteration and whose columns indicate the error at each iteration of the active learning process.
-- ProcessedResults/SelectionHistory contains a `.csv` file whose rows indicate the simulation iteration and whose columns indicate the index of the candidate observations which was queried at each iteration of the active learning process.
-- ProcessedResults/TreeCount contains two `.csv` file for each simulation type. One `.csv` file is for the total number of trees from the TreeFarms model and the other `.csv` file contains the number of *unique* trees/classification patterns from the TreeFarms model. Note the `.csv` files for RandomForests will be empty.
+* Set your SLURM cluster settings (`SLURM_CONFIG`).
+* Define the number of simulation runs per method (`N_REPLICATIONS`).
+* Define the list of experiments (`EXPERIMENT_CONFIGS`), specifying the model, selector, and any parameters for each method.
 
-## Code
+### Step 2: Generate the Scripts
 
-**Main**
+Once your configuration is set, run the generator script from the project's root directory. This will automatically find all your datasets and create a dedicated subdirectory for each one inside `experiments/job_scripts/`.
 
-The following list contains the primary functions/scripts of the active learning process.
-- `TrainTestCandidateSplit.py` splits the original dataframe df into three sets: the training, test, and candidate sets.
-- `OneIterationFunction.py` runs one full iteration of the active learning process.
-- `LearningProcedure.py` runs the active learning procedure by querying candidate observations from the candidata datset and adding them to the training set training dataset.
-- `DataGeneratingProcess.py` generates data according to Burbidge, Rowland, King (2007). Note this is deprecated.
+```bash
+python experiments/generate_sbatch_arrays.py
+```
 
-**Prediction**
+### Step 3: Execute the Workflow
 
-The following list contains functions/scripts used for the predictive modelling of the dataset.
-- `TreeFARMS.py` initializes and fits a TreeFARMS model.
-- `TestErrorFunction.py` calculates the loss (RMSE for regression and classification error for classification) of the test set.
-- `RidgeRegression.py` initializes and fits a ridge regression model.
-- `RandomForest.py` initializes and fits a random forest model.
-- `LinearRegression.py` initializes and fits a linear regression model.
+Navigate into the newly created directory for the dataset you wish to run (e.g., `Iris`).
 
-**Selector**
+```bash
+cd experiments/job_scripts/Iris
+````
 
-The following list contains functions/scripts for the selection strategies of the active learning process.
-- `TreeEnsembleQBCFunction.py` is a query-by-committee selection method for either random forest or Rashomon's TreeFarms that recommends an observation from the candidate set to be queried.
-- `PassiveSampling.py` chooses an index at random from the candidate set to be queried.
-- `GreedySampling.py` loads the three greedy sampling methods for regression from [Wu, Lin, and Huang (2018)](https://www.sciencedirect.com/science/article/pii/S0020025518307680). GSx samples based on the covariate space, GSy based on the output space, and iGS on both.
+Inside, you will find a set of numbered helper scripts. Run them in order:
 
-**Auxiliary**
-
-The following list contain auxiliary functions/scripts used "behind-the-scenes" of the simulations.
-- `CreateRunSimSbatch.py` is a script that creates an sbatch file to run the function `RunSimulation.py` for each parameter vector variation. Note the `.sbatch` files are formatted to the University of Washington, Seattle's Department of Statistics high-performance computing cluster and may need to be edited to a user's institution.
-- `FilterArguments.py` inputs a long list of arguments and extracts only the arguments needed for a function. This function is used as different models and selector strategies use different arguments.
-- `LoadDataSet.py` loads the pre-processed data into the simulation script.
-- `MakeSavePlots.py` saves the matrices `MeanPlot.png` and `VariancePlot.png` into the respective `MeetingUpdates` folder.
-- `MeanVariancePlot.py` creates a plot for the average error and the average variance of each active learning strategy averaged  across simulations.
-- `PlotDecisionJsonTree.py`
-- `ProcessSimulationResults.py` is a python script to extract the error and time for the active learning simulation. It accesses each of the .pkl result files from the simulations, and places each error (time) into a row in the `ErrorMatrix.csv` (`TimeMatrix.csv`) file.
-- `WilcoxonRankSignedTest.py` computes the Wilcoxon Ranked Signed Test pairwisely for each of the methods in the simulation.
-- `CreateParameterVector.ipynb` is a notebook that creates the parameter vector for each dataset.
-
-## Analyzing Simulations
-The `Analysis` folder is where the researcher can evaluate the different active learning processes. Note that if the user ran the simulations locally, they will have to manually save the files accordingly.
-
-The first part of the notebook presents the average and maximum run time of each simulations. The second part of the notebook presents the standard active learning error plot. The final part of the notebook presents the selection history and the average iteration in which each observation was queried in the active learning process.
+1.  **`./1_run_all.sh`**: Submits all SLURM job arrays to the cluster to run the simulations.
+2.  **`./2_aggregate_results.sh`**: After jobs are complete, this script checks for missing results and then compiles all raw `.pkl` outputs into analysis-ready `.csv` files in the `results/<dataset>/aggregated/` directory.
+3.  **`./3_plot_results.sh`**: Generates trace plots for each metric (e.g., accuracy, F1-score) and saves them as `.png` files in the `results/images/<dataset>/` directory.
