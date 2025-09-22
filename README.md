@@ -73,10 +73,44 @@ Navigate into the newly created directory for the dataset you wish to run (e.g.,
 
 ```bash
 cd experiments/job_scripts/Iris
-````
+```
 
 Inside, you will find a set of numbered helper scripts. Run them in order:
 
-1.  **`./1_run_all.sh`**: Submits all SLURM job arrays to the cluster to run the simulations.
-2.  **`./2_aggregate_results.sh`**: After jobs are complete, this script checks for missing results and then compiles all raw `.pkl` outputs into analysis-ready `.csv` files in the `results/<dataset>/aggregated/` directory.
-3.  **`./3_plot_results.sh`**: Generates trace plots for each metric (e.g., accuracy, F1-score) and saves them as `.png` files in the `results/images/<dataset>/` directory.
+1.  `./1_run_all.sh`: Submits all SLURM job arrays to the cluster to run the simulations.
+2.  `./2_aggregate_results.sh`: After jobs are complete, this script checks for missing results and then compiles all raw `.pkl` outputs into analysis-ready `.csv` files in the `results/<dataset>/aggregated/` directory.
+3.  `./3_plot_results.sh`: Generates trace plots for each metric (e.g., accuracy, F1-score) and saves them as `.png` files in the `results/images/<dataset>/` directory.
+
+### Step 4: Cleanup (Optional)
+
+After you have successfully aggregated and plotted your results, you can use the cleanup scripts to remove intermediate files:
+
+* `./4_cleanup_results.sh`: Safely deletes the raw `.pkl` files and the empty `M*` folders, leaving your aggregated results and plots untouched.
+* `./5_cleanup_logs.sh`: Deletes all SLURM log files, the generated `.sbatch` files, and all helper scripts.
+
+## Project Structure
+
+The project is organized into a modular structure to separate configuration, core logic, and results.
+
+* **`experiments/`**: The main user-facing directory.
+    * `master_config.py`: The central control panel for defining all experiments.
+    * `generate_sbatch_arrays.py`: The script that generates all SLURM and helper scripts.
+    * `job_scripts/`: The output directory where generated scripts are saved.
+    * `slurm_logs/`: The output directory for all SLURM `.out` and `.err` files.
+
+* **`src/`**: Contains all core source code and data.
+    * `data/`: Contains the raw and processed (`.pkl`) datasets.
+    * `tests/`: `pytest` unit tests for core components.
+    * `utils/`: The main Python package for the project.
+        * `models.py`: Defines the `ModelWrapper` interface and all model implementations (Random Forest, GPC, BNN, TreeFarms).
+        * `selectors.py`: Defines the `Selector` interface and all selection strategy implementations (Passive, QBC, BALD).
+        * `learning_procedure.py`: Contains the main active learning loop engine.
+        * `run_experiment.py`: The worker script that is called by SLURM to run a single simulation.
+        * `aggregate_results.py`: The script for compiling raw results.
+        * `plot_results.py`: The script for generating final plots.
+
+* **`results/`**: The top-level output directory for all scientific products.
+    * `<dataset_name>/`: A subdirectory for each dataset.
+        * `M*/`: Subdirectories containing the raw `.pkl` results for each method.
+        * `aggregated/`: Contains the compiled `.csv` files.
+    * `images/`: Contains the final, saved plot images.
