@@ -18,9 +18,9 @@ SIMULATION_CONFIG = {
 }
 
 SLURM_CONFIG = {
-    "partition": "largemem",
+    "partition": "short",
     "time": "11:59:00",
-    "mem_per_cpu": "100GB",
+    "mem_per_cpu": "30GB",
     "cpus_per_task": 1,
     "mail_type": "ALL",
     "mail_user": "simondn@uw.edu",

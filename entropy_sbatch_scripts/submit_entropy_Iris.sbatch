@@ -2,9 +2,9 @@
 
 # --- SLURM Configuration for Iris ---
 #SBATCH --job-name=entropy_Iris
-#SBATCH --partition=largemem
+#SBATCH --partition=short
 #SBATCH --time=11:59:00
-#SBATCH --mem-per-cpu=100GB
+#SBATCH --mem-per-cpu=30GB
 #SBATCH --cpus-per-task=1
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simondn@uw.edu
