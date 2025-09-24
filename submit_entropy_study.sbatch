@@ -2,10 +2,10 @@
 
 # --- SLURM Configuration ---
 #SBATCH --job-name=entropy_study
-#SBATCH --partition=largemem
-#SBATCH --time=11:59:00
-#SBATCH --mem-per-cpu=30000MB      # Requesting significant memory for the large RF
-#SBATCH --cpus-per-task=16       # Request multiple CPUs for parallel training (n_jobs=-1)
+#SBATCH --partition=largemem           
+#SBATCH --time=11:59:00               
+#SBATCH --mem-per-cpu=100GB          
+#SBATCH --cpus-per-task=1       
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=simondn@uw.edu
 #SBATCH --output=logs/entropy_study_%j.out
