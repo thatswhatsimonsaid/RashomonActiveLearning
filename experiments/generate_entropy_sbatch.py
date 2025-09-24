@@ -18,7 +18,7 @@ SIMULATION_CONFIG = {
 }
 
 SLURM_CONFIG = {
-    "partition": "short",
+    "partition": "compute",
     "time": "11:59:00",
     "mem_per_cpu": "30GB",
     "cpus_per_task": 1,

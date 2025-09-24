@@ -63,8 +63,10 @@ def generate_universe(args):
     universe_preds_df = universe_model_wrapper.get_raw_ensemble_predictions(X)
 
     ### Uncomment this section to have the true universe only contain unique patterns ###
-    # universe_preds_df = universe_preds_df.T.drop_duplicates().T
-    # print(f"  -> Found {len(universe_preds_df.columns)} unique patterns.")
+    # Stats cluster: Universal trees have duplicates
+    # HYAK cluster: Universal trees are unique
+    universe_preds_df = universe_preds_df.T.drop_duplicates().T
+    print(f"  -> Found {len(universe_preds_df.columns)} unique patterns.")
 
     # 4. Calculate ground truth entropy
     true_entropy = _calculate_vote_entropy(universe_preds_df)
