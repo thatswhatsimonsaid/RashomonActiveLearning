@@ -1,44 +1,55 @@
 #!/bin/bash
 
 # --- SLURM Configuration ---
-#SBATCH --job-name=entropy_estimation_study
-#SBATCH --partition=largemem             # Using a partition from your master_config.py
-#SBATCH --time=11:59:00               # 2 hours should be sufficient for several datasets
-#SBATCH --mem-per-cpu=150GB          # 16GB memory, as TreeFarms can be memory-intensive
-#SBATCH --mail-type=ALL               # Email notifications for start, end, and failure
-#SBATCH --mail-user=simondn@uw.edu    # Using the email from your config
-#SBATCH --output=logs/entropy_study_%j.out # Standard output log file
-#SBATCH --error=logs/entropy_study_%j.err  # Standard error log file
+#SBATCH --job-name=entropy_study
+#SBATCH --partition=largemem
+#SBATCH --time=11:59:00
+#SBATCH --mem-per-cpu=30000MB      # Requesting significant memory for the large RF
+#SBATCH --cpus-per-task=16       # Request multiple CPUs for parallel training (n_jobs=-1)
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=simondn@uw.edu
+#SBATCH --output=logs/entropy_study_%j.out
+#SBATCH --error=logs/entropy_study_%j.err
 
 # --- Job Steps ---
 
-# Create a logs directory if it doesn't exist
-mkdir -p logs
+# Create necessary directories
+mkdir -p logs results/entropy_study
 
 echo "--- Setting up job environment ---"
-# Navigate to the directory where the job was submitted from
 cd $SLURM_SUBMIT_DIR
-
-# Activate your Python virtual environment
 source .RAL/bin/activate
 
-echo "--- Starting Entropy Estimation Study for All Datasets ---"
+# Define simulation parameters
+N_UNIVERSE=1000000
+N_ESTIMATE=1000
+SEED=42
 
-# Define the directory where your processed datasets are located
+# Loop through each dataset and run the full analysis
 DATA_DIR="src/data/processed"
-
-# Loop through each .pkl file in the data directory
 for pkl_file in "$DATA_DIR"/*.pkl; do
-    # Extract the dataset name from the file path
     DATASET_NAME=$(basename "$pkl_file" .pkl)
     
-    echo "" # Add a blank line for readability in the log
+    echo ""
     echo "================================================="
-    echo "Running study for dataset: $DATASET_NAME"
+    echo "STARTING ANALYSIS FOR DATASET: $DATASET_NAME"
     echo "================================================="
     
-    # Run the Python script as a module for the current dataset
-    python -m experiments.entropy_estimation_study --dataset "$DATASET_NAME"
+    # STEP 1: Generate the universe data (the expensive part)
+    echo "[1/2] Generating universe data..."
+    python -m experiments.entropy_estimation_study generate \
+        --dataset "$DATASET_NAME" \
+        --n_universe $N_UNIVERSE \
+        --seed $SEED
+    
+    # STEP 2: Analyze the universe data and plot (the fast part)
+    echo "[2/2] Analyzing universe data and plotting..."
+    python -m experiments.entropy_estimation_study analyze \
+        --dataset "$DATASET_NAME" \
+        --n_estimate $N_ESTIMATE \
+        --seed $SEED
+        
+    echo "Analysis for $DATASET_NAME is finished."
 done
 
 echo ""
