@@ -10,7 +10,7 @@ SLURM_CONFIG = {
 }
 
 ### GLOBAL PARAMETERS ###
-N_REPLICATIONS = 3
+N_REPLICATIONS = 25
 
 # PREDICTION PARAMETERS #
 # These will be overridden by calibrate.py, but eval_depth stays 5
