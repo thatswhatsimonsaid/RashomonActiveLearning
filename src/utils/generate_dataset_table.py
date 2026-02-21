@@ -1,0 +1,159 @@
+import sys
+import argparse
+import pickle
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from scipy.spatial.distance import pdist
+from scipy.cluster.hierarchy import linkage, fcluster
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
+
+### Path Setup ###
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
+DATA_DIR = PROJECT_ROOT / "src" / "data"
+OUTPUT_DIR = PROJECT_ROOT / "results" / "study1_active_learning"
+FRAGMENTS_DIR = OUTPUT_DIR / "table_fragments"
+OUTPUT_FILENAME = "DatasetTable.tex"
+
+sys.path.append(str(PROJECT_ROOT))
+from src.utils.models import PySORTDWrapper
+
+### PySORTD Configuration ###
+PYSORTD_CONFIG = {
+    "regularization": 0.001,
+    "rashomon_multiplier": 0.1,  
+    "max_num_trees": 100_000,     
+    "max_depth": 3,
+    "time_limit": 20000,
+}
+TAU = 0.001
+MAX_CLUSTERING_PATTERNS = 10000
+
+META_INFO = {
+    "anneal":                       ("Anneal",                   "UCI"),
+    "bank_marketing":               ("Bank Marketing",           "UCI"),
+    "banknote_authentication":      ("Banknote Auth.",            "UCI"),
+    "bar-7":                        ("Bar-7",                    "SORTD"),
+    "biodeg":                       ("Biodegradation",           "UCI"),
+    "breast_cancer_wisconsin":      ("Breast Cancer WI",         "UCI"),
+    "cheap_restaurant":             ("Cheap Restaurant",         "SORTD"),
+    "coffee_house":                 ("Coffee House",             "SORTD"),
+    "expensive_restaurant":         ("Expensive Restaurant",     "SORTD"),
+    "haberman":                     ("Haberman",                 "UCI"),
+    "hepatitis":                    ("Hepatitis",                "UCI"),
+    "hypothyroid":                  ("Hypothyroid",              "UCI"),
+    "lymph":                        ("Lymphography",             "UCI"),
+    "monk1":                        ("MONK-1",                   "UCI"),
+    "monk2":                        ("MONK-2",                   "UCI"),
+    "monk3":                        ("MONK-3",                   "UCI"),
+    "primary-tumor":                ("Primary Tumor",            "UCI"),
+    "tic-tac-toe":                  ("Tic-Tac-Toe",              "UCI"),
+    "vote":                         ("Congressional Vote",       "UCI"),
+    "yeast":                        ("Yeast",                    "UCI"),
+    "Synthetic_XOR_Baseline":       (r"Synth.\ XOR ($\alpha$=0, $\phi$=0)",        "Synthetic"),
+    "Synthetic_XOR_Alpha_25":       (r"Synth.\ XOR ($\alpha$=0.25)",               "Synthetic"),
+    "Synthetic_XOR_Alpha_50":       (r"Synth.\ XOR ($\alpha$=0.50)",               "Synthetic"),
+    "Synthetic_XOR_Alpha_75":       (r"Synth.\ XOR ($\alpha$=0.75)",               "Synthetic"),
+    "Synthetic_XOR_Alpha_100":      (r"Synth.\ XOR ($\alpha$=1.00)",               "Synthetic"),
+    "Synthetic_XOR_Phi_05":         (r"Synth.\ XOR ($\phi$=0.05)",                 "Synthetic"),
+    "Synthetic_XOR_Phi_10":         (r"Synth.\ XOR ($\phi$=0.10)",                 "Synthetic"),
+    "Synthetic_XOR_Phi_25":         (r"Synth.\ XOR ($\phi$=0.25)",                 "Synthetic"),
+    "Synthetic_XOR_Phi_45":         (r"Synth.\ XOR ($\phi$=0.45)",                 "Synthetic"),
+}
+
+def load_dataset(file_key: str) -> pd.DataFrame:
+    path = DATA_DIR / f"{file_key}.pkl"
+    with open(path, "rb") as f:
+        return pickle.load(f)
+
+def compute_unique_committee_size(wrapper, X: pd.DataFrame) -> int:
+    df_preds = wrapper.get_raw_ensemble_predictions(X)
+    if df_preds.empty: return 0
+    pred_matrix = df_preds.values.T
+    unique_patterns = np.unique(pred_matrix, axis=0)
+    n_unique = len(unique_patterns)
+    if n_unique <= 1: return n_unique
+    if n_unique > MAX_CLUSTERING_PATTERNS:
+        indices = np.random.choice(n_unique, MAX_CLUSTERING_PATTERNS, replace=False)
+        clustering_input = unique_patterns[indices]
+        scale_factor = n_unique / MAX_CLUSTERING_PATTERNS
+    else:
+        clustering_input = unique_patterns
+        scale_factor = 1.0
+    dist_vec = pdist(clustering_input, metric='hamming')
+    Z = linkage(dist_vec, method='average')
+    clusters = fcluster(Z, t=TAU, criterion='distance')
+    return int(len(np.unique(clusters)) * scale_factor)
+
+def compute_dataset_stats(file_key: str):
+    df = load_dataset(file_key)
+    X, y = df.drop(columns="Y"), df["Y"]
+    
+    lr = LogisticRegression(max_iter=1000).fit(X, y)
+    gbm = GradientBoostingClassifier(n_estimators=100).fit(X, y)
+    
+    wrapper = PySORTDWrapper(**PYSORTD_CONFIG)
+    wrapper.fit(X, y)
+    
+    return {
+        "n_samples": len(df),
+        "n_features": X.shape[1],
+        "majority_pct": y.value_counts(normalize=True).max() * 100,
+        "linear_acc": float(lr.score(X, y)) * 100,
+        "gbm_acc": float(gbm.score(X, y)) * 100,
+        "oracle_acc": float(np.mean(wrapper.predict(X) == y.values)) * 100,
+        "rashomon_size": wrapper.get_rashomon_size(),
+        "committee_size": compute_unique_committee_size(wrapper, X)
+    }
+
+def merge_and_generate_latex():
+    rows = []
+    for i, (file_key, (display_name, source)) in enumerate(META_INFO.items(), 1):
+        frag_path = FRAGMENTS_DIR / f"{file_key}.pkl"
+        if frag_path.exists():
+            with open(frag_path, "rb") as f:
+                stats = pickle.load(f)
+            rows.append({"no": i, "name": display_name, "source": source, **stats})
+    
+    if not rows: return
+    
+    latex = r"""\begin{table*}[htbp]
+    \centering
+    \scriptsize
+    \begin{tabular}{rllrrrrrrrrr}
+        \toprule
+        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & \textbf{Maj\%} & \textbf{Lin\%} & \textbf{GBM\%} & \textbf{Orc\%} & $|\hat{\mathcal{R}}|$ & $|\mathcal{C}_{u}|$ \\ 
+        \midrule
+"""
+    prev_source = None
+    for row in rows:
+        if prev_source and row["source"] == "Synthetic" and prev_source != "Synthetic":
+            latex += r"        \midrule" + "\n"
+        prev_source = row["source"]
+        latex += (f"        {row['no']} & {row['name']} & {row['source'][:3]} & "
+                  f"{row['n_samples']:,} & {row['n_features']} & "
+                  f"{row['majority_pct']:.1f} & {row['linear_acc']:.1f} & "
+                  f"{row['gbm_acc']:.1f} & {row['oracle_acc']:.1f} & "
+                  f"{row['rashomon_size']:,} & {row['committee_size']:,} \\\\\n")
+    latex += r"""        \bottomrule
+    \end{tabular}
+\end{table*}
+"""
+    with open(OUTPUT_DIR / OUTPUT_FILENAME, "w") as f:
+        f.write(latex)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", type=str)
+    parser.add_argument("--merge", action="store_true")
+    args = parser.parse_args()
+
+    if args.merge:
+        merge_and_generate_latex()
+    elif args.dataset:
+        FRAGMENTS_DIR.mkdir(parents=True, exist_ok=True)
+        stats = compute_dataset_stats(args.dataset)
+        with open(FRAGMENTS_DIR / f"{args.dataset}.pkl", "wb") as f:
+            pickle.dump(stats, f)
