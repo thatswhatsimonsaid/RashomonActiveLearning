@@ -174,7 +174,7 @@ echo "--------------------------------------------------------"
     smart_agg_content = f"""#!/bin/bash
 STUDY_DIR="study1_active_learning/{study_name}"
 REQUIRED_COUNT={N_REPLICATIONS}
-METHODS=("M1" "M2" "M3" "M4" "M5" "M6" "M7" "M8" "M9" "M10")
+METHODS=("M1" "M2" "M3" "M4" "M5" "M6" "M7")
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")

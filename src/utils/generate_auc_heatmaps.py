@@ -18,7 +18,7 @@ METRICS_TO_AUC = [
 BASELINE_ID = "M5"  # Comparing everyone to Random Sampling
 
 # Simple Budget Truncation Configuration
-BUDGET_FRACTION = 1
+BUDGET_FRACTION = 0.9
 
 METHOD_LABELS = {
     "M1": "Random",
