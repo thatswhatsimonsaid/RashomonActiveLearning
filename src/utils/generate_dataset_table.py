@@ -129,18 +129,21 @@ def merge_and_generate_latex():
         if prev_source and row["source"] == "Synthetic" and prev_source != "Synthetic":
             latex += r"        \midrule" + "\n"
         prev_source = row["source"]
+        
+        # Updated formatting: {row['ecs']:, .1f} adds commas AND keeps 1 decimal point
         latex += (f"        {row['no']} & {row['name']} & {row['source'][:3]} & "
               f"{row['n_samples']:,} & {row['n_features']} & "
               f"{row['majority_pct']:.1f} & {row['linear_acc']:.1f} & "
               f"{row['gbm_acc']:.1f} & {row['oracle_acc']:.1f} & "
-              f"{row['rashomon_size']:,} & {row['ecs']:.1f} \\\\\n")
+              f"{row['rashomon_size']:,} & {row['ecs']:,.1f} \\\\\n")
+              
     latex += r"""        \bottomrule
     \end{tabular}
 \end{table*}
 """
     with open(OUTPUT_DIR / OUTPUT_FILENAME, "w") as f:
         f.write(latex)
-
+        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str)

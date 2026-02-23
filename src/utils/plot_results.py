@@ -7,7 +7,7 @@ from pathlib import Path
 
 ### Methods to Plot
 # METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M8", "M9", "M5", "M10"]
-METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"]
+METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M6", "M7",  "M5", "M8"]
 
 ### XLIMS ###
 DATASET_XLIMS = {
@@ -58,14 +58,14 @@ METHOD_LABELS = {
 }
 
 METHOD_COLORS = {
-    "M1": "gray",
-    "M2": "#2ca02c",
-    "M3": "#1f77b4",
-    "M4": "#d62728",
-    "M5": "#ff7f0e",
-    "M6": "#52b6c2",
-    "M7": "#ffe600",
-    "M8": "#14dbdeb6"
+    "M1": "#808080",  # Random Sampling
+    "M2": "#2ca02c",  # RF (Feat=3)
+    "M3": "#ff7f0e",  # RF (Feat=Sqrt)
+    "M4": "#e377c2",  # RF (Feat=All)
+    "M5": "#1f77b4",  # UNREAL (Uniform)
+    "M6": "#9467bd",  # Uncertainty Sampling
+    "M7": "#8c564b",  # Coreset (Hamming)
+    "M8": "#d62728",  # UNREAL (Bayesian)
 }
 
 METHOD_STYLES = {

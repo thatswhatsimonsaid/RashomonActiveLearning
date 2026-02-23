@@ -14,12 +14,12 @@ RAW_URL_BASE = "https://raw.githubusercontent.com/ConSol-Lab/pysortd/main/data/a
 
 ### Import datasets ###
 DATASET_FILES = [
-    # "HTRU2.csv" # Leave out - too big/long?
+    "HTRU2.csv" # Leave out - too big/long?
     "anneal.csv",
     "bank_marketing.csv",
-    # "banknote_authentication.csv", # Leave out - over 20 datasets.
+    "banknote_authentication.csv", # Leave out - over 20 datasets.
     "bar-7.csv",
-    # "biodeg.csv", # Leave out - too big/long?
+    "biodeg.csv", # Leave out - too big/long?
     "breast_cancer_wisconsin.csv",
     "car_evaluation.csv", 
     "cheap_restaurant.csv", 
@@ -28,7 +28,7 @@ DATASET_FILES = [
     "haberman.csv",
     "hepatitis.csv",
     "hypothyroid.csv",
-    # "kr-vs-kp.csv", # Leave out - too big (but want to include)?
+    "kr-vs-kp.csv", # Leave out - too big (but want to include)?
     "lymph.csv",
     "monk1.csv",
     "monk2.csv",
@@ -179,9 +179,9 @@ def main():
     for filename in DATASET_FILES:
         process_dataset_url(filename)
 
-    # ## 1b. Process TreeFarms Datasets ##
-    # for name, url in TREEFARMS_DATASETS.items():
-    #     process_treefarms_dataset(name, url)
+    ## 1b. Process TreeFarms Datasets ##
+    for name, url in TREEFARMS_DATASETS.items():
+        process_treefarms_dataset(name, url)
         
     ## 2. Generate Synthetic Datasets ##
     alpha=0.0, 
@@ -209,18 +209,18 @@ def main():
         dataset_name = f"Synthetic_XOR_Phi_{int(p*100):02d}"
         _save_pickle(df_phi, DATA_DIR / f"{dataset_name}.pkl")
 
-    # ## 3. Generate Parity Study (Varying Covariates) ##
-    # noise_levels = [0, 6, 16, 26]
-    # for n_noise in noise_levels:
-    #     dataset_name = f"Parity_8bit_Noise_{n_noise:02d}"
-    #     print(f"\n--- Generating: {dataset_name} ---")
+    ## 3. Generate Parity Study (Varying Covariates) ##
+    noise_levels = [0, 6, 16, 26]
+    for n_noise in noise_levels:
+        dataset_name = f"Parity_8bit_Noise_{n_noise:02d}"
+        print(f"\n--- Generating: {dataset_name} ---")
         
-    #     df_parity = generate_parity_study(
-    #         n_samples=100, 
-    #         n_bits=3, 
-    #         n_noise=n_noise
-    #     )
-    #     _save_pickle(df_parity, DATA_DIR / f"{dataset_name}.pkl")
+        df_parity = generate_parity_study(
+            n_samples=100, 
+            n_bits=3, 
+            n_noise=n_noise
+        )
+        _save_pickle(df_parity, DATA_DIR / f"{dataset_name}.pkl")
 
         
 if __name__ == "__main__":

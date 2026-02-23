@@ -10,29 +10,58 @@ from pathlib import Path
 ### CONFIGURATION ###
 BASELINE_ID = "M1"  
 TARGET_PERCENTAGES = [0.7, 0.8, 0.9] 
-INCLUDE_SYNTHETIC = False
+
+INCLUDED_DATASETS = [
+    "anneal", 
+    "bank_marketing", 
+    "bar-7", 
+    "breast_cancer_wisconsin",
+    "car_evaluation", 
+    "cheap_restaurant", 
+    "coffee_house", 
+    "expensive_restaurant", 
+    "haberman", 
+    "hepatitis", 
+    "hypothyroid", 
+    "lymph", 
+    "monk1", 
+    "monk2", 
+    "monk3", 
+    "primary-tumor", 
+    "spect", 
+    "tic-tac-toe", 
+    "vote", 
+    "yeast"
+]
+
 NAME_MAPPING = {
-    "M1": "Random Sampling",
-    "M2": "QBC-RF (Feat=3)",
-    "M3": "QBC-RF (Feat=Sqrt)",
-    "M4": "QBC-RF (Feat=All)",
-    "M5": "UNREAL",
+    "M1": "Random",
+    "M2": "RF (Feat=3)",
+    "M3": "RF (Feat=Sqrt)",
+    "M4": "RF (Feat=All)",
+    "M5": "UNREAL (Uniform)",
     "M6": "Uncertainty Sampling",
     "M7": "Coreset",
+    "M8": "UNREAL (Bayesian)" 
 }
-ORDER = ["UNREAL", "Uncertainty Sampling", "Coreset", "QBC-RF (Feat=All)", "QBC-RF (Feat=Sqrt)", "QBC-RF (Feat=3)"]
 
-def calculate_n_rel(study_root, include_synthetic=True):
+# Updated ORDER to match NAME_MAPPING values exactly
+ORDER = [
+    "UNREAL (Bayesian)", 
+    "UNREAL (Uniform)", 
+    "RF (Feat=All)", 
+    "RF (Feat=Sqrt)", 
+    "RF (Feat=3)",
+    "Uncertainty Sampling", 
+    "Coreset"
+]
+def calculate_n_rel(study_root):
     if not study_root.exists():
         print(f"Error: {study_root} not found.")
         return pd.DataFrame()
 
     dataset_dirs = [d for d in study_root.iterdir() if d.is_dir() and (d / "aggregated").exists()]
-    
-    # Filter synthetic datasets if requested
-    if not include_synthetic:
-        dataset_dirs = [d for d in dataset_dirs if "Synthetic" not in d.name]
-        
+    dataset_dirs = [d for d in dataset_dirs if d.name in INCLUDED_DATASETS]
     baseline_label = NAME_MAPPING.get(BASELINE_ID, BASELINE_ID)
     print(f"Found {len(dataset_dirs)} datasets with aggregated results relative to {baseline_label}.")
     
@@ -55,9 +84,8 @@ def calculate_n_rel(study_root, include_synthetic=True):
             acc_start = bl_trace[0]
             acc_final = bl_trace[-1]
             total_growth = acc_final - acc_start
-            
-            # Skip if dataset has no learning signal (growth < 1%)
-            if total_growth < 0.01 or np.isnan(total_growth):
+            if total_growth <= 0:
+                print(f"      [Skipping] {ds_dir.name} has negative or zero growth ({total_growth:.4f})")
                 continue
 
             # 2. Process each method relative to the baseline
@@ -85,6 +113,9 @@ def calculate_n_rel(study_root, include_synthetic=True):
                     
                     m_crossings = np.where(m_trace >= target_acc)[0]
                     n_method = m_crossings[0] if len(m_crossings) > 0 else len(m_trace)
+                    if len(m_crossings) == 0:
+                        print(f"      [Fail] {method_label} never hit {int(k*100)}% target ({target_acc:.4f})")
+                        
                     
                     if n_baseline > 0:
                         n_rel = n_method / n_baseline
@@ -117,7 +148,7 @@ def plot_efficiency_boxplot(df, output_path):
     plot_df = df[df["Method"].isin(ORDER)].copy()
     plot_df['N_rel_clipped'] = plot_df['N_rel'].clip(upper=2.5)
 
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(15, 8))
     sns.set_style("whitegrid")
     palette = sns.color_palette("viridis_r", len(TARGET_PERCENTAGES))
     
@@ -133,7 +164,7 @@ def plot_efficiency_boxplot(df, output_path):
     baseline_label = NAME_MAPPING.get(BASELINE_ID, BASELINE_ID)
     plt.axvline(1.0, color="#c0392b", linestyle="--", linewidth=2.5, label=f"{baseline_label} (1.0)")
     
-    plt.title("Relative Label Efficiency ($N_{rel}$) Across Benchmarks", fontsize=20, pad=20)
+    # plt.title("Relative Label Efficiency ($N_{rel}$) Across Benchmarks", fontsize=20, pad=20)
     plt.xlabel(f"Labels Required Relative to {baseline_label} (Clipped at 2.5)", fontsize=16)
     plt.ylabel("")
     plt.legend(title="Accuracy Target", loc="upper right", fontsize=12, title_fontsize=14)
@@ -148,11 +179,10 @@ if __name__ == "__main__":
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Use the configuration toggle
-    df_results = calculate_n_rel(study_root, include_synthetic=INCLUDE_SYNTHETIC)
+    df_results = calculate_n_rel(study_root)
     
     if not df_results.empty:
-        suffix = "" if INCLUDE_SYNTHETIC else "_NoSynth"
-        plot_efficiency_boxplot(df_results, output_dir / f"Relative_Label_Efficiency{suffix}.png")
+        plot_efficiency_boxplot(df_results, output_dir / f"Relative_Label_Efficiency.png")
         
         unreal_id = "M5"
         unreal_label = NAME_MAPPING[unreal_id]
