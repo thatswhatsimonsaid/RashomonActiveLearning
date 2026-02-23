@@ -170,7 +170,6 @@ class GOSDTWrapper(ModelWrapper):
     def fit(self, X, y): pass
     def predict(self, X): return np.zeros(len(X))
 
-
 ### PySORTD WRAPPER ###
 class PySORTDWrapper(ModelWrapper):
     """

@@ -209,18 +209,18 @@ def main():
         dataset_name = f"Synthetic_XOR_Phi_{int(p*100):02d}"
         _save_pickle(df_phi, DATA_DIR / f"{dataset_name}.pkl")
 
-    ## 3. Generate Parity Study (Varying Covariates) ##
-    noise_levels = [0, 6, 16, 26]
-    for n_noise in noise_levels:
-        dataset_name = f"Parity_8bit_Noise_{n_noise:02d}"
-        print(f"\n--- Generating: {dataset_name} ---")
+    # ## 3. Generate Parity Study (Varying Covariates) ##
+    # noise_levels = [0, 6, 16, 26]
+    # for n_noise in noise_levels:
+    #     dataset_name = f"Parity_8bit_Noise_{n_noise:02d}"
+    #     print(f"\n--- Generating: {dataset_name} ---")
         
-        df_parity = generate_parity_study(
-            n_samples=100, 
-            n_bits=3, 
-            n_noise=n_noise
-        )
-        _save_pickle(df_parity, DATA_DIR / f"{dataset_name}.pkl")
+    #     df_parity = generate_parity_study(
+    #         n_samples=100, 
+    #         n_bits=3, 
+    #         n_noise=n_noise
+    #     )
+    #     _save_pickle(df_parity, DATA_DIR / f"{dataset_name}.pkl")
 
         
 if __name__ == "__main__":

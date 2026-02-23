@@ -26,6 +26,7 @@ SELECTION_PARAMS = {
     "regularization": 0.001, 
     "time_limit": 30,
     "max_num_trees": 10000, 
+    "beta": 0.0,  # Default to 0.0 (Uniform)
 }
 
 # RF BASE PARAMS #
@@ -78,12 +79,12 @@ BASE_SELECTORS = [
         "params": {**RF_SELECTION_PARAMS, "max_features": 1.0}
     },
 
-    # 5. UNREAL (Rashomon-Weighted Vote Entropy)
+    # 5. UNREAL (Uniform Weights / beta=0)
     {
         "selector_model": "PySORTDWrapper", 
         "selector": "QBC", 
-        "fixed_threshold": 0.0, 
-        "params": SELECTION_PARAMS 
+        "fixed_threshold": 0.0,
+        "params": {**SELECTION_PARAMS, "beta": 0.0} # Bypasses Stage 3 -> stays 0.0
     },
 
     # 6. Classic Uncertainty Sampling (Greedy Tree) #
@@ -100,5 +101,13 @@ BASE_SELECTORS = [
     "selector": "HammingDiversity", 
     "fixed_threshold": 0.0,
     "params": {}
-    }
+    },
+
+    # 8. UNREAL-BMA
+    {
+        "selector_model": "PySORTDWrapper", 
+        "selector": "QBC", 
+        "fixed_threshold": 0.0,  
+        "params": {**SELECTION_PARAMS, "beta": "calibrated"} # TRIGGERS Stage 3 Calibration!
+    },
 ]

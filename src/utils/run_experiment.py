@@ -117,14 +117,16 @@ def main():
 
     ## 2.5 Neutral Ground Calibration ##
     predictor_model_class = PREDICTOR_MODEL_REGISTRY[args.predictor_model]
-    
+
+    calib_base_params = {"random_state": args.seed}
+    calib_base_params.update(additional_config) 
+
     print(f"--- Calibration: Finding Neutral Ground for {args.dataset} ---")
     calibration_results = calibrate_hyperparameters(
         df_pilot=df_train,
         model_class=predictor_model_class,
-        base_params={"random_state": args.seed}
+        base_params=calib_base_params
     )
-    print(f"Calibrated Params: {calibration_results}")
 
     ## 3. Instantiate Models with Calibrated Params ##
     selector_model_class = SELECTOR_MODEL_REGISTRY[args.selector_model]    
