@@ -10,29 +10,29 @@ SLURM_CONFIG = {
 }
 
 ### GLOBAL PARAMETERS ###
-N_REPLICATIONS = 25
+N_REPLICATIONS = 3
 
 # PREDICTION PARAMETERS #
-# These will be overridden by calibrate.py, but eval_depth stays 5
+# Nota Bene: These will be overridden by calibrate.py!!!! but eval_depth stays 5
 PREDICTION_PARAMS = {
     "max_depth": 5, 
     "regularization": 0.001,
-    "time_limit": 15,
+    "time_limit": 30,
 }
 
 # SELECTION PARAMS #
 SELECTION_PARAMS = {
     "max_depth": 3,
     "regularization": 0.001, 
-    "time_limit": 15,
-    "max_num_trees": 1000, 
+    "time_limit": 30,
+    "max_num_trees": 10000, 
 }
 
 # RF BASE PARAMS #
 RF_SELECTION_PARAMS = {
     "n_estimators": 100,
     "use_unique_trees": False,
-    "time_limit": 15
+    "time_limit": 30
 }
 
 ### STUDIES ###

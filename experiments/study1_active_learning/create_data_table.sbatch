@@ -19,7 +19,6 @@ source .RAL_CL/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 
 # --- Dataset Mapping ---
-# Exact keys from your src/data folder and generate_dataset_table.py
 DATASETS=(
     "anneal" "bank_marketing" "banknote_authentication" "bar-7" "biodeg" 
     "breast_cancer_wisconsin" "cheap_restaurant" "coffee_house" "expensive_restaurant" 
@@ -47,7 +46,7 @@ python src/utils/generate_dataset_table.py --dataset "$CURRENT_DS"
 # --- Final Merge Trigger ---
 if [ $SLURM_ARRAY_TASK_ID -eq 0 ]; then
     echo "⌛ Task 0: Sleeping to allow workers to finish..."
-    sleep 300
+    sleep 3600
     echo "📝 Merging fragments into DatasetTable.tex..."
     python src/utils/generate_dataset_table.py --merge
 fi

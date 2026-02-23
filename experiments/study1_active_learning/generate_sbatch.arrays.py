@@ -24,9 +24,7 @@ def create_sbatch_file(dataset_name: str,
     predictor_model_name = config["predictor_model"]
     selector_name = config["selector"]
     params = config["params"]    
-    job_name = f"{dataset_name}_M{method_number}"
-    
-    # Handle parameters, ensuring None is passed correctly as a string for argparse
+    job_name = f"{dataset_name}_M{method_number}"    
     params_str = " ".join([f"{k}={v}" for k, v in params.items()])
     python_executable = PROJECT_ROOT / ".RAL_CL/bin/python"
     
@@ -86,29 +84,29 @@ def generate_master_scripts(study_name: str, study_sbatch_dir: Path):
     # 0. IGNITION SCRIPT
     ignite_content = f"""#!/bin/bash
 if pgrep -f "1_smart_run.sh" > /dev/null; then
-    echo "⚠️  Smart Run is ALREADY running!"
+    echo "Smart Run is ALREADY running!"
 else
-    echo "🚀 Igniting Smart Run in the background..."
+    echo "Igniting Smart Run in the background..."
     nohup ./1_smart_run.sh > smart_run_log.txt 2>&1 &
-    echo "✅ Success! Process ID: $!"
-    echo "📄 Logs: tail -f smart_run_log.txt"
+    echo "Success! Process ID: $!"
+    echo "Logs: tail -f smart_run_log.txt"
 fi
 """
 
     # 0. KILL SWITCH
     kill_content = f"""#!/bin/bash
 if pgrep -f "1_smart_run.sh" > /dev/null; then
-    echo "🛑 Stopping Smart Run..."
+    echo "Stopping Smart Run..."
     pkill -f "1_smart_run.sh"
-    echo "✅ Smart Run stopped."
+    echo "Smart Run stopped."
 else
-    echo "⚠️  Smart Run is not running."
+    echo "Smart Run is not running."
 fi
 read -p "Also cancel all your Slurm jobs? (y/n): " s_kill
 [[ "$s_kill" == "y" ]] && scancel -u $USER
 """
 
-    # 1. SMART RUN SCRIPT (Now with Detailed Logging)
+    # 1. SMART RUN SCRIPT
     smart_run_content = f"""#!/bin/bash
 MAX_JOBS=1800
 CHECK_INTERVAL=60
@@ -146,7 +144,7 @@ for dataset_path in "$DATASETS_DIR"/*; do
         echo "📂 Processing: $dataset_name (Needs $total_tasks slots)"
 
         if check_dataset_running "$dataset_name"; then
-             echo "   ⏩ Skipping $dataset_name (Already in Queue)"
+             echo "Skipping $dataset_name (Already in Queue)"
              continue
         fi
         
@@ -154,7 +152,7 @@ for dataset_path in "$DATASETS_DIR"/*; do
             current_jobs=$(get_job_count)
             
             if [ $(( current_jobs + total_tasks )) -le "$MAX_JOBS" ]; then
-                echo "   ✅ Launching $dataset_name (Load: $current_jobs + $total_tasks <= $MAX_JOBS)"
+                echo "   Launching $dataset_name (Load: $current_jobs + $total_tasks <= $MAX_JOBS)"
                 for f in "${{sbatch_files[@]}}"; do sbatch "$f" > /dev/null; done
                 sleep 5
                 break 
@@ -224,22 +222,22 @@ done
     # 4. GLOBAL LOG CLEANUP
     global_log_clean = f"""#!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
-echo "⚠️  This will clear ALL .out and .err logs for this study."
+echo "This will clear ALL .out and .err logs for this study."
 read -p "Continue? (y/n): " confirm
 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
     find "$SCRIPT_DIR/datasets" -name "4_cleanup_logs.sh" -exec bash -c 'echo "y" | {{}}' \;
-    echo "✅ All logs cleared."
+    echo "All logs cleared."
 fi
 """
 
     # 5. GLOBAL RESULTS CLEANUP
     global_res_clean = f"""#!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
-echo "⚠️  WARNING: This will delete ALL raw .pkl seeds (M1-M10)."
+echo "WARNING: This will delete ALL raw .pkl seeds (M1-M10)."
 read -p "Are you absolutely sure? (y/n): " confirm
 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
     find "$SCRIPT_DIR/datasets" -name "5_delete_raw_results.sh" -exec bash -c 'echo "y" | {{}}' \;
-    echo "✅ All raw results cleared."
+    echo "All raw results cleared."
 fi
 """
     
@@ -248,12 +246,12 @@ fi
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")
 
-echo "🏷️  Generating standalone legend..."
+echo "Generating standalone legend..."
 python "$PROJECT_ROOT/src/utils/plot_results.py" --legend-only --study_dir "study1_active_learning/{study_name}"
 
-echo "📸 Collecting all plots..."
+echo "Collecting all plots..."
 python "$PROJECT_ROOT/src/utils/collect_plots.py"
-echo "✅ Done!"
+echo "Done!"
 """
 
     # --- Write Files ---
@@ -340,7 +338,7 @@ python src/utils/plot_results.py --dataset "{dataset}" --study_dir "study1_activ
                 f.write(f'rm -f "{PROJECT_ROOT}/results/study1_active_learning/{study_name}/{dataset}"/M*/*.pkl\n')
                 # 2. Find and delete the now-empty M folders
                 f.write(f'find "{PROJECT_ROOT}/results/study1_active_learning/{study_name}/{dataset}" -type d -name "M*" -empty -delete\n')
-                f.write(f'echo "✅ Raw .pkl files and empty method folders deleted for {dataset}."\n')
+                f.write(f'echo "Raw .pkl files and empty method folders deleted for {dataset}."\n')
 
             # Local Run All
             run_all_content = f"""#!/bin/bash
@@ -351,7 +349,7 @@ for sbatch_file in "$SCRIPT_DIR"/submit_*.sbatch; do
     # echo "  -> Submitting $sbatch_file"
     sbatch "$sbatch_file"
 done
-echo "✅ Done."
+echo "Done."
 """
             with open(dataset_sbatch_dir / "1_run_all.sh", 'w') as f: f.write(run_all_content)
 
@@ -359,7 +357,7 @@ echo "✅ Done."
             for s in ["1_run_all.sh", "4_cleanup_logs.sh", "5_delete_raw_results.sh"]:
                 os.chmod(dataset_sbatch_dir / s, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
 
-            # print("Done! ✅")
+            # print("Done!")
 
         generate_master_scripts(study_name, study_sbatch_dir)
     print("\n--- All Scripts Generated Successfully ---")
