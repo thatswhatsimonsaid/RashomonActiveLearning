@@ -102,7 +102,7 @@ def main():
     df_full = load_data(args.dataset, base_path=Path("src/data/"))
     df_test, df_working_pool = split_test_pool(df_full, test_proportion=0.2, random_state=args.seed)
 
-    ## 2. Initial Observations (The Pilot Set) ##
+    ## 2. Initial Observations ##
     initial_train_size = 20 
     if initial_train_size >= len(df_working_pool): 
         initial_train_size = len(df_working_pool) // 2
@@ -146,7 +146,7 @@ def main():
         "rashomon_multiplier": effective_multiplier
     }
     
-    # --- FAIRNESS OVERRIDE ---
+    # FAIRNESS OVERRIDE
     if "RandomForest" in args.selector_model:
         shared_updates["beta"] = 0.0
     

@@ -80,23 +80,20 @@ class QBCSelector(Selector):
             return {"IndexRecommendation": None}
 
         X_candidate = df_candidate.drop(columns="Y")
+        X_train = df_train.drop(columns="Y")
+        y_train = df_train["Y"]
         
         # 1. Get raw predictions (N_samples, N_trees)
         raw_preds_df = model.get_raw_ensemble_predictions(X_candidate)
         
         # 2. Get losses for Gibbs weighting
-        # Note: PySORTDWrapper returns .objective values here
         if hasattr(model, "get_ensemble_losses"):
-            # Check for RF by attribute rather than type to avoid circular imports
-            if hasattr(model, "model") and isinstance(model.model, RandomForestClassifier):
-                losses = model.get_ensemble_losses(df_train.drop(columns="Y"), df_train["Y"])
-            else:
-                losses = model.get_ensemble_losses()
+            losses = model.get_ensemble_losses(X_train, y_train)
         else:
-            # Uniform fallback if no losses available
+            # Fallback for models that don't support ensembles
             losses = np.zeros(raw_preds_df.shape[1])
 
-        # If the set collapsed to 1 tree (should be rare with our Adder), fallback to random
+        # If the set collapsed to 1 tree (should be rare!!!), fallback to random
         if raw_preds_df.shape[1] < 2:
             recommended_index = df_candidate.sample(n=1).index[0]
             return {
@@ -108,11 +105,12 @@ class QBCSelector(Selector):
         adj_losses = losses - np.min(losses)
         weights = np.exp(-self.beta * adj_losses)
         weights /= np.sum(weights)
-        ess = 1.0 / np.sum(np.square(weights))
-        self.effective_committee_size_ = ess 
+        
+        # Calculate Effective Committee Size using Shannon Entropy
+        shannon_entropy = -np.sum(weights * np.log(weights + 1e-12))
+        self.effective_committee_size_ = np.exp(shannon_entropy) 
 
-        # 4. Weighted Entropy (Vectorized)
-        # Weighted probability of class 1: p = X @ w
+        # 4. Weighted Entropy 
         p = np.dot(raw_preds_df.values, weights)
         p = np.clip(p, 1e-9, 1 - 1e-9)
         uncertainty_scores = -(p * np.log(p) + (1 - p) * np.log(1 - p))
@@ -120,11 +118,10 @@ class QBCSelector(Selector):
         # 5. Result Extraction
         top_local_index = np.argmax(uncertainty_scores)
         recommended_index = df_candidate.index[top_local_index]
-        all_entropies_series = pd.Series(uncertainty_scores, index=df_candidate.index)
-
+        
         return {
             "IndexRecommendation": int(recommended_index),
-            "AllEntropies": all_entropies_series
+            "AllEntropies": pd.Series(uncertainty_scores, index=df_candidate.index)
         }
     
 ### UNCERTAINTY SELECTOR ###

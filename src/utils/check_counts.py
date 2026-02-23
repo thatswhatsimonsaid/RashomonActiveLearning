@@ -16,12 +16,8 @@ def check_file_counts(root_dir=".", method_filter=None):
         
         # Look for folders like "M1", "M2", "M10"
         if folder_name.startswith("M") and folder_name[1:].isdigit():
-            # Parent is the dataset (e.g., "monk1" or "monk1_05")
-            parent_dir = os.path.basename(os.path.dirname(root))
-            
-            # Count valid result files
+            parent_dir = os.path.basename(os.path.dirname(root))            
             pkl_count = sum(1 for f in files if f.endswith(".pkl") and "S" in f)
-            
             if pkl_count > 0:
                 stats[parent_dir][folder_name] = pkl_count
                 all_methods_found.add(folder_name)
@@ -68,7 +64,6 @@ def check_file_counts(root_dir=".", method_filter=None):
             else:
                 val = f"{c}/{max_found}"
                 all_complete = False
-                # Find which seeds are missing
                 method_dir = os.path.join(root_dir, ds, m) if len(datasets) > 1 else os.path.join(root_dir, m)
                 found_seeds = set()
                 if os.path.isdir(method_dir):

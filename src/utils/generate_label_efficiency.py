@@ -1,3 +1,4 @@
+### Libraries ###
 import os
 import pandas as pd
 import numpy as np
@@ -7,26 +8,19 @@ import pickle
 from pathlib import Path
 
 ### CONFIGURATION ###
-# To change comparison, swap BASELINE_ID between "M1" (Random) or "M5" (UNREAL)
 BASELINE_ID = "M1"  
 TARGET_PERCENTAGES = [0.7, 0.8, 0.9] 
-
-# TOGGLE: Set to False to exclude "Synthetic_*" datasets from the analysis
 INCLUDE_SYNTHETIC = False
-
 NAME_MAPPING = {
     "M1": "Random Sampling",
-    "M2": "QBC-RF (F=3)",
-    "M3": "QBC-RF (F=Sqrt)",
-    "M4": "QBC-RF (F=All)",
-    "M5": "UNREAL (0.05)",
-    "M6": "UNREAL (0.10)",
-    "M8": "Uncertainty",
-    "M9": "Coreset",
-    "M10": "Rashomon-EMC"
+    "M2": "QBC-RF (Feat=3)",
+    "M3": "QBC-RF (Feat=Sqrt)",
+    "M4": "QBC-RF (Feat=All)",
+    "M5": "UNREAL",
+    "M6": "Uncertainty Sampling",
+    "M7": "Coreset",
 }
-
-ORDER = ["UNREAL (0.05)", "UNREAL (0.10)", "Rashomon-EMC", "Uncertainty", "Coreset", "QBC-RF (F=All)", "QBC-RF (F=Sqrt)", "QBC-RF (F=3)"]
+ORDER = ["UNREAL", "Uncertainty Sampling", "Coreset", "QBC-RF (Feat=All)", "QBC-RF (Feat=Sqrt)", "QBC-RF (Feat=3)"]
 
 def calculate_n_rel(study_root, include_synthetic=True):
     if not study_root.exists():

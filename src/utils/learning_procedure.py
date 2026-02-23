@@ -78,13 +78,12 @@ def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str
         results.accuracy_history.append(metrics["accuracy"])
         results.f1_history.append(metrics["f1_micro"])
         results.oracle_agreement_history.append(metrics["oracle_agreement"])
-        # results.feature_rank_correlation_history.append(metrics["feature_rank_correlation"])
-        # results.feature_jaccard_history.append(metrics["feature_jaccard_distance"])
         results.tree_edit_distance_history.append(metrics["tree_edit_distance"])
         if hasattr(config.selector_model, "epsilon"):
             results.epsilon_history.append(config.selector_model.epsilon)
         if hasattr(config.selector_model, "get_rashomon_size"):
              results.rashomon_size_history.append(config.selector_model.get_rashomon_size())
+             
         # 5. Check Termination Condition (Full Dataset Reached)
         if df_candidate.empty:
             results.selection_history.append(None)

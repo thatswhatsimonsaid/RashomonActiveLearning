@@ -15,11 +15,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import f1_score, accuracy_score
 
+import os
+from concurrent.futures import ThreadPoolExecutor
+
 ### GLOBAL PICKLE FIX (For PySORTD C++ Objects) ###
 try:
     from pysortd.csortd import SolverResult
     def pickle_solver_result(obj):
-        # When pickling, replace the C++ object with a dummy string
         return str, ("<Unpicklable SolverResult Dropped>",)
     copyreg.pickle(SolverResult, pickle_solver_result)
 except ImportError:
@@ -47,7 +49,6 @@ try:
 
 except ImportError:
     SORTDClassifier = None
-
 
 ### MODEL WRAPPER INTERFACE ###
 class ModelWrapper(ABC):
@@ -106,8 +107,7 @@ class RandomForestWrapper(ModelWrapper):
     @property
     def estimators_(self):
         return self.model.estimators_
-
-    # Add this inside RandomForestWrapper in models.py
+    
     def get_ensemble_losses(self, X_train: pd.DataFrame, y_train: pd.Series) -> np.ndarray:
         """Returns the training error for each tree in the forest."""
         if not self.is_fitted_: raise RuntimeError("Not fitted")
@@ -214,7 +214,6 @@ class PySORTDWrapper(ModelWrapper):
         X_np = np.ascontiguousarray(X_train.values, dtype=np.intc)
         y_np = np.ascontiguousarray(y_train.values, dtype=np.intc)
         
-        self.model = SORTDClassifier(**self.config)
         self.model.fit(X_np, y_np)
         
         self.rashomon_size_ = self.model.rashomon_set_size
@@ -222,7 +221,6 @@ class PySORTDWrapper(ModelWrapper):
         return self
 
     def predict(self, X_data: pd.DataFrame) -> np.ndarray:
-        if not self.is_fitted_: raise RuntimeError("Not fitted")
         X_np = np.ascontiguousarray(X_data.values, dtype=np.intc)
         return self.model.predict(X_np)
 
@@ -231,20 +229,16 @@ class PySORTDWrapper(ModelWrapper):
         n_samples = X_np.shape[0]
         preds = np.zeros(n_samples, dtype=int)
         
-        # We use a recursive helper that acts on masks of indices
         def traverse(node, current_mask):
             if not np.any(current_mask):
                 return
             
-            # Check for leaf (handling both method and attribute styles)
             try: is_leaf = node.is_leaf_node()
             except TypeError: is_leaf = node.is_leaf_node
             
             if is_leaf:
                 preds[current_mask] = node.label
             else:
-                # X_np is binary (0/1). 
-                # Create masks for left (feature == 0) and right (feature == 1)
                 left_mask = current_mask & (X_np[:, node.feature] == 0)
                 right_mask = current_mask & (X_np[:, node.feature] == 1)
                 
@@ -255,45 +249,57 @@ class PySORTDWrapper(ModelWrapper):
         traverse(tree_obj, initial_mask)
         return preds
 
-    def get_raw_ensemble_predictions(self, X_data: pd.DataFrame) -> pd.DataFrame:
+    def get_raw_ensemble_predictions(self, X_data: pd.DataFrame, cache: bool = True) -> pd.DataFrame:
+        """
+        Fastest implementation: Uses vectorized Boolean masks and optional caching.
+        """
         if not self.is_fitted_: raise RuntimeError("Not fitted")
-        X_np = np.ascontiguousarray(X_data.values, dtype=np.intc)
         
-        # Pre-allocate matrix (Samples x Trees)
+        # 1. Check Cache (Avoid redundant C++ object traversal)
+        if cache and hasattr(self, '_last_X') and self._last_X.equals(X_data):
+            return self._last_preds_cache
+
+        X_np = np.ascontiguousarray(X_data.values, dtype=np.intc)
         n_trees = self.rashomon_size_
         n_samples = X_np.shape[0]
         all_preds = np.empty((n_samples, n_trees), dtype=np.int8)
         
+        # 2. Vectorized Traversal (This is the heavy lifting)
         for i in range(n_trees):
             tree_obj = self.model.get_tree_n(i)
             all_preds[:, i] = self._predict_single_tree(tree_obj, X_np)
             
-        return pd.DataFrame(all_preds, index=X_data.index)
-
-    def get_rashomon_size(self) -> int:
-        return self.rashomon_size_
-    
-    def get_committee_size(self) -> int:
-        return self.committee_size_
-    
-    def get_ensemble_losses(self) -> np.ndarray:
-        if not self.is_fitted_: raise RuntimeError("Not fitted")
-        losses = []
-        for i in range(self.rashomon_size_):
-            tree_obj = self.model.get_tree_n(i)
+        df = pd.DataFrame(all_preds, index=X_data.index)
+        df.columns = [f"tree_{i}" for i in range(df.shape[1])]
+        
+        # 3. Store in Cache
+        if cache:
+            self._last_X = X_data
+            self._last_preds_cache = df
             
-            # Try methods first, then attributes
-            if hasattr(tree_obj, "objective"):
-                val = tree_obj.objective() if callable(tree_obj.objective) else tree_obj.objective
-            elif hasattr(tree_obj, "score"):
-                val = tree_obj.score() if callable(tree_obj.score) else tree_obj.score
-            else:
-                # Fallback: if we can't find the objective, use a dummy or log a warning
-                # Since we need this for Gibbs, a 0.0 fallback will treat all as equal
-                val = 0.0
-                
-            losses.append(val)
-        return np.array(losses)
+        return df
+
+    def get_ensemble_losses(self, X: pd.DataFrame, y: pd.Series) -> np.ndarray:
+        """
+        High-speed loss calculation using cached predictions and vectorized NumPy.
+        """
+        # Uses cache=True to avoid re-calculating if X is the same as the query pool
+        all_preds_df = self.get_raw_ensemble_predictions(X, cache=True)
+        
+        y_true = y.values.flatten().reshape(-1, 1)
+        # Fast NumPy comparison
+        errors = (all_preds_df.values != y_true).mean(axis=0)
+        
+        reg = self.config.get("cost_complexity", 0.01)
+        
+        # Complexity (Batch-process C++ calls)
+        # Consistent with Eq. 1 (using leaf nodes)
+        n_leaves = np.array([
+            self.model.get_tree_n(i).get_num_leaf_nodes() 
+            for i in range(self.rashomon_size_)
+        ])
+        
+        return errors + (reg * n_leaves)
 
 ### METRIC UTILS ###
 def calculate_oracle_agreement(current_model: ModelWrapper, oracle_model: ModelWrapper, df_test: pd.DataFrame) -> float:
@@ -312,31 +318,16 @@ def evaluate_model(model: ModelWrapper, df_test: pd.DataFrame) -> Dict[str, floa
 
 def evaluate_models(predictor_model, oracle_model, df_test) -> dict:
     from src.utils.tree_utils import (
-        # calculate_feature_jaccard_distance, 
         calculate_ted_score, 
         calculate_oracle_agreement
-        # calculate_feature_rank_correlation
     )
 
     metrics = evaluate_model(predictor_model, df_test)
-
     metrics["oracle_agreement"] = calculate_oracle_agreement(
         current_model=predictor_model,
         oracle_model=oracle_model,
         df_test=df_test
     )
-
-    # metrics["feature_rank_correlation"] = calculate_feature_rank_correlation(
-    #     current_model=predictor_model,
-    #     oracle_model=oracle_model,
-    #     df_test=df_test
-    # )
-
-    # metrics["feature_jaccard_distance"] = calculate_feature_jaccard_distance(
-    #     current_model=predictor_model,
-    #     oracle_model=oracle_model,
-    #     df_test=df_test
-    # )
 
     metrics["tree_edit_distance"] = calculate_ted_score(
         model=predictor_model,

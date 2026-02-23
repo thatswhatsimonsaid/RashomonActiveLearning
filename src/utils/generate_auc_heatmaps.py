@@ -15,9 +15,7 @@ METRICS_TO_AUC = [
 ]
 
 # Reference baseline for the FINAL PLOT ratios
-BASELINE_ID = "M5"  # Comparing everyone to Random Sampling
-
-# Simple Budget Truncation Configuration
+BASELINE_ID = "M5"  
 BUDGET_FRACTION = 0.9
 
 METHOD_LABELS = {
@@ -108,19 +106,27 @@ def plot_relative_heatmap(auc_df, output_path, metric_key):
     relative_pivot = pivot.div(pivot.loc[baseline_label], axis=1)
     
     # Sort methods for the manuscript story
-    preferred_order = ["M1", "M5", "M6", "M10", "M8", "M9", "M4", "M3", "M2"]
+    preferred_order = ["M1", "M5", "M6", "M7", "M4", "M3", "M2"]
     unique_order = [METHOD_LABELS[m] for m in preferred_order if m in METHOD_LABELS and METHOD_LABELS[m] in relative_pivot.index]
     relative_pivot = relative_pivot.reindex(unique_order)
 
     plt.figure(figsize=(24, 11))
     
     if lower_is_better:
-        # Distance: Green for < 1.0 (Lower is better)
-        cmap = sns.diverging_palette(130, 10, as_cmap=True, s=90, l=60, center="light")
+        # # Distance: Green for < 1.0 (Lower is better)
+        # cmap = sns.diverging_palette(130, 10, as_cmap=True, s=90, l=60, center="light")
+        # vmin, vmax = 0.4, 1.6 
+
+        # Distance: Green for > 1.0 (others are worse than UNREAL = we win)
+        cmap = sns.diverging_palette(10, 130, as_cmap=True, s=90, l=60, center="light")
         vmin, vmax = 0.4, 1.6 
     else:
-        # Accuracy: Green for > 1.0 (Higher is better)
-        cmap = sns.diverging_palette(10, 130, as_cmap=True, s=90, l=60, center="light")
+        # # Accuracy: Green for > 1.0 (Higher is better)
+        # cmap = sns.diverging_palette(10, 130, as_cmap=True, s=90, l=60, center="light")
+        # vmin, vmax = 0.85, 1.15
+
+        # Accuracy: Green for < 1.0 (others are worse than UNREAL = we win)
+        cmap = sns.diverging_palette(130, 10, as_cmap=True, s=90, l=60, center="light")
         vmin, vmax = 0.85, 1.15
 
     sns.heatmap(

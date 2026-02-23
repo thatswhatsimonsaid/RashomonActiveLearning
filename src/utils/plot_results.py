@@ -81,7 +81,7 @@ METRICS_TO_PLOT = [
     ("f1_history", "F1 Score", "lower right"),
     ("tree_edit_distance_history", "Tree Edit Distance (TED)", "upper right"),
     ("rashomon_size_history", "Rashomon Set Size", "upper right"),
-    ("committee_size_history", r"Effective Committee Size ($1 / \sum w_i^2$)", "upper right"),
+    ("committee_size_history", r"Effective Committee Size ($\exp(H)$)", "upper right"),
     ("oracle_agreement_history", "Oracle Agreement", "lower right")
 ]
 
@@ -122,6 +122,9 @@ def plot_metric(data, metric_key, y_label, save_path, dataset_name, legend_loc="
         
         # Calculate stats #
         means = np.nanmean(history, axis=0)
+        if metric_key == "tree_edit_distance_history":
+            if np.all(means == -1.0): # Filter out methods that don't support TED (like RF or LogReg)
+                continue
         stds = np.nanstd(history, axis=0) / np.sqrt(history.shape[0]) 
         iterations = np.arange(len(means)) + 1
         
@@ -145,7 +148,7 @@ def plot_metric(data, metric_key, y_label, save_path, dataset_name, legend_loc="
    ## Aesthetics ##
     plt.xlabel("Active Learning Iterations")
     plt.ylabel(y_label)
-    plt.title(f"{dataset_name}: {y_label}")    
+    # plt.title(f"{dataset_name}: {y_label}")    
     if dataset_name in DATASET_XLIMS:
         plt.xlim(DATASET_XLIMS[dataset_name])    
     if show_legend:
@@ -242,7 +245,9 @@ def plot_variance_metric(data, metric_key, y_label, save_path, dataset_name, sho
         if method not in METHODS_TO_PLOT: continue
         history = data[method].get(metric_key)        
         if history is None or (isinstance(history, np.ndarray) and history.size == 0): 
-            continue
+            continue        
+        history = np.array(history)
+        if history.ndim == 1: history = history.reshape(1, -1) 
         has_data = True
         
         # Calculate Variance across seeds (axis 0)
@@ -326,6 +331,7 @@ def main():
         
     ## Bar charts ##
     plot_time_bar_chart(data, img_dir / "elapsed_time.png", dataset_title)
-### Execute ###
+
+### Main ###
 if __name__ == "__main__":
     main()

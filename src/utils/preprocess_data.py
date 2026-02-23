@@ -14,29 +14,61 @@ RAW_URL_BASE = "https://raw.githubusercontent.com/ConSol-Lab/pysortd/main/data/a
 
 ### Import datasets ###
 DATASET_FILES = [
+    # "HTRU2.csv" # Leave out - too big/long?
     "anneal.csv",
     "bank_marketing.csv",
-    "banknote_authentication.csv",
+    # "banknote_authentication.csv", # Leave out - over 20 datasets.
     "bar-7.csv",
-    "biodeg.csv",
+    # "biodeg.csv", # Leave out - too big/long?
     "breast_cancer_wisconsin.csv",
-    # "car_evaluation.csv", #leave out?
+    "car_evaluation.csv", 
     "cheap_restaurant.csv", 
-    "coffee_house.csv", #leave out?
+    "coffee_house.csv", 
     "expensive_restaurant.csv",
     "haberman.csv",
     "hepatitis.csv",
     "hypothyroid.csv",
+    # "kr-vs-kp.csv", # Leave out - too big (but want to include)?
     "lymph.csv",
     "monk1.csv",
     "monk2.csv",
     "monk3.csv",
     "primary-tumor.csv",
-    # "spect.csv",#leave out?
+    "spect.csv",
     "tic-tac-toe.csv",
     "vote.csv",
     "yeast.csv"
 ]
+
+### Additional Datasets (TreeFarms Repository) ###
+TREEFARMS_DATASETS = {
+    "fico": "https://raw.githubusercontent.com/ubc-systopia/treeFarms/main/experiments/datasets/fico/fico-binary.csv",
+    "compas": "https://raw.githubusercontent.com/ubc-systopia/treeFarms/main/experiments/datasets/compas/binned.csv",
+}
+
+def process_treefarms_dataset(name: str, url: str):
+    print(f"\n[{name}] Fetching from TreeFarms...")
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        # 1. Parse (standard CSV with headers)
+        df = pd.read_csv(io.StringIO(response.text))
+        
+        # 2. Rename last column to 'Y'
+        cols = list(df.columns)
+        cols[-1] = "Y"
+        df.columns = cols
+        
+        # 3. Convert to int
+        df = df.astype(int)
+        
+        # 4. Save
+        _save_pickle(df, DATA_DIR / f"{name}.pkl")
+        
+    except Exception as e:
+        print(f"  [ERROR] {e}")
+
 
 def generate_synthetic_study(
     n_samples=500, 
@@ -84,7 +116,6 @@ def generate_synthetic_study(
     
     return df
 
-###     THIS ONE WORKS  ###
 def generate_parity_study(
     n_samples=1000, 
     n_bits=3, 
@@ -99,10 +130,7 @@ def generate_parity_study(
     np.random.seed(random_state)
     n_total = n_bits + n_noise
     
-    # Generate binary features {0, 1}
-    X = np.random.randint(0, 2, size=(n_samples, n_total))
-    
-    # Parity logic on the first n_bits (The working signal)
+    X = np.random.randint(0, 2, size=(n_samples, n_total))    
     Y = (np.sum(X[:, :n_bits], axis=1) % 2 == 0).astype(int)
             
     df = pd.DataFrame(X, columns=[f"X{i}" for i in range(n_total)])
@@ -129,19 +157,14 @@ def process_dataset_url(filename: str):
         response = requests.get(url)
         response.raise_for_status()
         
-        # 1. Parse #
         df = pd.read_csv(io.StringIO(response.text), sep=r'\s+', header=None, engine='python')
         if df.shape[1] < 2:
             print(f"  [ERROR] Parsed only {df.shape[1]} column. Skipping.")
             return
 
-        # 2. Rename columns (Last is Target 'Y') #
-        df.columns = [f"V{i}" for i in range(df.shape[1] - 1)] + ["Y"]
-        
-        # 3. Convert to int #
+        df.columns = [f"V{i}" for i in range(df.shape[1] - 1)] + ["Y"]        
         df = df.astype(int)
 
-        # 4. Save to src/data #
         _save_pickle(df, DATA_DIR / f"{name}.pkl")
         
     except Exception as e:
@@ -155,6 +178,10 @@ def main():
     ## 1. Process Repository Datasets ##
     for filename in DATASET_FILES:
         process_dataset_url(filename)
+
+    # ## 1b. Process TreeFarms Datasets ##
+    # for name, url in TREEFARMS_DATASETS.items():
+    #     process_treefarms_dataset(name, url)
         
     ## 2. Generate Synthetic Datasets ##
     alpha=0.0, 
@@ -194,5 +221,7 @@ def main():
             n_noise=n_noise
         )
         _save_pickle(df_parity, DATA_DIR / f"{dataset_name}.pkl")
+
+        
 if __name__ == "__main__":
     main()

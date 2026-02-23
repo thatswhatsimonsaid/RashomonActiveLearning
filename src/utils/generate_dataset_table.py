@@ -1,11 +1,11 @@
+
+### Libraries ###
 import sys
 import argparse
 import pickle
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from scipy.spatial.distance import pdist
-from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import GradientBoostingClassifier
 
@@ -16,11 +16,10 @@ DATA_DIR = PROJECT_ROOT / "src" / "data"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "study1_active_learning"
 FRAGMENTS_DIR = OUTPUT_DIR / "table_fragments"
 OUTPUT_FILENAME = "DatasetTable.tex"
-
 sys.path.append(str(PROJECT_ROOT))
 from src.utils.models import PySORTDWrapper
 
-### PySORTD Configuration ###
+### Configuration ###
 PYSORTD_CONFIG = {
     "regularization": 0.001,
     "rashomon_multiplier": 0.1,  
@@ -28,8 +27,7 @@ PYSORTD_CONFIG = {
     "max_depth": 3,
     "time_limit": 20000,
 }
-TAU = 0.001
-MAX_CLUSTERING_PATTERNS = 10000
+BETA = 10.0
 
 META_INFO = {
     "anneal":                       ("Anneal",                   "UCI"),
@@ -67,25 +65,24 @@ def load_dataset(file_key: str) -> pd.DataFrame:
     path = DATA_DIR / f"{file_key}.pkl"
     with open(path, "rb") as f:
         return pickle.load(f)
+    
+def compute_gibbs_ecs(wrapper, X, y) -> float:
+    """Computes the Effective Committee Size (ECS) using Gibbs weights."""
+    # 1. Get losses for all trees in the Rashomon set
+    losses = wrapper.get_ensemble_losses(X, y)
+    if len(losses) == 0: return 0
+    
+    # 2. Compute Gibbs Weights
+    adj_losses = losses - np.min(losses)
+    unnormalized_weights = np.exp(-BETA * adj_losses)
+    weights = unnormalized_weights / np.sum(unnormalized_weights)
+    
+    # 3. Compute Exponentiated Entropy (ECS)
+    entropy = -np.sum(weights * np.log(weights + 1e-12))     # Add small epsilon to avoid log(0)
 
-def compute_unique_committee_size(wrapper, X: pd.DataFrame) -> int:
-    df_preds = wrapper.get_raw_ensemble_predictions(X)
-    if df_preds.empty: return 0
-    pred_matrix = df_preds.values.T
-    unique_patterns = np.unique(pred_matrix, axis=0)
-    n_unique = len(unique_patterns)
-    if n_unique <= 1: return n_unique
-    if n_unique > MAX_CLUSTERING_PATTERNS:
-        indices = np.random.choice(n_unique, MAX_CLUSTERING_PATTERNS, replace=False)
-        clustering_input = unique_patterns[indices]
-        scale_factor = n_unique / MAX_CLUSTERING_PATTERNS
-    else:
-        clustering_input = unique_patterns
-        scale_factor = 1.0
-    dist_vec = pdist(clustering_input, metric='hamming')
-    Z = linkage(dist_vec, method='average')
-    clusters = fcluster(Z, t=TAU, criterion='distance')
-    return int(len(np.unique(clusters)) * scale_factor)
+    ecs = np.exp(entropy)
+    
+    return float(ecs)
 
 def compute_dataset_stats(file_key: str):
     df = load_dataset(file_key)
@@ -105,7 +102,7 @@ def compute_dataset_stats(file_key: str):
         "gbm_acc": float(gbm.score(X, y)) * 100,
         "oracle_acc": float(np.mean(wrapper.predict(X) == y.values)) * 100,
         "rashomon_size": wrapper.get_rashomon_size(),
-        "committee_size": compute_unique_committee_size(wrapper, X)
+        "ecs": compute_gibbs_ecs(wrapper, X, y)
     }
 
 def merge_and_generate_latex():
@@ -124,7 +121,7 @@ def merge_and_generate_latex():
     \scriptsize
     \begin{tabular}{rllrrrrrrrrr}
         \toprule
-        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & \textbf{Maj\%} & \textbf{Lin\%} & \textbf{GBM\%} & \textbf{Orc\%} & $|\hat{\mathcal{R}}|$ & $|\mathcal{C}_{u}|$ \\ 
+        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & \textbf{Maj\%} & \textbf{Lin\%} & \textbf{GBM\%} & \textbf{Orc\%} & $|\hat{\mathcal{R}}|$ & \textbf{ECS} \\ 
         \midrule
 """
     prev_source = None
@@ -133,10 +130,10 @@ def merge_and_generate_latex():
             latex += r"        \midrule" + "\n"
         prev_source = row["source"]
         latex += (f"        {row['no']} & {row['name']} & {row['source'][:3]} & "
-                  f"{row['n_samples']:,} & {row['n_features']} & "
-                  f"{row['majority_pct']:.1f} & {row['linear_acc']:.1f} & "
-                  f"{row['gbm_acc']:.1f} & {row['oracle_acc']:.1f} & "
-                  f"{row['rashomon_size']:,} & {row['committee_size']:,} \\\\\n")
+              f"{row['n_samples']:,} & {row['n_features']} & "
+              f"{row['majority_pct']:.1f} & {row['linear_acc']:.1f} & "
+              f"{row['gbm_acc']:.1f} & {row['oracle_acc']:.1f} & "
+              f"{row['rashomon_size']:,} & {row['ecs']:.1f} \\\\\n")
     latex += r"""        \bottomrule
     \end{tabular}
 \end{table*}

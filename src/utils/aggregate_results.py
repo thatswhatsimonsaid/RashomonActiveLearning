@@ -26,15 +26,13 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
     output_dir = results_dir / "aggregated"
     
     # Define the specific methods that finished/we want to aggregate
-    # ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M8", "M9", "M10"}
-    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6"}
-    
+    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6", "M7"}    
     print(f"Aggregating results in: {results_dir}")
     if not results_dir.exists():
         print(f"  > [ERROR] Directory not found: {results_dir}")
         return
 
-    ## 2. Identify Methods (Filtered) ##
+    ## 2. Identify Methods ##
     method_dirs = sorted([
         d for d in results_dir.iterdir() 
         if d.is_dir() and d.name in ALLOWED_METHODS
@@ -44,7 +42,7 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
         print(f"  > No valid method directories found in {results_dir}")
         return
 
-    ## SAFETY CHECK (Only for allowed methods) ##
+    ## SAFETY CHECK ##
     print(f"  > Performing consistency check on finished methods: {sorted(list(ALLOWED_METHODS))}...")
     run_counts = {}
     for md in method_dirs:
@@ -53,7 +51,7 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
     distinct_counts = set(run_counts.values())
 
     if len(distinct_counts) > 1:
-        print(f"\n  ❌ [ABORT] Inconsistent simulation counts detected among specified methods.")
+        print(f"\n [ABORT] Inconsistent simulation counts detected among specified methods.")
         print(f"     Aggregation requires an equal number of runs across selected methods.")
         print(f"     --------------------------------------")
         print(f"     {'METHOD':<10} | {'RUNS FOUND':<10}")
@@ -66,10 +64,10 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
 
     common_count = list(distinct_counts)[0]
     if common_count == 0:
-        print("  ⚠️ [STOP] No result files found in any selected method directory.")
+        print(" [STOP] No result files found in any selected method directory.")
         return
 
-    print(f"  ✅ Check Passed: All {len(method_dirs)} methods have {common_count} runs.")
+    print(f" Check Passed: All {len(method_dirs)} methods have {common_count} runs.")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     ## 3. Define Metrics to Aggregate ##
@@ -128,7 +126,6 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
                 arr = np.array(truncated_data)
                 
                 final_dict[metric] = arr
-                # NEW: Pre-calculate per-iteration stats for cleaner plotting
                 final_dict[f"{metric}_mean_trace"] = np.mean(arr, axis=0)
                 final_dict[f"{metric}_std_trace"] = np.std(arr, axis=0)
             

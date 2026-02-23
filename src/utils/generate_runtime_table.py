@@ -1,3 +1,4 @@
+### Libraries ###
 import os
 import pandas as pd
 import numpy as np
@@ -5,31 +6,26 @@ import pickle
 from pathlib import Path
 
 ### CONFIGURATION ###
-# Identify project paths
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results" / "study1_active_learning" / "tree_predictor"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "study1_active_learning" / "Tables"
 OUTPUT_FILENAME = "RuntimeTable.tex"
-
-# Method mapping for lookup and display
 NAME_MAPPING = {
-    "M1": "Random",
-    "M2": "RF (3)",
-    "M3": "RF (Sqrt)",
-    "M4": "RF (All)",
-    "M5": "UNR (0.05)",
-    "M6": "UNR (0.10)",
-    "M8": "Uncert.",
-    "M9": "Coreset",
-    "M10": "R-EMC"
+    "M1": "Random Sampling",
+    "M2": "QBC-RF (Feat=3)",
+    "M3": "QBC-RF (Feat=Sqrt)",
+    "M4": "QBC-RF (Feat=All)",
+    "M5": "UNREAL",
+    "M6": "Uncertainty Sampling",
+    "M7": "Coreset",
 }
 
 # Define the grouping structure for the LaTeX table
 COLUMN_GROUPS = [
     {
         "group_name": "Baselines",
-        "columns": [("M1", "Random"), ("M8", "Uncert."), ("M9", "Coreset")]
+        "columns": [("M1", "Random"), ("M6", "Uncert."), ("M7", "Coreset")]
     },
     {
         "group_name": "QBC-RF (Artif. Div.)",
@@ -37,7 +33,7 @@ COLUMN_GROUPS = [
     },
     {
         "group_name": "Structural (Proposed)",
-        "columns": [("M5", "UNR .05"), ("M6", "UNR .10"), ("M10", "R-EMC")]
+        "columns": [("M5", "UNREAL")]
     }
 ]
 
@@ -53,21 +49,16 @@ def main():
 
     for ds_dir in dataset_dirs:
         ds_name_raw = ds_dir.name
-        # Format Dataset Name for LaTeX
         ds_display = ds_name_raw.replace("_", " ").title().replace("Synthetic", "Synth.")
-        row = {"Dataset": ds_display}
-        
+        row = {"Dataset": ds_display}        
         agg_path = ds_dir / "aggregated"
-        
         for group in COLUMN_GROUPS:
             for m_id, _ in group["columns"]:
                 pkl_file = agg_path / f"{m_id}_results.pkl"
                 if pkl_file.exists():
                     try:
                         with open(pkl_file, "rb") as f:
-                            data = pickle.load(f)
-                        
-                        # Extract the elapsed_time array (seeds,)
+                            data = pickle.load(f)                        
                         times = data.get("elapsed_time")
                         if times is not None and len(times) > 0:
                             row[m_id] = np.median(times)
@@ -81,9 +72,7 @@ def main():
         results.append(row)
 
     # Create DataFrame
-    df = pd.DataFrame(results)
-    
-    # Calculate Global Median Row
+    df = pd.DataFrame(results)    
     if not df.empty:
         avg_row = df.median(numeric_only=True)
         avg_row["Dataset"] = "\\textbf{MEDIAN}"
@@ -132,7 +121,6 @@ def main():
                 if pd.isna(val):
                     latex += " & ---"
                 else:
-                    # Use bolding for the median summary row
                     if "MEDIAN" in ds_name:
                         latex += f" & \\textbf{{{val:.1f}}}"
                     else:

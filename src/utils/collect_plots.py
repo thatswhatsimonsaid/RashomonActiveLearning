@@ -10,7 +10,7 @@ for dataset_dir in sorted(RESULTS_DIR.iterdir()):
         continue
     
     for img in img_dir.glob("*.png"):
-        plot_type = img.stem  # e.g. "accuracy_history"
+        plot_type = img.stem 
         dest_dir = PLOTS_DIR / plot_type
         dest_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(img, dest_dir / f"{dataset_dir.name}.png")
