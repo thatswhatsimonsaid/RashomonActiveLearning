@@ -26,7 +26,7 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
     output_dir = results_dir / "aggregated"
     
     # Define the specific methods that finished/we want to aggregate
-    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6", "M7"}    
+    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"}    
     print(f"Aggregating results in: {results_dir}")
     if not results_dir.exists():
         print(f"  > [ERROR] Directory not found: {results_dir}")

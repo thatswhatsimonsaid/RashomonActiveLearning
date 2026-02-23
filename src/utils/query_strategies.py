@@ -95,6 +95,7 @@ class QBCSelector(Selector):
 
         # If the set collapsed to 1 tree (should be rare!!!), fallback to random
         if raw_preds_df.shape[1] < 2:
+            self.effective_committee_size_ = 1.0 
             recommended_index = df_candidate.sample(n=1).index[0]
             return {
                 "IndexRecommendation": int(recommended_index),
@@ -212,26 +213,26 @@ class ModelChangeSelector(Selector):
             "AllEntropies": pd.Series(disagreements, index=df_candidate.index)
         }
     
-class WeightedQBCSelector:
-    def __init__(self, beta=10.0, **kwargs):
-        self.beta = beta
+# class WeightedQBCSelector:
+#     def __init__(self, beta=10.0, **kwargs):
+#         self.beta = beta
 
-    def select(self, raw_preds, losses, n_queries=1):
-        """
-        raw_preds: DataFrame (Pool Points x Rashomon Trees)
-        losses: Array of objective values for each tree
-        """
-        # 1. Calculate Gibbs Weights
-        adj_losses = losses - np.min(losses)
-        weights = np.exp(-self.beta * adj_losses)
-        weights /= np.sum(weights)
+#     def select(self, raw_preds, losses, n_queries=1):
+#         """
+#         raw_preds: DataFrame (Pool Points x Rashomon Trees)
+#         losses: Array of objective values for each tree
+#         """
+#         # 1. Calculate Gibbs Weights
+#         adj_losses = losses - np.min(losses)
+#         weights = np.exp(-self.beta * adj_losses)
+#         weights /= np.sum(weights)
 
-        # 2. Calculate Weighted Class Probabilities (p)
-        p = np.dot(raw_preds.values, weights)        
-        p = np.clip(p, 1e-9, 1 - 1e-9)        # Clip to avoid log(0)
+#         # 2. Calculate Weighted Class Probabilities (p)
+#         p = np.dot(raw_preds.values, weights)        
+#         p = np.clip(p, 1e-9, 1 - 1e-9)        # Clip to avoid log(0)
 
-        # 3. Calculate Binary Weighted Entropy
-        entropy = -(p * np.log(p) + (1 - p) * np.log(1 - p))
+#         # 3. Calculate Binary Weighted Entropy
+#         entropy = -(p * np.log(p) + (1 - p) * np.log(1 - p))
 
-        # 4. Return top indices
-        return np.argsort(entropy)[-n_queries:]
+#         # 4. Return top indices
+#         return np.argsort(entropy)[-n_queries:]

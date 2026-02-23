@@ -2,15 +2,15 @@ import numpy as np
 
 ### SLURM Configuration ###
 SLURM_CONFIG = {
-    "partition": "short",
-    "time": "11:59:00",
+    "partition": "medium",
+    "time": "1-11:59:00",
     "mem_per_cpu": "30G",
     "mail_user": "simondn@uw.edu",
     "mail_type": "FAIL"
 }
 
 ### GLOBAL PARAMETERS ###
-N_REPLICATIONS = 3
+N_REPLICATIONS = 25
 
 # PREDICTION PARAMETERS #
 # Nota Bene: These will be overridden by calibrate.py!!!! but eval_depth stays 5

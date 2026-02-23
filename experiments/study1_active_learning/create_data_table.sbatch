@@ -20,14 +20,30 @@ export PYTHONPATH=$PYTHONPATH:.
 
 # --- Dataset Mapping ---
 DATASETS=(
-    "anneal" "bank_marketing" "banknote_authentication" "bar-7" "biodeg" 
-    "breast_cancer_wisconsin" "cheap_restaurant" "coffee_house" "expensive_restaurant" 
-    "haberman" "hepatitis" "hypothyroid" "lymph" "monk1" "monk2" "monk3" 
-    "primary-tumor" "tic-tac-toe" "vote" "yeast" 
     "Synthetic_XOR_Baseline" "Synthetic_XOR_Alpha_25" "Synthetic_XOR_Alpha_50" 
     "Synthetic_XOR_Alpha_75" "Synthetic_XOR_Alpha_100" "Synthetic_XOR_Phi_05" 
     "Synthetic_XOR_Phi_10" "Synthetic_XOR_Phi_25" "Synthetic_XOR_Phi_45"
     "Parity_8bit_Noise_00" "Parity_8bit_Noise_06" "Parity_8bit_Noise_16" "Parity_8bit_Noise_26"
+    "anneal"
+    "bank_marketing"
+    "bar-7"
+    "breast_cancer_wisconsin"
+    "car_evaluation" 
+    "cheap_restaurant" 
+    "coffee_house" 
+    "expensive_restaurant"
+    "haberman"
+    "hepatitis"
+    "hypothyroid"
+    "lymph"
+    "monk1"
+    "monk2"
+    "monk3"
+    "primary-tumor"
+    "spect"
+    "tic-tac-toe"
+    "vote"
+    "yeast"
 )
 
 NUM_DATASETS=${#DATASETS[@]}

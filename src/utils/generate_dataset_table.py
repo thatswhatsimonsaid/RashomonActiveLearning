@@ -154,3 +154,5 @@ if __name__ == "__main__":
         stats = compute_dataset_stats(args.dataset)
         with open(FRAGMENTS_DIR / f"{args.dataset}.pkl", "wb") as f:
             pickle.dump(stats, f)
+
+# python src/utils/generate_dataset_table.py --merge

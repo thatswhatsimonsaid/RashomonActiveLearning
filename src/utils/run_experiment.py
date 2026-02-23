@@ -146,18 +146,16 @@ def main():
         "max_depth": calibration_results["max_depth"],
         "regularization": calibration_results["regularization"],
         "rashomon_multiplier": effective_multiplier
-    }
-    
-    # FAIRNESS OVERRIDE
+    }    
     if "RandomForest" in args.selector_model:
         shared_updates["beta"] = 0.0
-    
     current_selector_params.update(shared_updates)
     strategy_params.update(shared_updates)
 
     # 3c. Specific Logic for UNREAL / PySORTD
     if "PySORTD" in args.selector_model:
         current_selector_params["rashomon_multiplier"] = effective_multiplier
+        strategy_params["beta"] = calibration_results.get("beta", 0.0)
 
     # 3d. Update Predictor Params (The 'Target' Hypothesis Class)
     predictor_params.update({

@@ -48,10 +48,12 @@ def check_file_counts(root_dir=".", method_filter=None):
     print("-" * len(header))
 
     # Dynamic Rows
+    # Dynamic Rows
     missing_info = []
     for ds in datasets:
         row_str = f"{ds:<30} | "
-        all_complete = True
+        required_methods = {f"M{i}" for i in range(1, 9)}
+        all_complete = all(stats[ds].get(m, 0) == max_found for m in required_methods)
         for m in methods:
             c = stats[ds].get(m, 0)
             
@@ -59,11 +61,9 @@ def check_file_counts(root_dir=".", method_filter=None):
                 val = f"{c}"       
             elif c == 0:
                 val = "-"
-                all_complete = False
                 missing_info.append((ds, m, list(range(max_found))))
             else:
                 val = f"{c}/{max_found}"
-                all_complete = False
                 method_dir = os.path.join(root_dir, ds, m) if len(datasets) > 1 else os.path.join(root_dir, m)
                 found_seeds = set()
                 if os.path.isdir(method_dir):

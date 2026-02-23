@@ -7,7 +7,7 @@ from pathlib import Path
 
 ### Methods to Plot
 # METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M8", "M9", "M5", "M10"]
-METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M5", "M6", "M7"]
+METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"]
 
 ### XLIMS ###
 DATASET_XLIMS = {
@@ -51,9 +51,10 @@ METHOD_LABELS = {
     "M2": "RF (Feat=3)",
     "M3": "RF (Feat=Sqrt)",
     "M4": "RF (Feat=All)",
-    "M5": "UNREAL",
+    "M5": "UNREAL (Uniform)",
     "M6": "Uncertainty Sampling",
     "M7": "Coreset (Hamming)",
+    "M8": "UNREAL (Bayesian)"
 }
 
 METHOD_COLORS = {
@@ -62,8 +63,9 @@ METHOD_COLORS = {
     "M3": "#1f77b4",
     "M4": "#d62728",
     "M5": "#ff7f0e",
-    "M6": "#17becf",
-    "M7": "#bcbd22",
+    "M6": "#52b6c2",
+    "M7": "#ffe600",
+    "M8": "#14dbdeb6"
 }
 
 METHOD_STYLES = {
@@ -74,6 +76,7 @@ METHOD_STYLES = {
     "M5": "-",
     "M6": "-.",
     "M7": "-.",
+    "M8": "-"
 }
 
 METRICS_TO_PLOT = [
@@ -115,6 +118,12 @@ def plot_metric(data, metric_key, y_label, save_path, dataset_name, legend_loc="
 
         # Set up #
         if method not in METHODS_TO_PLOT: continue
+
+        # Restrict Size/Committee plots to only UNREAL variants (M5, M8)
+        if metric_key in ["rashomon_size_history", "committee_size_history"]:
+            if method not in ["M5", "M8"]:
+                continue
+
         history = data[method].get(metric_key)        
         if history is None or (isinstance(history, np.ndarray) and history.size == 0): 
             continue

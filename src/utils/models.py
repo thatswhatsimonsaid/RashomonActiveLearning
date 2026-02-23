@@ -212,7 +212,7 @@ class PySORTDWrapper(ModelWrapper):
     def fit(self, X_train: pd.DataFrame, y_train: pd.Series):
         X_np = np.ascontiguousarray(X_train.values, dtype=np.intc)
         y_np = np.ascontiguousarray(y_train.values, dtype=np.intc)
-        
+        # print(f"DEBUG: Fitting with Multiplier={self.config['rashomon_multiplier']}")
         self.model.fit(X_np, y_np)
         
         self.rashomon_size_ = self.model.rashomon_set_size
@@ -254,7 +254,7 @@ class PySORTDWrapper(ModelWrapper):
         """
         if not self.is_fitted_: raise RuntimeError("Not fitted")
         
-        # 1. Check Cache (Avoid redundant C++ object traversal)
+        # 1. Check Cache 
         if cache and hasattr(self, '_last_X') and self._last_X.equals(X_data):
             return self._last_preds_cache
 
@@ -263,7 +263,7 @@ class PySORTDWrapper(ModelWrapper):
         n_samples = X_np.shape[0]
         all_preds = np.empty((n_samples, n_trees), dtype=np.int8)
         
-        # 2. Vectorized Traversal (This is the heavy lifting)
+        # 2. Vectorized Traversal
         for i in range(n_trees):
             tree_obj = self.model.get_tree_n(i)
             all_preds[:, i] = self._predict_single_tree(tree_obj, X_np)
@@ -279,26 +279,22 @@ class PySORTDWrapper(ModelWrapper):
         return df
 
     def get_ensemble_losses(self, X: pd.DataFrame, y: pd.Series) -> np.ndarray:
-        """
-        High-speed loss calculation using cached predictions and vectorized NumPy.
-        """
-        # Uses cache=True to avoid re-calculating if X is the same as the query pool
+
         all_preds_df = self.get_raw_ensemble_predictions(X, cache=True)
         
         y_true = y.values.flatten().reshape(-1, 1)
-        # Fast NumPy comparison
         errors = (all_preds_df.values != y_true).mean(axis=0)
         
         reg = self.config.get("cost_complexity", 0.01)
-        
-        # Complexity (Batch-process C++ calls)
-        # Consistent with Eq. 1 (using leaf nodes)
         n_leaves = np.array([
             self.model.get_tree_n(i).get_num_leaf_nodes() 
             for i in range(self.rashomon_size_)
         ])
         
         return errors + (reg * n_leaves)
+    
+    def get_rashomon_size(self) -> int:
+        return int(self.rashomon_size_)
 
 ### METRIC UTILS ###
 def calculate_oracle_agreement(current_model: ModelWrapper, oracle_model: ModelWrapper, df_test: pd.DataFrame) -> float:
