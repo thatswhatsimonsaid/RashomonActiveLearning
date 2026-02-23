@@ -1,5 +1,4 @@
 results/**/*.pkl
-results/**/*.png
 src/data/*.pkl
 **/__pycache__/
 *.pyc
