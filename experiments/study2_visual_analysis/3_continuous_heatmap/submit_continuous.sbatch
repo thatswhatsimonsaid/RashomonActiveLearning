@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=cont_heat
-#SBATCH --partition=short
-#SBATCH --array=0-999
+#SBATCH --partition=medium
+#SBATCH --array=0-9
 #SBATCH --time=00:20:00
 #SBATCH --mem-per-cpu=2000MB
 #SBATCH --output=/homes/simondn/RashomonActiveLearning/results/study2_visual_analysis/3_continuous_heatmap/logs/out/task_%a.out
