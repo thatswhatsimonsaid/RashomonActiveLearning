@@ -1,0 +1,1 @@
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/Parity_8bit_Noise_26/error"/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/Parity_8bit_Noise_26/out"/*.out

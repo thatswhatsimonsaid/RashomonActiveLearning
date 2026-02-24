@@ -18,6 +18,7 @@ from src.utils.models import (
     PySORTDWrapper,
     LogisticRegressionWrapper,
     GreedyDecisionTreeWrapper,
+    BMARandomForestWrapper
 )
 from src.utils.query_strategies import (
     Selector, 
@@ -37,7 +38,8 @@ SELECTOR_MODEL_REGISTRY = {
     "PySORTDWrapper": PySORTDWrapper, 
     "RandomForest": RandomForestWrapper,
     "LogisticRegression": LogisticRegressionWrapper,
-    "GreedyTree": GreedyDecisionTreeWrapper
+    "GreedyTree": GreedyDecisionTreeWrapper,
+    "BMARandomForest": BMARandomForestWrapper
 }
 
 PREDICTOR_MODEL_REGISTRY = {
@@ -45,7 +47,8 @@ PREDICTOR_MODEL_REGISTRY = {
     "GOSDT": GOSDTWrapper,
     "LogisticRegression": LogisticRegressionWrapper,
     "GreedyTree": GreedyDecisionTreeWrapper,
-    "RandomForest": RandomForestWrapper 
+    "RandomForest": RandomForestWrapper,
+    "BMARandomForest": BMARandomForestWrapper
 }
 
 SELECTOR_REGISTRY = {
@@ -147,7 +150,8 @@ def main():
         "regularization": calibration_results["regularization"],
         "rashomon_multiplier": effective_multiplier
     }    
-    if "RandomForest" in args.selector_model:
+
+    if args.selector_model == "RandomForest":
         shared_updates["beta"] = 0.0
     current_selector_params.update(shared_updates)
     strategy_params.update(shared_updates)
@@ -169,7 +173,6 @@ def main():
     selector = selector_class(**strategy_params)
     
     ## 4. Train Oracle Model ##
-    # (Matches Predictor for consistency)
     oracle_model = predictor_model_class(**predictor_params)
     oracle_model.fit(df_working_pool.drop(columns="Y"), df_working_pool["Y"])
 

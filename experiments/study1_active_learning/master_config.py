@@ -2,8 +2,8 @@ import numpy as np
 
 ### SLURM Configuration ###
 SLURM_CONFIG = {
-    "partition": "medium",
-    "time": "1-11:59:00",
+    "partition": "short",
+    "time": "11:59:00",
     "mem_per_cpu": "30G",
     "mail_user": "simondn@uw.edu",
     "mail_type": "FAIL"
@@ -110,4 +110,17 @@ BASE_SELECTORS = [
         "fixed_threshold": 0.0,  
         "params": {**SELECTION_PARAMS, "beta": "calibrated"} # TRIGGERS Stage 3 Calibration!
     },
+
+    # 9. RF-BMA
+    {
+        "selector_model": "BMARandomForest", 
+        "selector": "QBC", 
+        "fixed_threshold": 0.0,
+        "params": {
+            **RF_SELECTION_PARAMS, 
+            "max_depth": SELECTION_PARAMS["max_depth"], # Fair Depth
+            "max_features": "sqrt",                       # Fair Feature set
+            "beta": "calibrated"                        # Fair Weighting
+        }
+    }
 ]

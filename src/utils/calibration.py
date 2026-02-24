@@ -1,4 +1,5 @@
 ### Libraries ###
+import inspect
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import LeaveOneOut
@@ -22,33 +23,49 @@ def calibrate_hyperparameters(
     loo = LeaveOneOut()
 
     ### STAGE 1: NEUTRAL PREDICTOR TUNING ###
-    best_acc, best_d, best_lambda = -1, 5, 0.001
+    sig = inspect.signature(model_class.__init__)
+    has_reg = "regularization" in sig.parameters
+    best_acc, best_d, best_lambda = -1, 5, 0.001    
+    effective_lambda_grid = lambda_grid if has_reg else [None]
+
     for depth in depth_grid:
-        for reg in lambda_grid:
+        for reg in effective_lambda_grid:
             accuracies = []
             for train_idx, val_idx in loo.split(X):
-                temp_model = model_class(**{**base_params, "max_depth": depth, "regularization": reg})
+                # Build params dynamically
+                run_params = {**base_params, "max_depth": depth}
+                if has_reg:
+                    run_params["regularization"] = reg
+                
+                temp_model = model_class(**run_params)
                 temp_model.fit(X.iloc[train_idx], y.iloc[train_idx])
                 pred = temp_model.predict(X.iloc[val_idx])
                 accuracies.append(1 if pred[0] == y.iloc[val_idx].values[0] else 0)
+            
             avg_acc = np.mean(accuracies)
             if avg_acc > best_acc:
                 best_acc, best_d, best_lambda = avg_acc, depth, reg
 
     ### STAGE 2: RASHOMON EXPANSION ###
-    current_epsilon_adder = 0.05 
+    has_rashomon = "rashomon_multiplier" in sig.parameters
+    current_epsilon_adder = 0.0
     min_loss_proxy = 1.0 - best_acc
-    
-    while True:
-        eff_multiplier = (min_loss_proxy + current_epsilon_adder) / max(min_loss_proxy, 1e-6)
-        final_pilot_model = model_class(**{
-            **base_params, "max_depth": best_d, 
-            "regularization": best_lambda, "rashomon_multiplier": eff_multiplier
-        })
-        final_pilot_model.fit(X, y)        
-        if final_pilot_model.get_rashomon_size() >= min_rashomon_size or current_epsilon_adder >= 0.25:
-            break
-        current_epsilon_adder += 0.05
+
+    if not has_rashomon:
+        final_pilot_model = model_class(**{**base_params, "max_depth": best_d})
+        final_pilot_model.fit(X, y)
+    else:
+        current_epsilon_adder = 0.05 
+        while True:
+            eff_multiplier = (min_loss_proxy + current_epsilon_adder) / max(min_loss_proxy, 1e-6)
+            final_pilot_model = model_class(**{
+                **base_params, "max_depth": best_d, 
+                "regularization": best_lambda, "rashomon_multiplier": eff_multiplier
+            })
+            final_pilot_model.fit(X, y)        
+            if final_pilot_model.get_rashomon_size() >= min_rashomon_size or current_epsilon_adder >= 0.25:
+                break
+            current_epsilon_adder += 0.05
 
     ### STAGE 3: BETA CALIBRATION ###
     requested_beta = base_params.get("beta", 0.0)

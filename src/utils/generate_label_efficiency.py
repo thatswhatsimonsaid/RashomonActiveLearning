@@ -148,7 +148,7 @@ def plot_efficiency_boxplot(df, output_path):
     plot_df = df[df["Method"].isin(ORDER)].copy()
     plot_df['N_rel_clipped'] = plot_df['N_rel'].clip(upper=2.5)
 
-    plt.figure(figsize=(15, 8))
+    plt.figure(figsize=(18, 8))
     sns.set_style("whitegrid")
     palette = sns.color_palette("viridis_r", len(TARGET_PERCENTAGES))
     
@@ -167,7 +167,7 @@ def plot_efficiency_boxplot(df, output_path):
     # plt.title("Relative Label Efficiency ($N_{rel}$) Across Benchmarks", fontsize=20, pad=20)
     plt.xlabel(f"Labels Required Relative to {baseline_label} (Clipped at 2.5)", fontsize=16)
     plt.ylabel("")
-    plt.legend(title="Accuracy Target", loc="upper right", fontsize=12, title_fontsize=14)
+    plt.legend(title="Accuracy Target", loc="upper right", fontsize=18, title_fontsize=20)
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     print(f"\nPlot saved to: {output_path}")

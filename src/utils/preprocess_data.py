@@ -14,12 +14,12 @@ RAW_URL_BASE = "https://raw.githubusercontent.com/ConSol-Lab/pysortd/main/data/a
 
 ### Import datasets ###
 DATASET_FILES = [
-    "HTRU2.csv" # Leave out - too big/long?
+    "HTRU2.csv", # LEAVE OUT - too big/long?
     "anneal.csv",
     "bank_marketing.csv",
-    "banknote_authentication.csv", # Leave out - over 20 datasets.
+    "banknote_authentication.csv",
     "bar-7.csv",
-    "biodeg.csv", # Leave out - too big/long?
+    "biodeg.csv", # LEAVE OUT - too big/long?
     "breast_cancer_wisconsin.csv",
     "car_evaluation.csv", 
     "cheap_restaurant.csv", 
@@ -28,7 +28,7 @@ DATASET_FILES = [
     "haberman.csv",
     "hepatitis.csv",
     "hypothyroid.csv",
-    "kr-vs-kp.csv", # Leave out - too big (but want to include)?
+    "kr-vs-kp.csv", 
     "lymph.csv",
     "monk1.csv",
     "monk2.csv",

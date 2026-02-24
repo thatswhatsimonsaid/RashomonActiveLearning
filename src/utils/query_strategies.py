@@ -212,27 +212,3 @@ class ModelChangeSelector(Selector):
             "IndexRecommendation": int(recommended_idx),
             "AllEntropies": pd.Series(disagreements, index=df_candidate.index)
         }
-    
-# class WeightedQBCSelector:
-#     def __init__(self, beta=10.0, **kwargs):
-#         self.beta = beta
-
-#     def select(self, raw_preds, losses, n_queries=1):
-#         """
-#         raw_preds: DataFrame (Pool Points x Rashomon Trees)
-#         losses: Array of objective values for each tree
-#         """
-#         # 1. Calculate Gibbs Weights
-#         adj_losses = losses - np.min(losses)
-#         weights = np.exp(-self.beta * adj_losses)
-#         weights /= np.sum(weights)
-
-#         # 2. Calculate Weighted Class Probabilities (p)
-#         p = np.dot(raw_preds.values, weights)        
-#         p = np.clip(p, 1e-9, 1 - 1e-9)        # Clip to avoid log(0)
-
-#         # 3. Calculate Binary Weighted Entropy
-#         entropy = -(p * np.log(p) + (1 - p) * np.log(1 - p))
-
-#         # 4. Return top indices
-#         return np.argsort(entropy)[-n_queries:]

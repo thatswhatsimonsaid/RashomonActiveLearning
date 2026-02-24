@@ -1,0 +1,1 @@
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/biodeg/error"/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/biodeg/out"/*.out

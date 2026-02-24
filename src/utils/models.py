@@ -330,3 +330,24 @@ def evaluate_models(predictor_model, oracle_model, df_test) -> dict:
     )
     
     return metrics
+
+class BMARandomForestWrapper(RandomForestWrapper):
+    def get_raw_ensemble_predictions(self, X_data: pd.DataFrame) -> pd.DataFrame:
+        if not self.is_fitted_: raise RuntimeError("Model not fitted.")
+    
+        X_np = X_data.values
+        all_preds = np.array([tree.predict(X_np) for tree in self.model.estimators_]).T
+        
+        df = pd.DataFrame(all_preds, index=X_data.index)
+        df.columns = [f"tree_{i}" for i in range(df.shape[1])]
+        return df
+
+    def get_ensemble_losses(self, X_train: pd.DataFrame, y_train: pd.Series) -> np.ndarray:
+        if not self.is_fitted_: raise RuntimeError("Not fitted")
+
+        X_np = X_train.values
+        y_np = y_train.values
+        all_preds = np.array([tree.predict(X_np) for tree in self.model.estimators_]).T        
+        errors = (all_preds != y_np.reshape(-1, 1)).mean(axis=0)
+        
+        return errors

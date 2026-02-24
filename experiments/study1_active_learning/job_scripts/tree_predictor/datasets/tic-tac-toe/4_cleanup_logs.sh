@@ -1,0 +1,1 @@
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/tic-tac-toe/error"/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/tic-tac-toe/out"/*.out

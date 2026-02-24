@@ -52,7 +52,7 @@ def check_file_counts(root_dir=".", method_filter=None):
     missing_info = []
     for ds in datasets:
         row_str = f"{ds:<30} | "
-        required_methods = {f"M{i}" for i in range(1, 9)}
+        required_methods = {f"M{i}" for i in range(1, 10)}
         all_complete = all(stats[ds].get(m, 0) == max_found for m in required_methods)
         for m in methods:
             c = stats[ds].get(m, 0)

@@ -11,14 +11,16 @@ PROJECT_ROOT = SCRIPT_DIR.parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results" / "study1_active_learning" / "tree_predictor"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "study1_active_learning" / "Tables"
 OUTPUT_FILENAME = "RuntimeTable.tex"
+
 NAME_MAPPING = {
     "M1": "Random Sampling",
     "M2": "QBC-RF (Feat=3)",
     "M3": "QBC-RF (Feat=Sqrt)",
     "M4": "QBC-RF (Feat=All)",
-    "M5": "UNREAL",
+    "M5": "UNREAL (Uniform)",
     "M6": "Uncertainty Sampling",
     "M7": "Coreset",
+    "M8": "UNREAL (Bayesian)"
 }
 
 # Define the grouping structure for the LaTeX table
@@ -33,7 +35,7 @@ COLUMN_GROUPS = [
     },
     {
         "group_name": "Structural (Proposed)",
-        "columns": [("M5", "UNREAL")]
+        "columns": [("M5", "UNREAL (Unif.)"), ("M8", "UNREAL (Bayes.)")]
     }
 ]
 
@@ -132,7 +134,7 @@ def main():
 
     latex += r"        \bottomrule" + "\n"
     latex += r"    \end{tabular}" + "\n"
-    latex += r"    \caption{Median experiment runtime (seconds) across 25 simulation seeds. UNR (Proposed) denotes the UNREAL algorithm.}" + "\n"
+    latex += r"    \caption{Median experiment runtime (seconds) across 25 simulation seeds. UNR and UNR-B denote the standard and Bayesian variants of the UNREAL algorithm, respectively.}" + "\n"
     latex += r"    \label{tab:RuntimeComparison}" + "\n"
     latex += r"\end{table*}" + "\n"
 
