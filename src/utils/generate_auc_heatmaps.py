@@ -26,39 +26,42 @@ DATASET_ORDER = [
     "Synthetic_XOR_Alpha_25", 
     "Synthetic_XOR_Alpha_75", 
     "Synthetic_XOR_Alpha_100",
-    "anneal",
-     "bank_marketing", 
-    "bar-7", 
-    "breast_cancer_wisconsin",
-    "car_evaluation", 
-    "cheap_restaurant", 
-    "coffee_house", 
-    "expensive_restaurant", 
-    "haberman", 
-    "hepatitis", 
-    "hypothyroid", 
-    "lymph", 
-    "monk1", 
-    "monk2", 
-    "monk3", 
-    "primary-tumor", 
-    "spect", 
-    "tic-tac-toe", 
-    "vote", 
-    "yeast"
+    "anneal",                               # Dataset 1
+    "bank_marketing",                       # Dataset 2
+    "bar-7",                                # Dataset 3
+    "breast_cancer_wisconsin",              # Dataset 4
+    "car_evaluation",                       # Dataset 5
+    "cheap_restaurant",                     # Dataset 6
+    "coffee_house",                         # Dataset 7
+    "compas",
+    "expensive_restaurant",                 # Dataset 8
+    "haberman",                             # Dataset 9
+    "hepatitis",                            # Dataset 10
+    "hypothyroid",                          # Dataset 11
+    "kr-vs-kp",                             # Dataset 12
+    "lymph",                                # Dataset 13
+    # "monk1",                                # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
+    "monk2",                                # Dataset 15 
+    # "monk3",                                # Dataset 16 (replace with COMPAS [or bank_note/spect] if finish on time)
+    "primary-tumor",                        # Dataset 17
+    "spect",
+    "tic-tac-toe",                          # Dataset 19
+    "vote",                                 # Dataset 20
+    "yeast"                                 # Dataset 21
 ] 
-
 METHOD_LABELS = {
     "M1": "Random",
-    "M2": "RF (p=3)",
-    "M3": "RF (p=Sqrt)",
-    "M4": "RF (p=All)",
-    "M5": "UNREAL (Uniform)",
+    # "M2": "QBC-RF (p=3)",
+    "M3": "QBC-RF (p=sqrt)",
+    "M4": "QBC-RF (p=d)",
+    "M5": "UNREAL",
     "M6": "Uncertainty",
     "M7": "Coreset",
-    "M8": "UNREAL (Bayesian)" 
+    "M8": "BREAL",
+    "M9": "QBC-RF (Weighted, p=sqrt)",
+    "M10": "QBC-RF (Weighted, p=d)",
 }
-PREFERRED_METHOD_ORDER = ["M8", "M5", "M1", "M6", "M7", "M4", "M3", "M2"]
+PREFERRED_METHOD_ORDER = ["M8", "M5", "M3", "M4", "M9", "M10", "M6", "M7", "M1",]
 
 def calculate_auc(history_arr, fraction):
     if history_arr is None or len(history_arr) == 0:
@@ -105,41 +108,74 @@ def load_auc_data(study_root, metric_key, budget_fraction):
     return pd.DataFrame(records)
 
 def plot_relative_heatmap(auc_df, output_path, metric_key, budget_fraction): 
-    lower_is_better = "distance" in metric_key.lower()
-    pivot = auc_df.pivot(index='Method', columns='Dataset', values='AUC')
+    LABEL_SIZE = 16 
+    CELL_SIZE = 12   
+    CBAR_SIZE = 16   
     
+    # 1. Pivot and Filter
+    pivot = auc_df.pivot(index='Method', columns='Dataset', values='AUC')
     existing_columns = [ds for ds in DATASET_ORDER if ds in pivot.columns]
     pivot = pivot[existing_columns]
+    
+    # 2. Calculate Relative Efficiency
     baseline_label = METHOD_LABELS.get(BASELINE_ID)
-
     if baseline_label not in pivot.index: return
+    
     relative_pivot = pivot.div(pivot.loc[baseline_label], axis=1)    
     unique_method_labels = [METHOD_LABELS[m] for m in PREFERRED_METHOD_ORDER if m in METHOD_LABELS and METHOD_LABELS[m] in relative_pivot.index]
     relative_pivot = relative_pivot.reindex(unique_method_labels)
 
-    plt.figure(figsize=(26, 10))
-
+    # 3. Define Aesthetics based on Metric
+    lower_is_better = "distance" in metric_key.lower()
     if lower_is_better:
-        # Green if Other/UNREAL > 1.0 (UNREAL is smaller/better)
+        # Green is good (below baseline), Red is bad
         cmap = sns.diverging_palette(10, 130, as_cmap=True, s=90, l=60, center="light")
         vmin, vmax = 0.4, 1.6 
     else:
-        # Green if Other/UNREAL < 1.0 (UNREAL is larger/better)
+        # Green is good (above baseline), Red is bad
         cmap = sns.diverging_palette(130, 10, as_cmap=True, s=90, l=60, center="light")
         vmin, vmax = 0.85, 1.15
 
+    # 4. Plot
+    fig, ax = plt.subplots(figsize=(24, 10))
+
     sns.heatmap(
-        relative_pivot, annot=True, fmt=".3f", cmap=cmap, center=1.0,
-        vmin=vmin, vmax=vmax, linewidths=0.5,
-        cbar_kws={'label': f'Efficiency Ratio (vs {baseline_label})'}
+        relative_pivot, 
+        annot=True, 
+        fmt=".3f", 
+        cmap=cmap, 
+        center=1.0,
+        vmin=vmin, 
+        vmax=vmax, 
+        linewidths=3,    
+        linecolor='white',
+        annot_kws={
+            "size": 10, 
+            "weight": "bold",
+            "family": "sans-serif" 
+        }, 
+        cbar_kws={
+            'label': f'Efficiency Ratio against {baseline_label}',
+            'shrink': 0.7, 
+            'pad': 0.01   
+        },
+        ax=ax
     )
     
-    # display_metric = metric_key.replace("_history", "").replace("_", " ").title()
-    # plt.title(f"Efficiency Ratios: {display_metric} ({int(budget_fraction*100)}% Budget)\n"
-            #   f"Green = {baseline_label} Wins | Red = Baseline Wins", fontsize=18, pad=20)
-    plt.xticks(rotation=45, ha='right', fontsize=10)
+    # 5. Final Polish
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+
+    plt.xticks(rotation=45, ha='right', fontsize=LABEL_SIZE)
+    plt.yticks(fontsize=LABEL_SIZE)
+
+    # Clean up Colorbar text
+    cbar_axis = ax.collections[0].colorbar.ax
+    cbar_axis.yaxis.label.set_size(CBAR_SIZE)
+    cbar_axis.tick_params(labelsize=CBAR_SIZE - 2)
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
 
 def main():

@@ -4,10 +4,34 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
+import matplotlib.pyplot as plt
 
-### Methods to Plot
-# METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M8", "M9", "M5", "M10"]
-METHODS_TO_PLOT = ["M1", "M2", "M3", "M4", "M6", "M7",  "M5", "M8"]
+
+### CONFIGURATION ###
+FONT_SIZE = 16
+METHODS_TO_PLOT = ["M1", "M3", "M4", "M6", "M9", "M10", "M7", "M5", "M8"]
+METHOD_LABELS = {
+    "M1": "Random",
+    # "M2": "QBC-RF (p=3)",
+    "M3": "QBC-RF (p=sqrt)",
+    "M4": "QBC-RF (p=d)",
+    "M5": "UNREAL",
+    "M6": "Uncertainty",
+    "M7": "Coreset",
+    "M8": "BREAL",
+    "M9": "QBC-RF (Weighted, p=sqrt)",
+    "M10": "QBC-RF (Weighted, p=d)",
+}
+
+plt.rcParams.update({
+    'font.size': FONT_SIZE,          # Global font size
+    'axes.titlesize': FONT_SIZE,      # Title size
+    'axes.labelsize': FONT_SIZE,      # X and Y labels
+    'xtick.labelsize': FONT_SIZE - 2, # X tick labels (slightly smaller)
+    'ytick.labelsize': FONT_SIZE - 2, # Y tick labels
+    'legend.fontsize': FONT_SIZE - 2, # Legend text
+    'figure.titlesize': FONT_SIZE + 2 # Overall figure title
+})
 
 ### XLIMS ###
 DATASET_XLIMS = {
@@ -45,38 +69,32 @@ DATASET_XLIMS = {
     # "vote": (0,75),
     # "yeast": (0,600),
 }
-### CONFIGURATION ###
-METHOD_LABELS = {
-    "M1": "Random Sampling",
-    "M2": "RF (Feat=3)",
-    "M3": "RF (Feat=Sqrt)",
-    "M4": "RF (Feat=All)",
-    "M5": "UNREAL (Uniform)",
-    "M6": "Uncertainty Sampling",
-    "M7": "Coreset (Hamming)",
-    "M8": "UNREAL (Bayesian)"
-}
+
 
 METHOD_COLORS = {
-    "M1": "#808080",  # Random Sampling
-    "M2": "#2ca02c",  # RF (Feat=3)
-    "M3": "#ff7f0e",  # RF (Feat=Sqrt)
-    "M4": "#e377c2",  # RF (Feat=All)
+    "M1": "#808080",  # Random
+    # "M2": "#2ca02c",  # QBC-RF (p=3)
+    "M3": "#ff7f0e",  # QBC-RF (p=√d)
+    "M4": "#2ca02c",  # QBC-RF (p=d)
     "M5": "#1f77b4",  # UNREAL (Uniform)
-    "M6": "#9467bd",  # Uncertainty Sampling
-    "M7": "#8c564b",  # Coreset (Hamming)
-    "M8": "#d62728",  # UNREAL (Bayesian)
+    "M6": "#9467bd",  # Uncertainty
+    "M7": "#8c564b",  # Coreset — brown
+    "M8": "#d62728",  # UNREAL (Weighted)
+    "M9": "#17becf",  # QBC-RF (Weighted, p=√d)
+    "M10": "#bcbd22", # QBC-RF (Weighted, p=d)
 }
 
 METHOD_STYLES = {
-    "M1": "--",
-    "M2": ":",
-    "M3": ":",
-    "M4": ":",
-    "M5": "-",
-    "M6": "-.",
-    "M7": "-.",
-    "M8": "-"
+    "M1": "--",   # Random — dashed
+    # "M2": "-.",    # QBC-RF uniform
+    "M3": ":",    # QBC-RF uniform
+    "M4": ":",    # QBC-RF uniform
+    "M5": "-",    # UNREAL — solid 
+    "M6": "--",   # Uncertainty
+    "M7": "--",   # Coreset
+    "M8": "-",    # UNREAL — solid 
+    "M9": "-.",   # QBC-RF Weighted 
+    "M10": "-.",  # QBC-RF Weighted 
 }
 
 METRICS_TO_PLOT = [
@@ -108,13 +126,12 @@ def load_aggregated_data(aggregated_dir):
 def plot_metric(data, metric_key, y_label, save_path, dataset_name, legend_loc="best", show_legend=True):
 
     ## Set up ##
-    # plt.figure(figsize=(10, 4))
     plt.figure(figsize=(5, 5))
     sorted_keys = sorted(data.keys(), key=lambda x: int(x[1:]) if x[1:].isdigit() else 99)
     has_data = False
 
     ## Plot each method ##
-    for method in sorted_keys:
+    for method in METHODS_TO_PLOT:
 
         # Set up #
         if method not in METHODS_TO_PLOT: continue
@@ -182,7 +199,7 @@ def plot_time_bar_chart(data, save_path, dataset_name):
     sorted_keys = sorted(data.keys(), key=lambda x: int(x[1:]) if x[1:].isdigit() else 99)
 
     ## For each method ##
-    for method in sorted_keys:
+    for method in METHODS_TO_PLOT:
 
         # Calculate statistics #
         if method not in METHODS_TO_PLOT: continue
@@ -217,7 +234,7 @@ def plot_time_bar_chart(data, save_path, dataset_name):
     print(f"  -> Saved {save_path.name}")
 
 ### Generate standalone legend ###
-def generate_legend(output_path, ncol=4):
+def generate_legend(output_path, ncol=3):
     handles = []
     labels = []
     for method in METHODS_TO_PLOT:
@@ -250,7 +267,7 @@ def plot_variance_metric(data, metric_key, y_label, save_path, dataset_name, sho
     sorted_keys = sorted(data.keys(), key=lambda x: int(x[1:]) if x[1:].isdigit() else 99)
     has_data = False
 
-    for method in sorted_keys:
+    for method in METHODS_TO_PLOT:
         if method not in METHODS_TO_PLOT: continue
         history = data[method].get(metric_key)        
         if history is None or (isinstance(history, np.ndarray) and history.size == 0): 
@@ -339,7 +356,7 @@ def main():
                          dataset_title, show_legend=args.show_legend)
         
     ## Bar charts ##
-    plot_time_bar_chart(data, img_dir / "elapsed_time.png", dataset_title)
+    # plot_time_bar_chart(data, img_dir / "elapsed_time.png", dataset_title)
 
 ### Main ###
 if __name__ == "__main__":

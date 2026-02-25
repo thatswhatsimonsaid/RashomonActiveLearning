@@ -1,5 +1,3 @@
-import numpy as np
-
 ### SLURM Configuration ###
 SLURM_CONFIG = {
     "partition": "short",
@@ -84,7 +82,7 @@ BASE_SELECTORS = [
         "selector_model": "PySORTDWrapper", 
         "selector": "QBC", 
         "fixed_threshold": 0.0,
-        "params": {**SELECTION_PARAMS, "beta": 0.0} # Bypasses Stage 3 -> stays 0.0
+        "params": {**SELECTION_PARAMS, "beta": 0.0} 
     },
 
     # 6. Classic Uncertainty Sampling (Greedy Tree) #
@@ -103,37 +101,37 @@ BASE_SELECTORS = [
     "params": {}
     },
 
-    # 8. UNREAL-BMA
+    # 8. UNREAL- Weighted
     {
         "selector_model": "PySORTDWrapper", 
         "selector": "QBC", 
         "fixed_threshold": 0.0,  
-        "params": {**SELECTION_PARAMS, "beta": "calibrated"} # TRIGGERS Stage 3 Calibration!
+        "params": {**SELECTION_PARAMS, "beta": "calibrated"} 
     },
 
-    # 9. RF-BMA
+    # 9. RF Weighted
     {
         "selector_model": "BMARandomForest", 
         "selector": "QBC", 
         "fixed_threshold": 0.0,
         "params": {
             **RF_SELECTION_PARAMS, 
-            "max_depth": SELECTION_PARAMS["max_depth"], # Fair Depth
-            "max_features": "sqrt",                       # Fair Feature set
-            "beta": "calibrated"                        # Fair Weighting
+            "max_depth": SELECTION_PARAMS["max_depth"], 
+            "max_features": "sqrt",                     
+            "beta": "calibrated"                        
         }
     },
 
-    # 10. RF-BMA
+    # 10. RF Weighted
     {
         "selector_model": "BMARandomForest", 
         "selector": "QBC", 
         "fixed_threshold": 0.0,
         "params": {
             **RF_SELECTION_PARAMS, 
-            "max_depth": SELECTION_PARAMS["max_depth"], # Fair Depth
-            "max_features": 1.0,                        # Fair Feature set
-            "beta": "calibrated"                        # Fair Weighting
+            "max_depth": SELECTION_PARAMS["max_depth"], 
+            "max_features": 1.0,                        
+            "beta": "calibrated"                        
         }
     }
 ]

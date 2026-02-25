@@ -1,3 +1,4 @@
+### Libraries ###
 import argparse
 import pickle
 from pathlib import Path
@@ -20,13 +21,14 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
     Reads individual seed .pkl files for specific finished methods, 
     aggregates histories, and saves summary .pkl files.
     """
-    
+
+    ### 0. Input ###
+    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10"}    
+
     ## 1. Define paths ##
     results_dir = project_root / "results" / study_dir / dataset_subdir
     output_dir = results_dir / "aggregated"
     
-    # Define the specific methods that finished/we want to aggregate
-    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"}    
     print(f"Aggregating results in: {results_dir}")
     if not results_dir.exists():
         print(f"  > [ERROR] Directory not found: {results_dir}")
@@ -78,9 +80,9 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
         "rashomon_size_history",
         "committee_size_history",        
         "tree_edit_distance_history",
-        "elapsed_time",
-        "feature_rank_correlation_history",
-        "feature_jaccard_history"      
+        "elapsed_time"
+        # "feature_rank_correlation_history",
+        # "feature_jaccard_history"      
     ]
 
     ## 4. Run Aggregation ##
@@ -144,7 +146,7 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
         else:
             print(f"    - No valid data found for {method_name}.")
 
-    print(f"  ✨ Aggregation Complete.")
+    print(f" Aggregation Complete.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

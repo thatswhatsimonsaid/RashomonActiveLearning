@@ -161,7 +161,7 @@ def main():
         current_selector_params["rashomon_multiplier"] = effective_multiplier
         strategy_params["beta"] = calibration_results.get("beta", 0.0)
 
-    # 3d. Update Predictor Params (The 'Target' Hypothesis Class)
+    # 3d. Update Predictor Params 
     predictor_params.update({
         "regularization": calibration_results["regularization"],
         "max_depth": 5 

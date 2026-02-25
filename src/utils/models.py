@@ -31,7 +31,7 @@ except ImportError:
 try:
     from pysortd import SORTDClassifier
 
-    # Scikit-Learn 1.6+ removed _validate_data, breaking PySORTD.
+    # Scikit-Learn 1.6+ removed _validate_data
     if hasattr(SORTDClassifier, "fit") and not hasattr(SORTDClassifier, "_validate_data"):
         from sklearn.utils.validation import check_array, check_X_y
         

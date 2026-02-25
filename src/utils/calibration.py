@@ -32,7 +32,6 @@ def calibrate_hyperparameters(
         for reg in effective_lambda_grid:
             accuracies = []
             for train_idx, val_idx in loo.split(X):
-                # Build params dynamically
                 run_params = {**base_params, "max_depth": depth}
                 if has_reg:
                     run_params["regularization"] = reg

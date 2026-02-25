@@ -14,30 +14,32 @@ RAW_URL_BASE = "https://raw.githubusercontent.com/ConSol-Lab/pysortd/main/data/a
 
 ### Import datasets ###
 DATASET_FILES = [
-    "HTRU2.csv", # LEAVE OUT - too big/long?
-    "anneal.csv",
-    "bank_marketing.csv",
-    "banknote_authentication.csv",
-    "bar-7.csv",
-    "biodeg.csv", # LEAVE OUT - too big/long?
-    "breast_cancer_wisconsin.csv",
-    "car_evaluation.csv", 
-    "cheap_restaurant.csv", 
-    "coffee_house.csv", 
-    "expensive_restaurant.csv",
-    "haberman.csv",
-    "hepatitis.csv",
-    "hypothyroid.csv",
-    "kr-vs-kp.csv", 
-    "lymph.csv",
-    "monk1.csv",
-    "monk2.csv",
-    "monk3.csv",
-    "primary-tumor.csv",
-    "spect.csv",
-    "tic-tac-toe.csv",
-    "vote.csv",
-    "yeast.csv"
+    "anneal.csv",                               # Dataset 1
+    "bank_marketing.csv",                       # Dataset 2
+    "bar-7.csv",                                # Dataset 3
+    "breast_cancer_wisconsin.csv",              # Dataset 4
+    "car_evaluation.csv",                       # Dataset 5
+    "cheap_restaurant.csv",                     # Dataset 6
+    "coffee_house.csv",                         # Dataset 7
+    "expensive_restaurant.csv",                 # Dataset 8
+    "haberman.csv",                             # Dataset 9
+    "hepatitis.csv",                            # Dataset 10
+    "hypothyroid.csv",                          # Dataset 11
+    "kr-vs-kp.csv",                             # Dataset 12
+    "lymph.csv",                                # Dataset 13
+    # "monk1.csv",                                # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
+    "monk2.csv",                                # Dataset 15 
+    # "monk3.csv",                                # Dataset 16 (replace with COMPAS [or bank_note/spect] if finish on time)
+    "primary-tumor.csv",                        # Dataset 17
+    "tic-tac-toe.csv",                          # Dataset 18
+    "vote.csv",                                 # Dataset 19
+    "yeast.csv"                                 # Dataset 20
+
+    ### Excluded ###
+    # "banknote_authentication.csv",            # Over the max 20 datasets
+    # "biodeg.csv",                             # Over the max 20 datasets
+    # "HTRU2.csv",                              # Over the max 20 datasets
+    "spect.csv",                              # Over the max 20 datasets
 ]
 
 ### Additional Datasets (TreeFarms Repository) ###

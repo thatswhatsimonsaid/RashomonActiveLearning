@@ -55,7 +55,7 @@ def get_random_initial_indices(y_train: np.ndarray, n_initial: int, random_state
     classes = np.unique(y_train)
     indices = []
 
-    # Stratified Pick (Try to get one of each class first) #
+    # Stratified Pick #
     for c in classes:
         c_indices = np.where(y_train == c)[0]
         if len(c_indices) > 0:

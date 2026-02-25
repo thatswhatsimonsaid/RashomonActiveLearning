@@ -48,11 +48,10 @@ def check_file_counts(root_dir=".", method_filter=None):
     print("-" * len(header))
 
     # Dynamic Rows
-    # Dynamic Rows
     missing_info = []
     for ds in datasets:
         row_str = f"{ds:<30} | "
-        required_methods = {f"M{i}" for i in range(1, 10)}
+        required_methods = {f"M{i}" for i in range(1, 11)}
         all_complete = all(stats[ds].get(m, 0) == max_found for m in required_methods)
         for m in methods:
             c = stats[ds].get(m, 0)
@@ -83,7 +82,7 @@ def check_file_counts(root_dir=".", method_filter=None):
 
     # Missing Seeds Report
     if missing_info:
-        print(f"\n📋 Missing Seeds:")
+        print(f"\n Missing Seeds:")
         for ds, m, seeds in missing_info:
             print(f"  {ds} / {m}: seeds {seeds}")
 

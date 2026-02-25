@@ -116,7 +116,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd 
 DATASETS_DIR="$SCRIPT_DIR/datasets"
 
 echo "--------------------------------------------------------"
-echo "🚀 Smart Launcher: Resilient Mode"
+echo "Smart Launcher: Resilient Mode"
 echo "   Target: $STUDY_DIR | Max Jobs: $MAX_JOBS"
 echo "--------------------------------------------------------"
 
@@ -141,7 +141,7 @@ for dataset_path in "$DATASETS_DIR"/*; do
 
         if [ "$num_scripts" -eq 0 ]; then continue; fi
 
-        echo "📂 Processing: $dataset_name (Needs $total_tasks slots)"
+        echo "Processing: $dataset_name (Needs $total_tasks slots)"
 
         if check_dataset_running "$dataset_name"; then
              echo "Skipping $dataset_name (Already in Queue)"
@@ -157,14 +157,14 @@ for dataset_path in "$DATASETS_DIR"/*; do
                 sleep 5
                 break 
             else
-                echo "   ⏳ Queue Full ($current_jobs/$MAX_JOBS). Need $total_tasks. Sleeping ${{CHECK_INTERVAL}}s..."
+                echo "   Queue Full ($current_jobs/$MAX_JOBS). Need $total_tasks. Sleeping ${{CHECK_INTERVAL}}s..."
                 sleep $CHECK_INTERVAL
             fi
         done
     fi
 done
 echo "--------------------------------------------------------"
-echo "🎉 All Datasets Submitted! Exiting."
+echo " All Datasets Submitted! Exiting."
 echo "--------------------------------------------------------"
 """
 
@@ -179,7 +179,7 @@ PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")
 RESULTS_ROOT="$PROJECT_ROOT/results/$STUDY_DIR"
 JOB_SCRIPTS_DIR="$SCRIPT_DIR/datasets"
 
-echo "🔍 Global Smart Aggregate: Checking $STUDY_DIR"
+echo "Global Smart Aggregate: Checking $STUDY_DIR"
 
 for dataset_path in "$RESULTS_ROOT"/*; do
     if [ -d "$dataset_path" ]; then
@@ -208,7 +208,7 @@ PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")
 RESULTS_ROOT="$PROJECT_ROOT/results/$STUDY_DIR"
 JOB_SCRIPTS_DIR="$SCRIPT_DIR/datasets"
 
-echo "🎨 Global Smart Plotter: Launching plots for aggregated datasets"
+echo "Global Smart Plotter: Launching plots for aggregated datasets"
 
 for dataset_path in "$RESULTS_ROOT"/*; do
     dataset_name=$(basename "$dataset_path")
@@ -297,7 +297,7 @@ if __name__ == "__main__":
         print(f"\n=== STUDY: {study_name} ===")
 
         for dataset in datasets:
-            print(f"🛠️  Generating: {dataset}\n", end=" ", flush=True)
+            print(f"  Generating: {dataset}\n", end=" ", flush=True)
             dataset_sbatch_dir = study_sbatch_dir / "datasets" / dataset
             dataset_log_dir = LOG_DIR / study_name / dataset
             dataset_sbatch_dir.mkdir(parents=True, exist_ok=True)
@@ -357,7 +357,7 @@ python src/utils/plot_results.py --dataset "{dataset}" --study_dir "study1_activ
             run_all_content = f"""#!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 
-echo "🚀 Submitting all jobs for {dataset}..."
+echo " Submitting all jobs for {dataset}..."
 for sbatch_file in "$SCRIPT_DIR"/submit_*.sbatch; do
     # echo "  -> Submitting $sbatch_file"
     sbatch "$sbatch_file"

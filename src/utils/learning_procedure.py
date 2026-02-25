@@ -84,7 +84,7 @@ def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str
         if hasattr(config.selector_model, "get_rashomon_size"):
              results.rashomon_size_history.append(config.selector_model.get_rashomon_size())
              
-        # 5. Check Termination Condition (Full Dataset Reached)
+        # 5. Check Termination Condition (iie. Full Dataset Reached)
         if df_candidate.empty:
             results.selection_history.append(None)
             results.entropy_history.append({})

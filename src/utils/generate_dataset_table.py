@@ -14,7 +14,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 DATA_DIR = PROJECT_ROOT / "src" / "data"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "study1_active_learning"
-FRAGMENTS_DIR = OUTPUT_DIR / "table_fragments"
+FRAGMENTS_DIR = OUTPUT_DIR / "Tables"/"table_fragments"
 OUTPUT_FILENAME = "DatasetTable.tex"
 sys.path.append(str(PROJECT_ROOT))
 from src.utils.models import PySORTDWrapper
@@ -29,27 +29,32 @@ PYSORTD_CONFIG = {
 }
 BETA = 10.0
 
+
+
 META_INFO = {
-    "anneal":                       ("Anneal",                   "UCI"),
-    "bank_marketing":               ("Bank Marketing",           "UCI"),
-    "banknote_authentication":      ("Banknote Auth.",            "UCI"),
-    "bar-7":                        ("Bar-7",                    "SORTD"),
-    "biodeg":                       ("Biodegradation",           "UCI"),
-    "breast_cancer_wisconsin":      ("Breast Cancer WI",         "UCI"),
-    "cheap_restaurant":             ("Cheap Restaurant",         "SORTD"),
-    "coffee_house":                 ("Coffee House",             "SORTD"),
-    "expensive_restaurant":         ("Expensive Restaurant",     "SORTD"),
-    "haberman":                     ("Haberman",                 "UCI"),
-    "hepatitis":                    ("Hepatitis",                "UCI"),
-    "hypothyroid":                  ("Hypothyroid",              "UCI"),
-    "lymph":                        ("Lymphography",             "UCI"),
-    "monk1":                        ("MONK-1",                   "UCI"),
-    "monk2":                        ("MONK-2",                   "UCI"),
-    "monk3":                        ("MONK-3",                   "UCI"),
-    "primary-tumor":                ("Primary Tumor",            "UCI"),
-    "tic-tac-toe":                  ("Tic-Tac-Toe",              "UCI"),
-    "vote":                         ("Congressional Vote",       "UCI"),
-    "yeast":                        ("Yeast",                    "UCI"),
+    "anneal":                       ("Anneal",                   "UCI"),    # Dataset 1
+    "bank_marketing":               ("Bank Marketing",           "UCI"),    # Dataset 2
+    "banknote_authentication":      ("Banknote Auth.",            "UCI"),   # Dataset 3 
+    "bar-7":                        ("Bar-7",                    "SORTD"),  # Dataset 4
+    "biodeg":                       ("Biodegradation",           "UCI"),    # Dataset 5
+    "breast_cancer_wisconsin":      ("Breast Cancer WI",         "UCI"),    # Dataset 6
+    "cheap_restaurant":             ("Cheap Restaurant",         "SORTD"),  # Dataset 7
+    "coffee_house":                 ("Coffee House",             "SORTD"),  # Dataset 8
+    "compas":                       ("COMPAS",                   "ProPublica"), # Dataset 16
+    "expensive_restaurant":         ("Expensive Restaurant",     "SORTD"),  # Dataset 9
+    # "fico":                         ("FICO (HELOC)",             "FICO"),   # Dataset 16
+    "haberman":                     ("Haberman",                 "UCI"),    # Dataset 10
+    "hepatitis":                    ("Hepatitis",                "UCI"),    # Dataset 11
+    "hypothyroid":                  ("Hypothyroid",              "UCI"),    # Dataset 12
+    "lymph":                        ("Lymphography",             "UCI"),    # Dataset 13
+    # "monk1":                        ("MONK-1",                   "UCI"),    # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
+    "monk2":                        ("MONK-2",                   "UCI"),    # Dataset 15
+    # "monk3":                        ("MONK-3",                   "UCI"),    # Dataset 16( replace with COMPAS [or bank_note/spect] if finish on time)
+    "primary-tumor":                ("Primary Tumor",            "UCI"),    # Dataset 17
+    "spect":                        ("SPECT Heart",              "UCI"),    # Dataset 14
+    "tic-tac-toe":                  ("Tic-Tac-Toe",              "UCI"),    # Dataset 18
+    "vote":                         ("Congressional Vote",       "UCI"),    # Dataset 19
+    "yeast":                        ("Yeast",                    "UCI"),    # Dataset 20
     "Synthetic_XOR_Baseline":       (r"Synth.\ XOR ($\alpha$=0, $\phi$=0)",        "Synthetic"),
     "Synthetic_XOR_Alpha_25":       (r"Synth.\ XOR ($\alpha$=0.25)",               "Synthetic"),
     "Synthetic_XOR_Alpha_50":       (r"Synth.\ XOR ($\alpha$=0.50)",               "Synthetic"),
@@ -128,9 +133,7 @@ def merge_and_generate_latex():
     for row in rows:
         if prev_source and row["source"] == "Synthetic" and prev_source != "Synthetic":
             latex += r"        \midrule" + "\n"
-        prev_source = row["source"]
-        
-        # Updated formatting: {row['ecs']:, .1f} adds commas AND keeps 1 decimal point
+        prev_source = row["source"]        
         latex += (f"        {row['no']} & {row['name']} & {row['source'][:3]} & "
               f"{row['n_samples']:,} & {row['n_features']} & "
               f"{row['majority_pct']:.1f} & {row['linear_acc']:.1f} & "

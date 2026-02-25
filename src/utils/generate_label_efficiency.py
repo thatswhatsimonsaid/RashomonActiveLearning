@@ -12,47 +12,54 @@ BASELINE_ID = "M1"
 TARGET_PERCENTAGES = [0.7, 0.8, 0.9] 
 
 INCLUDED_DATASETS = [
-    "anneal", 
-    "bank_marketing", 
-    "bar-7", 
-    "breast_cancer_wisconsin",
-    "car_evaluation", 
-    "cheap_restaurant", 
-    "coffee_house", 
-    "expensive_restaurant", 
-    "haberman", 
-    "hepatitis", 
-    "hypothyroid", 
-    "lymph", 
-    "monk1", 
-    "monk2", 
-    "monk3", 
-    "primary-tumor", 
-    "spect", 
-    "tic-tac-toe", 
-    "vote", 
-    "yeast"
+    "anneal",                               # Dataset 1
+    "bank_marketing",                       # Dataset 2
+    "bar-7",                                # Dataset 3
+    "breast_cancer_wisconsin",              # Dataset 4
+    "car_evaluation",                       # Dataset 5
+    "cheap_restaurant",                     # Dataset 6
+    "coffee_house",                         # Dataset 7
+    "compas",
+    "expensive_restaurant",                 # Dataset 8
+    # "fico",
+    "haberman",                             # Dataset 9
+    "hepatitis",                            # Dataset 10
+    "hypothyroid",                          # Dataset 11
+    "kr-vs-kp",                             # Dataset 12
+    "lymph",                                # Dataset 13
+    # "monk1",                                # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
+    "monk2",                                # Dataset 15 
+    # "monk3",                                # Dataset 16 (replace with COMPAS [or bank_note/spect] if finish on time)
+    "primary-tumor",                        # Dataset 17
+    "spect",
+    "tic-tac-toe",                          # Dataset 18
+    "vote",                                 # Dataset 19
+    "yeast"                                 # Dataset 20
 ]
+
 
 NAME_MAPPING = {
     "M1": "Random",
-    "M2": "RF (Feat=3)",
-    "M3": "RF (Feat=Sqrt)",
-    "M4": "RF (Feat=All)",
-    "M5": "UNREAL (Uniform)",
-    "M6": "Uncertainty Sampling",
+    # "M2": "QBC-RF (p=3)",
+    "M3": "QBC-RF (Uniform, p=sqrt)",
+    "M4": "QBC-RF (Uniform, p=d)",
+    "M5": "UNREAL",
+    "M6": "Uncertainty",
     "M7": "Coreset",
-    "M8": "UNREAL (Bayesian)" 
+    "M8": "BREAL",
+    "M9": "QBC-RF (Weighted, p=sqrt)",
+    "M10": "QBC-RF (Weighted, p=d)",
 }
 
-# Updated ORDER to match NAME_MAPPING values exactly
+# Must match NAME_MAPPING values exactly
 ORDER = [
-    "UNREAL (Bayesian)", 
-    "UNREAL (Uniform)", 
-    "RF (Feat=All)", 
-    "RF (Feat=Sqrt)", 
-    "RF (Feat=3)",
-    "Uncertainty Sampling", 
+    "BREAL", 
+    "UNREAL", 
+    "QBC-RF (Uniform, p=sqrt)",
+    "QBC-RF (Uniform, p=d)",
+    "QBC-RF (Weighted, p=sqrt)",
+    "QBC-RF (Weighted, p=d)",
+    "Uncertainty", 
     "Coreset"
 ]
 def calculate_n_rel(study_root):
