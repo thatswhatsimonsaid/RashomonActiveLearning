@@ -122,5 +122,18 @@ BASE_SELECTORS = [
             "max_features": "sqrt",                       # Fair Feature set
             "beta": "calibrated"                        # Fair Weighting
         }
+    },
+
+    # 10. RF-BMA
+    {
+        "selector_model": "BMARandomForest", 
+        "selector": "QBC", 
+        "fixed_threshold": 0.0,
+        "params": {
+            **RF_SELECTION_PARAMS, 
+            "max_depth": SELECTION_PARAMS["max_depth"], # Fair Depth
+            "max_features": 1.0,                        # Fair Feature set
+            "beta": "calibrated"                        # Fair Weighting
+        }
     }
 ]

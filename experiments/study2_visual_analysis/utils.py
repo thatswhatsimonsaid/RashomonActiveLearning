@@ -13,15 +13,14 @@ import re
 import matplotlib.patheffects as pe
 from treefarms import TREEFARMS
 import statsmodels.api as sm
-
-# Production Imports (Requires project root in PYTHONPATH)
 from src.utils.models import BMARandomForestWrapper, PySORTDWrapper, RandomForestWrapper
 from src.utils.query_strategies import QBCSelector
 
 ### Set up ###
+N_NOISE_FOR_EXPERIMENT= 5
 warnings.filterwarnings("ignore", category=UserWarning)
 plt.style.use('seaborn-v0_8-whitegrid')
-BINARIZED_FEATURES = ['X1_bin_0.33', 'X1_bin_0.66', 'X2_bin_0.33', 'X2_bin_0.66']
+BINARIZED_FEATURES = ['X1_bin_0.33', 'X1_bin_0.66', 'X2_bin_0.33', 'X2_bin_0.66']+ [f'N{i}_bin_0.5' for i in range(N_NOISE_FOR_EXPERIMENT)]
 
 # ==============================================================================
 # --- DATA GENERATION ---
@@ -38,9 +37,7 @@ def create_data_pool(n_points: int, pool_seed: int) -> pd.DataFrame:
     n_noise_vars = 18
     np.random.seed(pool_seed)
     
-    # Signal features
     X_signal = np.random.rand(n_points, 2)
-    # Noise features
     X_noise = np.random.rand(n_points, n_noise_vars)
     
     X_total = np.hstack([X_signal, X_noise])
@@ -55,7 +52,7 @@ def create_data_pool(n_points: int, pool_seed: int) -> pd.DataFrame:
         df_pool[f'X2_bin_{val}'] = (df_pool['X2_cont'] > val).astype(int)
         
     # Binarize a subset of noise features
-    for i in range(min(n_noise_vars, 5)):
+    for i in range(min(n_noise_vars, N_NOISE_FOR_EXPERIMENT)):
         df_pool[f'N{i}_bin_0.5'] = (df_pool[f'N{i}_cont'] > 0.5).astype(int)
 
     return df_pool
@@ -79,14 +76,13 @@ def get_weighted_entropies(model_wrapper, df_train, df_candidate, beta=50.0):
     cand_copy = df_candidate[BINARIZED_FEATURES].copy()
     cand_copy['Y'] = 0
 
-    # 2. FIX: Subset Training Data to match the 4 features models expect
-    # This prevents the "X has 29 features but expected 4" error during loss calc
+    # 2. Subset Training Data to match the 4 features models expect
     train_copy = df_train[BINARIZED_FEATURES].copy()
     train_copy['Y'] = df_train['label']
 
     selection_output = selector.select(
         model=model_wrapper,
-        df_train=train_copy, # <--- Now only has 4 columns
+        df_train=train_copy, 
         df_candidate=cand_copy
     )
     
