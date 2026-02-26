@@ -19,19 +19,19 @@ INCLUDED_DATASETS = [
     "car_evaluation",                       # Dataset 5
     "cheap_restaurant",                     # Dataset 6
     "coffee_house",                         # Dataset 7
-    "compas",
-    "expensive_restaurant",                 # Dataset 8
-    # "fico",
-    "haberman",                             # Dataset 9
-    "hepatitis",                            # Dataset 10
-    "hypothyroid",                          # Dataset 11
-    "kr-vs-kp",                             # Dataset 12
-    "lymph",                                # Dataset 13
-    # "monk1",                                # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
-    "monk2",                                # Dataset 15 
-    # "monk3",                                # Dataset 16 (replace with COMPAS [or bank_note/spect] if finish on time)
+    "compas",                               # Dataset 8
+    "expensive_restaurant",                 # Dataset 9
+    "fico",                                 # Dataset 10
+    "haberman",                             # Dataset 11
+    "hepatitis",                            # Dataset 12
+    "hypothyroid",                          # Dataset 13
+    "kr-vs-kp",                             # Dataset 14
+    "lymph",                                # Dataset 15
+    # "monk1",                             
+    "monk2",                                # Dataset 16 
+    # "monk3",                             
     "primary-tumor",                        # Dataset 17
-    "spect",
+    # "spect",          
     "tic-tac-toe",                          # Dataset 18
     "vote",                                 # Dataset 19
     "yeast"                                 # Dataset 20

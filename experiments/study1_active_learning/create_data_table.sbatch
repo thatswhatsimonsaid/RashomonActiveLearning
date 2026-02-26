@@ -1,8 +1,8 @@
 #!/bin/bash
 # --- Slurm Configuration ---
 #SBATCH --job-name=AL_TableGen
-#SBATCH --output=slurm_logs/table_%A_%a.out
-#SBATCH --error=slurm_logs/table_%A_%a.err
+#SBATCH --output=slurm_logs/generate_table/table_%A_%a.out
+#SBATCH --error=slurm_logs/generate_table/table_%A_%a.err
 #SBATCH --array=0-32 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -20,35 +20,37 @@ export PYTHONPATH=$PYTHONPATH:.
 
 # --- Dataset Mapping ---
 DATASETS=(
-    "Synthetic_XOR_Baseline",
-    "Synthetic_XOR_Phi_05",
-    "Synthetic_XOR_Phi_10",
-    "Synthetic_XOR_Phi_25",
-    "Synthetic_XOR_Phi_45",
-    "Synthetic_XOR_Alpha_50",
-    "Synthetic_XOR_Alpha_25",
-    "Synthetic_XOR_Alpha_75",
-    "Synthetic_XOR_Alpha_100",
-    "anneal",                               # Dataset 1
-    "bank_marketing",                       # Dataset 2
-    "bar-7",                                # Dataset 3
-    "breast_cancer_wisconsin",              # Dataset 4
-    "car_evaluation",                       # Dataset 5
-    "cheap_restaurant",                     # Dataset 6
-    "coffee_house",                         # Dataset 7
-    "expensive_restaurant",                 # Dataset 8
-    "haberman",                             # Dataset 9
-    "hepatitis",                            # Dataset 10
-    "hypothyroid",                          # Dataset 11
-    "kr-vs-kp",                             # Dataset 12
-    "lymph",                                # Dataset 13
-    "monk1",                                # Dataset 14 (replace with FICO if finish on time)
-    "monk2",                                # Dataset 15 
-    "monk3",                                # Dataset 16 (replace with COMPAS if finish on time)
-    "primary-tumor",                        # Dataset 17
-    "tic-tac-toe",                          # Dataset 18
-    "vote",                                 # Dataset 19
-    "yeast"                                 # Dataset 20
+    "Synthetic_XOR_Baseline"
+    "Synthetic_XOR_Phi_05"
+    "Synthetic_XOR_Phi_10"
+    "Synthetic_XOR_Phi_25"
+    "Synthetic_XOR_Phi_45"
+    "Synthetic_XOR_Alpha_50"
+    "Synthetic_XOR_Alpha_25"
+    "Synthetic_XOR_Alpha_75"
+    "Synthetic_XOR_Alpha_100"
+    "anneal"
+    "bank_marketing"
+    "bar-7"
+    "breast_cancer_wisconsin"
+    "car_evaluation"
+    "cheap_restaurant"
+    "coffee_house"
+    "compas"
+    "expensive_restaurant"
+    "fico"
+    "haberman"
+    "hepatitis"
+    "hypothyroid"
+    "kr-vs-kp"
+    "lymph"
+    "monk1"
+    "monk2"
+    "monk3"
+    "primary-tumor"
+    "tic-tac-toe"
+    "vote"
+    "yeast"
 )
 
 NUM_DATASETS=${#DATASETS[@]}

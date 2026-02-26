@@ -80,9 +80,7 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
         "rashomon_size_history",
         "committee_size_history",        
         "tree_edit_distance_history",
-        "elapsed_time"
-        # "feature_rank_correlation_history",
-        # "feature_jaccard_history"      
+        "elapsed_time"     
     ]
 
     ## 4. Run Aggregation ##

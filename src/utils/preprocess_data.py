@@ -27,25 +27,25 @@ DATASET_FILES = [
     "hypothyroid.csv",                          # Dataset 11
     "kr-vs-kp.csv",                             # Dataset 12
     "lymph.csv",                                # Dataset 13
-    # "monk1.csv",                                # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
-    "monk2.csv",                                # Dataset 15 
-    # "monk3.csv",                                # Dataset 16 (replace with COMPAS [or bank_note/spect] if finish on time)
-    "primary-tumor.csv",                        # Dataset 17
-    "tic-tac-toe.csv",                          # Dataset 18
-    "vote.csv",                                 # Dataset 19
-    "yeast.csv"                                 # Dataset 20
+    # "monk1.csv",                                
+    "monk2.csv",                                # Dataset 14 
+    # "monk3.csv",                                
+    "primary-tumor.csv",                        # Dataset 15
+    # "spect.csv",                              
+    "tic-tac-toe.csv",                          # Dataset 16
+    "vote.csv",                                 # Dataset 17
+    "yeast.csv"                                 # Dataset 18
 
     ### Excluded ###
     # "banknote_authentication.csv",            # Over the max 20 datasets
     # "biodeg.csv",                             # Over the max 20 datasets
     # "HTRU2.csv",                              # Over the max 20 datasets
-    "spect.csv",                              # Over the max 20 datasets
 ]
 
 ### Additional Datasets (TreeFarms Repository) ###
 TREEFARMS_DATASETS = {
-    "fico": "https://raw.githubusercontent.com/ubc-systopia/treeFarms/main/experiments/datasets/fico/fico-binary.csv",
-    "compas": "https://raw.githubusercontent.com/ubc-systopia/treeFarms/main/experiments/datasets/compas/binned.csv",
+    "fico": "https://raw.githubusercontent.com/ubc-systopia/treeFarms/main/experiments/datasets/fico/fico-binary.csv",  # Dataset 19
+    "compas": "https://raw.githubusercontent.com/ubc-systopia/treeFarms/main/experiments/datasets/compas/binned.csv",   # Dataset 20
 }
 
 def process_treefarms_dataset(name: str, url: str):

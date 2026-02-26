@@ -36,22 +36,23 @@ META_INFO = {
     "bank_marketing":               ("Bank Marketing",           "UCI"),    # Dataset 2
     "banknote_authentication":      ("Banknote Auth.",            "UCI"),   # Dataset 3 
     "bar-7":                        ("Bar-7",                    "SORTD"),  # Dataset 4
-    "biodeg":                       ("Biodegradation",           "UCI"),    # Dataset 5
-    "breast_cancer_wisconsin":      ("Breast Cancer WI",         "UCI"),    # Dataset 6
+    # "biodeg":                       ("Biodegradation",           "UCI"),    
+    "breast_cancer_wisconsin":      ("Breast Cancer WI",         "UCI"),    # Dataset 5
+    "car_evaluation":               ("Car Ealuation",            "UCI"),    # Dataset 6
     "cheap_restaurant":             ("Cheap Restaurant",         "SORTD"),  # Dataset 7
     "coffee_house":                 ("Coffee House",             "SORTD"),  # Dataset 8
-    "compas":                       ("COMPAS",                   "ProPublica"), # Dataset 16
-    "expensive_restaurant":         ("Expensive Restaurant",     "SORTD"),  # Dataset 9
-    "fico":                         ("FICO (HELOC)",             "FICO"),   # Dataset 16
-    "haberman":                     ("Haberman",                 "UCI"),    # Dataset 10
-    "hepatitis":                    ("Hepatitis",                "UCI"),    # Dataset 11
-    "hypothyroid":                  ("Hypothyroid",              "UCI"),    # Dataset 12
-    "lymph":                        ("Lymphography",             "UCI"),    # Dataset 13
-    # "monk1":                        ("MONK-1",                   "UCI"),    # Dataset 14 (replace with FICO [or bank_note/spect] if finish on time)
-    "monk2":                        ("MONK-2",                   "UCI"),    # Dataset 15
-    # "monk3":                        ("MONK-3",                   "UCI"),    # Dataset 16( replace with COMPAS [or bank_note/spect] if finish on time)
+    "compas":                       ("COMPAS",                   "ProPublica"), # Dataset 9
+    "expensive_restaurant":         ("Expensive Restaurant",     "SORTD"),  # Dataset 10
+    "fico":                         ("FICO (HELOC)",             "FICO"),   # Dataset 11
+    "haberman":                     ("Haberman",                 "UCI"),    # Dataset 12
+    "hepatitis":                    ("Hepatitis",                "UCI"),    # Dataset 13
+    "hypothyroid":                  ("Hypothyroid",              "UCI"),    # Dataset 14
+    "lymph":                        ("Lymphography",             "UCI"),    # Dataset 15
+    # "monk1":                        ("MONK-1",                   "UCI"),  
+    "monk2":                        ("MONK-2",                   "UCI"),    # Dataset 16
+    # "monk3":                        ("MONK-3",                   "UCI"),  
     "primary-tumor":                ("Primary Tumor",            "UCI"),    # Dataset 17
-    "spect":                        ("SPECT Heart",              "UCI"),    # Dataset 14
+    # "spect":                        ("SPECT Heart",              "UCI"),    
     "tic-tac-toe":                  ("Tic-Tac-Toe",              "UCI"),    # Dataset 18
     "vote":                         ("Congressional Vote",       "UCI"),    # Dataset 19
     "yeast":                        ("Yeast",                    "UCI"),    # Dataset 20
@@ -144,7 +145,7 @@ def merge_and_generate_latex():
     \end{tabular}
 \end{table*}
 """
-    with open(OUTPUT_DIR / OUTPUT_FILENAME, "w") as f:
+    with open(OUTPUT_DIR / "Tables"/  OUTPUT_FILENAME, "w") as f:
         f.write(latex)
         
 if __name__ == "__main__":
