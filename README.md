@@ -150,5 +150,5 @@ results/            # Output directory for raw seeds, aggregated data, and plots
 | `generate_label_efficiency.py` | Computes $N_{rel}$, measuring labels required relative to Random Sampling to reach performance milestones (70%, 80%, 90%) |
 | `generate_auc_heatmaps.py` | Generates heatmaps of AUC ratios with budget truncation (90%), focusing on early-stage learning efficiency |
 | `generate_runtime_table.py` | Compiles computational cost data into publication-ready LaTeX tables |
-| `generate_dataset_table.py` | Summarizes dataset properties, including Rashomon Set Size ($|\hat{\mathcal{R}}|$) and Effective Committee Size (ECS) |
+| `generate_dataset_table.py` | Summarizes dataset properties, including Rashomon Set Size and Effective Committee Size (ECS)
 | `check_counts.py` | Diagnostic tool providing a real-time grid of experiment completion status |
