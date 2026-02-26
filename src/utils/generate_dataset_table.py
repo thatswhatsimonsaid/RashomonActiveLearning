@@ -42,7 +42,7 @@ META_INFO = {
     "coffee_house":                 ("Coffee House",             "SORTD"),  # Dataset 8
     "compas":                       ("COMPAS",                   "ProPublica"), # Dataset 16
     "expensive_restaurant":         ("Expensive Restaurant",     "SORTD"),  # Dataset 9
-    # "fico":                         ("FICO (HELOC)",             "FICO"),   # Dataset 16
+    "fico":                         ("FICO (HELOC)",             "FICO"),   # Dataset 16
     "haberman":                     ("Haberman",                 "UCI"),    # Dataset 10
     "hepatitis":                    ("Hepatitis",                "UCI"),    # Dataset 11
     "hypothyroid":                  ("Hypothyroid",              "UCI"),    # Dataset 12

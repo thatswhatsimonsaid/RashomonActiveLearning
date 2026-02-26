@@ -1,122 +1,138 @@
-# Unique Rashomon Ensembled Active Learning (UNREAL)
+# Rashomon Ensembled Active Learning (REAL)
 
-🚧 This repository is currently under construction. 🚧
-
-This repository contains the complete source code and experimental framework for the research paper on UNique Rashomon Ensembled Active Learning (UNREAL). The framework is designed for running, managing, and analyzing a large number of active learning simulations on a SLURM-based high-performance computing (HPC) cluster.
+This repository contains the complete experimental framework for research on Rashomon Ensembled Active Learning (REAL). The platform is designed to automate large-scale Active Learning (AL) simulations on SLURM-based HPC clusters, specifically focusing on ensembling over the Rashomon Set (the set of all near-optimal, structurally distinct models).
 
 ## Abstract
 
-[Arxiv](https://arxiv.org/abs/2503.06770)
-
-[NeurIPS Paper/Presentation](https://neurips.cc/virtual/2024/98966)
-
-Active learning is based on selecting informative data points to enhance model predictions often using uncertainty as a selection criterion. However, when ensemble models such as random forests are used, there is a risk of the ensemble containing models with poor predictive accuracy or duplicates with the same interpretation. To address these challenges, we develop a novel approach called *UNique Rashomon Ensembled Active Learning (UNREAL)* to only ensemble the distinct set of near-optimal models called the Rashomon set. By ensembling over the Rashomon set, our method accounts for noise by capturing uncertainty across diverse yet plausible explanations, thereby improving the robustness of the query selection in the active learning procedure. We extensively evaluate *UNREAL* against current active learning procedures on five benchmark datasets. We demonstrate how taking a Rashomon approach can improve not only the accuracy and rate of convergence of the active learning procedure but can also lead to improved interpretability compared to traditional approaches. 
+Active learning reduces labeling costs by selecting samples that maximize information gain. A dominant framework, Query-by-Committee (QBC), typically relies on \textit{synthetic diversity} by inducing model disagreement through random feature subsetting or data blinding. While this approximates one notion of epistemic uncertainty, it sacrifices direct characterization of the version space to do so. We propose the complementary approach: \textit{Rashomon Ensembled Active Learning} (\textit{REAL}), which constructs a committee by exhaustively enumerating the Rashomon Set of all near-optimal models. To address functional redundancy within this set, we adopt a PAC-Bayesian framework using a Gibbs posterior to weight committee members by their empirical risk. Leveraging recent algorithmic advances, we exactly enumerate this set for the class of sparse decision trees. Across synthetic and real-world benchmarks, REAL outperforms randomized ensembles, particularly in moderately noisy environments where it strategically leverages expanded version-space diversity to achieve faster convergence.
 
 ## Table of Contents
 
-* [Project Overview](#project-overview)
-* [Setup](#setup)
-* [Workflow: How to Run Experiments](#workflow-how-to-run-experiments)
-* [Project Structure](#project-structure)
-* [Citing](#citing)
+- [Setup](#setup)
+- [The 10-Method Benchmark Suite](#the-10-method-benchmark-suite)
+- [Configuration & Execution](#configuration--execution)
+- [Analysis Pipeline](#analysis-pipeline)
+- [Project Structure](#project-structure)
 
-## Project Overview
-
-This project is built around a highly automated and reproducible workflow. The entire experimental process, from job generation to final plotting, is controlled by a central configuration file. A generator script reads this configuration and automatically creates all the necessary SLURM job arrays and helper scripts for each dataset.
-
-[Image of a flowchart of the project workflow]
-
-The workflow is designed to be executed sequentially through a series of numbered shell scripts, which handle running simulations, aggregating results, generating plots, and cleaning up.
+---
 
 ## Setup
 
-This project uses Python 3.9 and manages dependencies through a virtual environment.
+1. **Environment:** Create and activate the virtual environment:
+```bash
+python3 -m venv .RAL_CL
+source .RAL_CL/bin/activate
+pip install -r requirements.txt
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/thatswhatsimonsaid/RashomonActiveLearning.git](https://github.com/thatswhatsimonsaid/RashomonActiveLearning.git)
-    cd RashomonActiveLearning
-    ```
+2. **Backend:** Ensure the `pysortd` C++ backend is compiled and accessible in your `PYTHONPATH`.
 
-2.  **Create and activate a Python virtual environment:**
-    ```bash
-    python3 -m venv .RAL
-    source .RAL/bin/activate
-    ```
+---
 
-3.  **Install the required packages:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+## The 10-Method Benchmark Suite
 
-## Workflow: How to Run Experiments
+The `master_config.py` defines 10 distinct selection strategies (M1–M10). The framework separates the **Predictor** (fixed at depth 5) from the **Selectors** (committees of depth 3):
 
-The entire experimental pipeline is designed to be run from the command line.
+| ID  | Category    | Selector Model       | Description                                  |
+|-----|-------------|----------------------|----------------------------------------------|
+| M1  | Baseline    | RandomForest         | Random Sampling                              |
+| M6  | Baseline    | GreedyTree           | Classic Uncertainty Sampling                 |
+| M7  | Baseline    | GreedyTree           | Hamming Diversity (Coreset)                  |
+| M2  | QBC-RF      | RandomForest         | QBC with 3 features per split                |
+| M3  | QBC-RF      | RandomForest         | QBC with `sqrt` features per split           |
+| M4  | QBC-RF      | RandomForest         | QBC with all features per split              |
+| M9  | Weighted RF | BMARandomForest      | Bayesian Model Averaging (Sqrt features)     |
+| M10 | Weighted RF | BMARandomForest      | Bayesian Model Averaging (Full features)     |
+| M5  | UNREAL      | PySORTDWrapper       | UNREAL (Uniform): $\beta=0$                  |
+| M8  | UNREAL      | PySORTDWrapper       | BREAL (Bayesian): Calibrated $\beta$         |
 
-### Step 1: Configure Your Experiments
+---
 
-All experiment parameters are defined in a single file: `experiments/master_config.py`. Before running, you should edit this file to:
+## Configuration & Execution
 
-* Set your SLURM cluster settings (`SLURM_CONFIG`).
-* Define the number of simulation runs per method (`N_REPLICATIONS`).
-* Define the list of experiments (`EXPERIMENT_CONFIGS`), specifying the model, selector, and any parameters for each method.
+### 1. Global Parameters (`master_config.py`)
 
-### Step 2: Generate the Scripts
+- `N_REPLICATIONS`: Default is 25 seeds per method.
+- `PREDICTION_PARAMS`: Used for the final evaluation model (Depth 5, Reg 0.001).
+- `SELECTION_PARAMS`: Defines the committee characteristics (Depth 3, Max 10,000 trees).
+- `beta: "calibrated"`: Triggers the Gibbs posterior weighting logic for M8, M9, and M10.
 
-Once your configuration is set, run the generator script from the project's root directory. This will automatically find all your datasets and create a dedicated subdirectory for each one inside `experiments/job_scripts/`.
+### 2. Generate and Submit
 
+Generate the job scripts from the project root:
 ```bash
 python experiments/generate_sbatch_arrays.py
 ```
 
-### Step 3: Execute the Workflow
-
-Navigate into the newly created directory for the dataset you wish to run (e.g., `Iris`).
-
+Navigate to a dataset directory and submit:
 ```bash
-cd experiments/job_scripts/Iris
+cd experiments/job_scripts/compas
+sbatch 1_run_all.sh
 ```
 
-Inside, you will find a set of numbered helper scripts. Run them in order:
+---
 
-1.  `./1_run_all.sh`: Submits all SLURM job arrays to the cluster to run the simulations.
-2.  `./2_aggregate_results.sh`: After jobs are complete, this script checks for missing results and then compiles all raw `.pkl` outputs into analysis-ready `.csv` files in the `results/<dataset>/aggregated/` directory.
-3.  `./3_plot_results.sh`: Generates trace plots for each metric (e.g., accuracy, F1-score) and saves them as `.png` files in the `results/images/<dataset>/` directory.
+## Cluster Configuration
 
-### Step 4: Cleanup (Optional)
+Before submitting jobs, configure the SLURM and experiment settings in two places:
 
-After you have successfully aggregated and plotted your results, you can use the cleanup scripts to remove intermediate files:
+### 1. SLURM Job Settings (`experiments/generate_sbatch_arrays.py`)
 
-* `./4_cleanup_results.sh`: Safely deletes the raw `.pkl` files and the empty `M*` folders, leaving your aggregated results and plots untouched.
-* `./5_cleanup_logs.sh`: Deletes all SLURM log files, the generated `.sbatch` files, and all helper scripts.
+Edit the header variables at the top of the script to match your cluster's resources:
+```bash
+PARTITION="your_partition"   # e.g., "gpu", "compute", "short"
+MEMORY="16G"                 # Memory per job (e.g., "8G", "32G", "64G")
+TIME="12:00:00"              # Wall time limit (HH:MM:SS)
+```
+
+These values are injected into every generated `.sh` script as SLURM directives:
+```bash
+#SBATCH --partition=your_partition
+#SBATCH --mem=16G
+#SBATCH --time=12:00:00
+```
+
+### 2. Experiment Settings (`experiments/master_config.py`)
+
+The central control panel for all AL simulation parameters:
+
+| Parameter | Default | Description |
+|---|---|---|
+| `N_REPLICATIONS` | `25` | Number of random seeds per method |
+| `DATASETS` | `[...]` | List of dataset names to benchmark |
+| `PREDICTION_PARAMS` | `depth=5, reg=0.001` | Final evaluator model settings |
+| `SELECTION_PARAMS` | `depth=3, max_trees=10000` | Committee/selector model settings |
+| `beta` | `"calibrated"` | Weighting scheme for M8–M10 (`0` for uniform, `"calibrated"` for Gibbs) |
+| `STUDY_DIR` | `"tree_predictor"` | Output subdirectory under `results/` |
+
+### Quick Start Checklist
+
+- [ ] Set `PARTITION`, `MEMORY`, and `TIME` in `generate_sbatch_arrays.py`
+- [ ] Set `N_REPLICATIONS` and `DATASETS` in `master_config.py`
+- [ ] Run `python experiments/generate_sbatch_arrays.py` to generate job scripts
+- [ ] Submit with `sbatch experiments/job_scripts/<dataset>/1_run_all.sh`
+
+## Analysis Pipeline
+
+### Aggregation (The Fair Comparison Rule)
+
+After Slurm jobs finish, run the aggregation script. It automatically finds the intersection of seeds that completed across all 10 methods to ensure a statistically valid "within-seed" comparison:
+```bash
+python src/utils/aggregate_results.py --dataset compas --study_dir tree_predictor
+```
+
+### Table & Plot Generation
+
+- **Runtime Table:** Generates `RuntimeTable.tex` with median execution times.
+- **Heatmaps:** Generates Efficiency Ratio plots (using the `0.01` pad fix) relative to the BREAL baseline.
+- **Metric Grids:** Generates a 4x5 grid of PNGs for Accuracy, ECS, Oracle Agreement, and Tree Edit Distance.
+
+---
 
 ## Project Structure
 
-The project is organized into a modular structure to separate configuration, core logic, and results.
-
-* **`experiments/`**: The main user-facing directory.
-    * `master_config.py`: The central control panel for defining all experiments.
-    * `generate_sbatch_arrays.py`: The script that generates all SLURM and helper scripts.
-    * `job_scripts/`: The output directory where generated scripts are saved.
-    * `slurm_logs/`: The output directory for all SLURM `.out` and `.err` files.
-
-* **`src/`**: Contains all core source code and data.
-    * `data/`: Contains the raw and processed (`.pkl`) datasets.
-    * `tests/`: `pytest` unit tests for core components.
-    * `utils/`: The main Python package for the project.
-        * `models.py`: Defines the `ModelWrapper` interface and all model implementations (Random Forest, GPC, BNN, TreeFarms).
-        * `selectors.py`: Defines the `Selector` interface and all selection strategy implementations (Passive, QBC, BALD).
-        * `learning_procedure.py`: Contains the main active learning loop engine.
-        * `run_experiment.py`: The worker script that is called by SLURM to run a single simulation.
-        * `aggregate_results.py`: The script for compiling raw results.
-        * `plot_results.py`: The script for generating final plots.
-
-* **`results/`**: The top-level output directory for all scientific products.
-    * `<dataset_name>/`: A subdirectory for each dataset.
-        * `M*/`: Subdirectories containing the raw `.pkl` results for each method.
-        * `aggregated/`: Contains the compiled `.csv` files.
-    * `images/`: Contains the final, saved plot images.
-
-## Citing
-
-If you use this code in your research, please consider citing our paper: [Arxiv](https://arxiv.org/abs/2503.06770)
+- `experiments/master_config.py`: The central control panel.
+- `src/utils/`: Core logic including `learning_procedure.py` and `models.py`.
+- `results/study1_active_learning/`: Top-level directory for all benchmark outputs.
+- `.RAL_CL/`: Local virtual environment directory.
+---
