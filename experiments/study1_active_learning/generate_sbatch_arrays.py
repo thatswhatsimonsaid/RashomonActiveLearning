@@ -17,7 +17,7 @@ def create_sbatch_file(dataset_name: str,
                        threshold: float, 
                        config: dict, 
                        method_number: int,
-                       study_name: str,
+                       full_study_path: str,
                        sbatch_dir: Path): 
     
     selector_model_name = config["selector_model"]
@@ -37,7 +37,7 @@ def create_sbatch_file(dataset_name: str,
     --seed $SLURM_ARRAY_TASK_ID \\
     --method_number {method_number} \\
     --rashomon_threshold {threshold} \\
-    --study_dir {study_name} \\
+    --study_dir {full_study_path} \\
     {params_str}
 """
 
@@ -45,8 +45,8 @@ def create_sbatch_file(dataset_name: str,
 #SBATCH --job-name={job_name}
 #SBATCH --partition={SLURM_CONFIG['partition']}
 #SBATCH --array=0-{N_REPLICATIONS - 1}
-#SBATCH --output={LOG_DIR}/{study_name}/{dataset_name}/out/M{method_number}_S%a.out
-#SBATCH --error={LOG_DIR}/{study_name}/{dataset_name}/error/M{method_number}_S%a.err
+#SBATCH --output={LOG_DIR}/{full_study_path.split('/')[-1]}/{dataset_name}/out/M{method_number}_S%a.out
+#SBATCH --error={LOG_DIR}/{full_study_path.split('/')[-1]}/{dataset_name}/error/M{method_number}_S%a.err
 #SBATCH --time={SLURM_CONFIG['time']}
 #SBATCH --mem-per-cpu={SLURM_CONFIG['mem_per_cpu']}
 #SBATCH --mail-type={SLURM_CONFIG['mail_type']}
@@ -63,7 +63,7 @@ export PYTHONPATH=$PYTHONPATH:.
 export PYTHONDONTWRITEBYTECODE=1
 
 echo "Running {job_name} | Seed (Task ID): $SLURM_ARRAY_TASK_ID"
-echo "Study: {study_name}"
+echo "Study Path: results/{full_study_path}"
 
 echo "Sleeping to stagger start times..."
 sleep $((RANDOM % 60 + 1))
@@ -76,12 +76,9 @@ sleep $((RANDOM % 60 + 1))
     os.chmod(sbatch_path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
 
 ### HELPER: GENERATE MASTER SCRIPTS ###
-def generate_master_scripts(study_name: str, study_sbatch_dir: Path):
-    """
-    Generates the 7 master control scripts in the study root.
-    """
+def generate_master_scripts(full_study_path: str, study_sbatch_dir: Path):
+    """Generates the master control scripts in the study root using unified paths."""
     
-    # 0. IGNITION SCRIPT
     ignite_content = f"""#!/bin/bash
 if pgrep -f "1_smart_run.sh" > /dev/null; then
     echo "Smart Run is ALREADY running!"
@@ -93,7 +90,6 @@ else
 fi
 """
 
-    # 0. KILL SWITCH
     kill_content = f"""#!/bin/bash
 if pgrep -f "1_smart_run.sh" > /dev/null; then
     echo "Stopping Smart Run..."
@@ -106,11 +102,10 @@ read -p "Also cancel all your Slurm jobs? (y/n): " s_kill
 [[ "$s_kill" == "y" ]] && scancel -u $USER
 """
 
-    # 1. SMART RUN SCRIPT
     smart_run_content = f"""#!/bin/bash
 MAX_JOBS=1800
 CHECK_INTERVAL=60
-STUDY_DIR="{study_name}"
+STUDY_DIR="{full_study_path}"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 DATASETS_DIR="$SCRIPT_DIR/datasets"
@@ -121,7 +116,6 @@ echo "   Target: $STUDY_DIR | Max Jobs: $MAX_JOBS"
 echo "--------------------------------------------------------"
 
 get_job_count() {{
-    # -r expands job arrays so we count tasks, not just the array ID
     squeue -u $USER -h -r | wc -l
 }}
 
@@ -134,7 +128,6 @@ for dataset_path in "$DATASETS_DIR"/*; do
     if [ -d "$dataset_path" ]; then
         dataset_name=$(basename "$dataset_path")
         
-        # Calculate Load for this Dataset
         sbatch_files=("$dataset_path"/submit_*.sbatch)
         num_scripts=${{#sbatch_files[@]}}
         total_tasks=$(( num_scripts * {N_REPLICATIONS} ))
@@ -168,9 +161,8 @@ echo " All Datasets Submitted! Exiting."
 echo "--------------------------------------------------------"
 """
 
-    # 2. GLOBAL SMART AGGREGATE
     smart_agg_content = f"""#!/bin/bash
-STUDY_DIR="study1_active_learning/{study_name}"
+STUDY_DIR="{full_study_path}"
 REQUIRED_COUNT={N_REPLICATIONS}
 METHODS=("M1" "M2" "M3" "M4" "M5" "M6" "M7")
 
@@ -200,9 +192,8 @@ for dataset_path in "$RESULTS_ROOT"/*; do
 done
 """
 
-    # 3. GLOBAL SMART PLOT
     smart_plot_content = f"""#!/bin/bash
-STUDY_DIR="study1_active_learning/{study_name}"
+STUDY_DIR="{full_study_path}"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 PROJECT_ROOT=$(dirname "$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")")
 RESULTS_ROOT="$PROJECT_ROOT/results/$STUDY_DIR"
@@ -219,7 +210,6 @@ for dataset_path in "$RESULTS_ROOT"/*; do
 done
 """
 
-    # 4. GLOBAL LOG CLEANUP
     global_log_clean = f"""#!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 echo "This will clear ALL .out and .err logs for this study."
@@ -230,7 +220,6 @@ if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
 fi
 """
 
-    # 5. GLOBAL RESULTS CLEANUP
     global_res_clean = f"""#!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 echo "WARNING: This will delete ALL raw .pkl seeds (M1-M10)."
@@ -241,13 +230,12 @@ if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
 fi
 """
     
-    # 6. COLLECT PLOTS
     collect_plots_content = f"""##!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
 PROJECT_ROOT=$(realpath "$SCRIPT_DIR/../../../../")
 
 echo "Generating standalone legend..."
-python "$PROJECT_ROOT/src/utils/plot_results.py" --legend-only --study_dir "study1_active_learning/tree_predictor"
+python "$PROJECT_ROOT/src/utils/plot_results.py" --legend-only --study_dir "{full_study_path}"
 
 echo "Generating AUC Heatmaps for multiple budgets..."
 for budget in 0.5 0.6 0.7 0.8 0.9 1.0; do
@@ -267,7 +255,6 @@ python "$PROJECT_ROOT/src/utils/collect_plots.py"
 echo "Done! All figures and tables generated."
 """
 
-    # --- Write Files ---
     scripts = {
         "0a_ignite.sh": ignite_content,
         "0b_kill.sh": kill_content,
@@ -290,7 +277,10 @@ if __name__ == "__main__":
     
     for study in STUDIES:
         study_name = study["name"]
-        predictor  = study["predictor"]
+        
+        full_study_path = f"study1_active_learning/{study_name}"
+        
+        predictor = study["predictor"]
         study_sbatch_dir = SBATCH_ROOT_DIR / study_name
         study_sbatch_dir.mkdir(parents=True, exist_ok=True)
         
@@ -309,7 +299,7 @@ if __name__ == "__main__":
                 full_config = selector_config.copy()
                 full_config["predictor_model"] = predictor 
                 create_sbatch_file(dataset, dataset, full_config["fixed_threshold"], 
-                                   full_config, idx + 1, study_name, dataset_sbatch_dir)
+                                   full_config, idx + 1, full_study_path, dataset_sbatch_dir)
 
             # Local Aggregate
             agg_content = f"""#!/bin/bash
@@ -323,7 +313,7 @@ cd {PROJECT_ROOT}
 module load Python/3.10.8-GCCcore-12.2.0
 source .RAL_CL/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
-python src/utils/aggregate_results.py --dataset "{dataset}" --study_dir "study1_active_learning/{study_name}"
+python src/utils/aggregate_results.py --dataset "{dataset}" --study_dir "{full_study_path}"
 """
             with open(dataset_sbatch_dir / "2_aggregate_results.sbatch", 'w') as f: f.write(agg_content)
 
@@ -337,8 +327,7 @@ python src/utils/aggregate_results.py --dataset "{dataset}" --study_dir "study1_
 #SBATCH --mem=2G
 cd {PROJECT_ROOT}
 source .RAL/bin/activate
-python src/utils/plot_results.py --dataset "{dataset}" --study_dir "study1_active_learning/{study_name}" --no-legend
-
+python src/utils/plot_results.py --dataset "{dataset}" --study_dir "{full_study_path}" --no-legend
 """
             with open(dataset_sbatch_dir / "3_plot_results.sbatch", 'w') as f: f.write(plot_content)
 
@@ -347,30 +336,23 @@ python src/utils/plot_results.py --dataset "{dataset}" --study_dir "study1_activ
                 f.write(f'rm -f "{dataset_log_dir}/error"/*.err "{dataset_log_dir}/out"/*.out\n')
 
             with open(dataset_sbatch_dir / "5_delete_raw_results.sh", 'w') as f:
-                # 1. Delete the .pkl files
-                f.write(f'rm -f "{PROJECT_ROOT}/results/study1_active_learning/{study_name}/{dataset}"/M*/*.pkl\n')
-                # 2. Find and delete the now-empty M folders
-                f.write(f'find "{PROJECT_ROOT}/results/study1_active_learning/{study_name}/{dataset}" -type d -name "M*" -empty -delete\n')
+                f.write(f'rm -f "{PROJECT_ROOT}/results/{full_study_path}/{dataset}"/M*/*.pkl\n')
+                f.write(f'find "{PROJECT_ROOT}/results/{full_study_path}/{dataset}" -type d -name "M*" -empty -delete\n')
                 f.write(f'echo "Raw .pkl files and empty method folders deleted for {dataset}."\n')
 
             # Local Run All
             run_all_content = f"""#!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
-
 echo " Submitting all jobs for {dataset}..."
 for sbatch_file in "$SCRIPT_DIR"/submit_*.sbatch; do
-    # echo "  -> Submitting $sbatch_file"
     sbatch "$sbatch_file"
 done
 echo "Done."
 """
             with open(dataset_sbatch_dir / "1_run_all.sh", 'w') as f: f.write(run_all_content)
 
-            # Make local cleanups executable
             for s in ["1_run_all.sh", "4_cleanup_logs.sh", "5_delete_raw_results.sh"]:
                 os.chmod(dataset_sbatch_dir / s, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
 
-            # print("Done!")
-
-        generate_master_scripts(study_name, study_sbatch_dir)
+        generate_master_scripts(full_study_path, study_sbatch_dir)
     print("\n--- All Scripts Generated Successfully ---")

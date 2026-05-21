@@ -1,1 +1,0 @@
-rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/Synthetic_XOR_Alpha_100/error"/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study1_active_learning/slurm_logs/tree_predictor/Synthetic_XOR_Alpha_100/out"/*.out
