@@ -140,6 +140,42 @@ def generate_parity_study(
     
     return df
 
+## This one works to show BREAL decrease ECS but not epsilon difference ###
+def generate_bimodal_ablation_study(
+    n_samples=500, 
+    n_features=4, # Keep it very low to prevent saturation
+    phi=0.20,     # Base noise so optimal loss > 0
+    random_state=42
+):
+    """
+    Ultra-Sparse Parity Step-Ladder.
+    
+    Tiers:
+    - Tier A: 3-bit Parity (X0, X1, X2). Best logic. Accuracy ~80%.
+    - Tier B: 2-bit Parity (X3, X4). Suboptimal logic. Accuracy ~70%.
+    
+    Because features are so few, the solver cannot find 50,000 versions 
+    of the same tree. Epsilon will finally be able to 'unlock' Tier B.
+    """
+    np.random.seed(random_state)
+    X = np.random.randint(0, 2, size=(n_samples, n_features))
+    
+    # 1. Tier A Logic (3-bit Parity)
+    # Y is 1 if sum of bits 0,1,2 is EVEN
+    tier_a = (np.sum(X[:, :3], axis=1) % 2 == 0).astype(int)
+    
+    # 2. Add Label Noise (phi)
+    # This ensures optimal loss is ~0.20, making the Rashomon multiplier work.
+    Y = np.logical_xor(tier_a, np.random.rand(n_samples) < phi).astype(int)
+    
+    # 3. Tier B Logic (2-bit Parity on X3, X4)
+    # We don't need to sculpt this manually; a 2-bit parity on noise-related 
+    # bits will naturally have a higher empirical risk than the 3-bit ground truth.
+    
+    df = pd.DataFrame(X, columns=[f"X{i}" for i in range(n_features)])
+    df["Y"] = Y
+    return df
+
 ### Auxiliary functions ###
 def _ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
@@ -224,6 +260,14 @@ def main():
         )
         _save_pickle(df_parity, DATA_DIR / f"{dataset_name}.pkl")
 
-        
+    ## 4. Generate Bimodal Ablation Study ##
+    print("\nGenerating Bimodal Ablation Dataset...")
+    df_bimodal = generate_bimodal_ablation_study(n_samples=500, 
+    n_features=5, # Keep it very low to prevent saturation
+    phi=0.20,     # Base noise so optimal loss > 0
+    random_state=42)
+    _save_pickle(df_bimodal, DATA_DIR / "Ablation_Bimodal_Study.pkl")
+
+
 if __name__ == "__main__":
     main()

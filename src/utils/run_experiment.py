@@ -122,7 +122,8 @@ def main():
     predictor_model_class = PREDICTOR_MODEL_REGISTRY[args.predictor_model]
 
     calib_base_params = {"random_state": args.seed}
-    calib_base_params.update(additional_config) 
+    calib_base_params.update(additional_config)     
+    calib_base_params["rashomon_threshold"] = args.rashomon_threshold
 
     print(f"--- Calibration: Finding Neutral Ground for {args.dataset} ---")
     calibration_results = calibrate_hyperparameters(
@@ -190,7 +191,7 @@ def main():
     results = run_learning_procedure(sim_config, calibrated_params=calibration_results)
 
     ## 6. Save Results ##
-    output_dir = Path(f"results/study1_active_learning/{args.study_dir}/{args.dataset}/M{args.method_number}")
+    output_dir = Path("results") / args.study_dir / args.dataset / f"M{args.method_number}"
     output_dir.mkdir(parents=True, exist_ok=True)
     
     filename = f"M{args.method_number}_S{args.seed}.pkl"

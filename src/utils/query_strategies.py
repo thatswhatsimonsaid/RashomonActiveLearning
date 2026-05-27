@@ -185,30 +185,30 @@ class HammingDiversitySelector(Selector):
             "AllEntropies": pd.Series(min_distances, index=df_candidate.index)
         }
 
-# ### Rashomon Expected Model Change ###
-# class ModelChangeSelector(Selector):
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
+# ### Rashomon Expected Model Change (NOT USED) ###
+class ModelChangeSelector(Selector):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
-#     def select(self, model, df_train, df_candidate) -> Dict[str, Any]:
-#         if len(df_candidate) == 0:
-#             return {"IndexRecommendation": None}
+    def select(self, model, df_train, df_candidate) -> Dict[str, Any]:
+        if len(df_candidate) == 0:
+            return {"IndexRecommendation": None}
 
-#         X_cand = df_candidate.drop(columns="Y")
+        X_cand = df_candidate.drop(columns="Y")
         
-#         # 1. Get predictions from all models in Rashomon Set
-#         all_preds = model.get_raw_ensemble_predictions(X_cand)
+        # 1. Get predictions from all models in Rashomon Set
+        all_preds = model.get_raw_ensemble_predictions(X_cand)
         
-#         # 2. Get predictions from the single best tree (usually the first one)
-#         best_tree_preds = all_preds.iloc[:, 0]
+        # 2. Get predictions from the single best tree (usually the first one)
+        best_tree_preds = all_preds.iloc[:, 0]
         
-#         # 3. Calculate how many trees in the Rashomon set disagree with the best tree
-#         # Basically 'If I label this, I am likely to flip the best tree'
-#         disagreements = all_preds.apply(lambda col: col != best_tree_preds).sum(axis=1)
+        # 3. Calculate how many trees in the Rashomon set disagree with the best tree
+        # Basically 'If I label this, I am likely to flip the best tree'
+        disagreements = all_preds.apply(lambda col: col != best_tree_preds).sum(axis=1)
         
-#         recommended_idx = df_candidate.index[np.argmax(disagreements)]
+        recommended_idx = df_candidate.index[np.argmax(disagreements)]
 
-#         return {
-#             "IndexRecommendation": int(recommended_idx),
-#             "AllEntropies": pd.Series(disagreements, index=df_candidate.index)
-#         }
+        return {
+            "IndexRecommendation": int(recommended_idx),
+            "AllEntropies": pd.Series(disagreements, index=df_candidate.index)
+        }

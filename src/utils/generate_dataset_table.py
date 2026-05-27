@@ -1,4 +1,3 @@
-
 ### Libraries ###
 import sys
 import argparse
@@ -6,15 +5,13 @@ import pickle
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
 
 ### Path Setup ###
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 DATA_DIR = PROJECT_ROOT / "src" / "data"
 OUTPUT_DIR = PROJECT_ROOT / "results" / "study1_active_learning"
-FRAGMENTS_DIR = OUTPUT_DIR / "Tables"/"table_fragments"
+FRAGMENTS_DIR = OUTPUT_DIR / "Tables" / "table_fragments"
 OUTPUT_FILENAME = "DatasetTable.tex"
 sys.path.append(str(PROJECT_ROOT))
 from src.utils.models import PySORTDWrapper
@@ -29,16 +26,13 @@ PYSORTD_CONFIG = {
 }
 BETA = 10.0
 
-
-
 META_INFO = {
     "anneal":                       ("Anneal",                   "UCI"),    # Dataset 1
     "bank_marketing":               ("Bank Marketing",           "UCI"),    # Dataset 2
     "banknote_authentication":      ("Banknote Auth.",            "UCI"),   # Dataset 3 
     "bar-7":                        ("Bar-7",                    "SORTD"),  # Dataset 4
-    # "biodeg":                       ("Biodegradation",           "UCI"),    
     "breast_cancer_wisconsin":      ("Breast Cancer WI",         "UCI"),    # Dataset 5
-    "car_evaluation":               ("Car Ealuation",            "UCI"),    # Dataset 6
+    "car_evaluation":               ("Car Evaluation",           "UCI"),    # Dataset 6 
     "cheap_restaurant":             ("Cheap Restaurant",         "SORTD"),  # Dataset 7
     "coffee_house":                 ("Coffee House",             "SORTD"),  # Dataset 8
     "compas":                       ("COMPAS",                   "ProPublica"), # Dataset 9
@@ -48,11 +42,8 @@ META_INFO = {
     "hepatitis":                    ("Hepatitis",                "UCI"),    # Dataset 13
     "hypothyroid":                  ("Hypothyroid",              "UCI"),    # Dataset 14
     "lymph":                        ("Lymphography",             "UCI"),    # Dataset 15
-    # "monk1":                        ("MONK-1",                   "UCI"),  
     "monk2":                        ("MONK-2",                   "UCI"),    # Dataset 16
-    # "monk3":                        ("MONK-3",                   "UCI"),  
     "primary-tumor":                ("Primary Tumor",            "UCI"),    # Dataset 17
-    # "spect":                        ("SPECT Heart",              "UCI"),    
     "tic-tac-toe":                  ("Tic-Tac-Toe",              "UCI"),    # Dataset 18
     "vote":                         ("Congressional Vote",       "UCI"),    # Dataset 19
     "yeast":                        ("Yeast",                    "UCI"),    # Dataset 20
@@ -74,28 +65,20 @@ def load_dataset(file_key: str) -> pd.DataFrame:
     
 def compute_gibbs_ecs(wrapper, X, y) -> float:
     """Computes the Effective Committee Size (ECS) using Gibbs weights."""
-    # 1. Get losses for all trees in the Rashomon set
     losses = wrapper.get_ensemble_losses(X, y)
     if len(losses) == 0: return 0
     
-    # 2. Compute Gibbs Weights
     adj_losses = losses - np.min(losses)
     unnormalized_weights = np.exp(-BETA * adj_losses)
     weights = unnormalized_weights / np.sum(unnormalized_weights)
     
-    # 3. Compute Exponentiated Entropy (ECS)
-    entropy = -np.sum(weights * np.log(weights + 1e-12))     # Add small epsilon to avoid log(0)
-
+    entropy = -np.sum(weights * np.log(weights + 1e-12))
     ecs = np.exp(entropy)
-    
     return float(ecs)
 
 def compute_dataset_stats(file_key: str):
     df = load_dataset(file_key)
     X, y = df.drop(columns="Y"), df["Y"]
-    
-    lr = LogisticRegression(max_iter=1000).fit(X, y)
-    gbm = GradientBoostingClassifier(n_estimators=100).fit(X, y)
     
     wrapper = PySORTDWrapper(**PYSORTD_CONFIG)
     wrapper.fit(X, y)
@@ -103,9 +86,6 @@ def compute_dataset_stats(file_key: str):
     return {
         "n_samples": len(df),
         "n_features": X.shape[1],
-        "majority_pct": y.value_counts(normalize=True).max() * 100,
-        "linear_acc": float(lr.score(X, y)) * 100,
-        "gbm_acc": float(gbm.score(X, y)) * 100,
         "oracle_acc": float(np.mean(wrapper.predict(X) == y.values)) * 100,
         "rashomon_size": wrapper.get_rashomon_size(),
         "ecs": compute_gibbs_ecs(wrapper, X, y)
@@ -122,12 +102,13 @@ def merge_and_generate_latex():
     
     if not rows: return
     
+    # Updated table structure with 3 fewer columns (8 total r/l/r parameters)
     latex = r"""\begin{table*}[htbp]
     \centering
     \scriptsize
-    \begin{tabular}{rllrrrrrrrrr}
+    \begin{tabular}{rllrrrrr}
         \toprule
-        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & \textbf{Maj\%} & \textbf{Lin\%} & \textbf{GBM\%} & \textbf{Orc\%} & $|\hat{\mathcal{R}}|$ & \textbf{ECS} \\ 
+        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & \textbf{Orc\%} & $|\hat{\mathcal{R}}|$ & \textbf{ECS} \\ 
         \midrule
 """
     prev_source = None
@@ -137,15 +118,14 @@ def merge_and_generate_latex():
         prev_source = row["source"]        
         latex += (f"        {row['no']} & {row['name']} & {row['source'][:3]} & "
               f"{row['n_samples']:,} & {row['n_features']} & "
-              f"{row['majority_pct']:.1f} & {row['linear_acc']:.1f} & "
-              f"{row['gbm_acc']:.1f} & {row['oracle_acc']:.1f} & "
+              f"{row['oracle_acc']:.1f} & "
               f"{row['rashomon_size']:,} & {row['ecs']:,.1f} \\\\\n")
               
     latex += r"""        \bottomrule
     \end{tabular}
 \end{table*}
 """
-    with open(OUTPUT_DIR / "Tables"/  OUTPUT_FILENAME, "w") as f:
+    with open(OUTPUT_DIR / "Tables" / OUTPUT_FILENAME, "w") as f:
         f.write(latex)
         
 if __name__ == "__main__":
@@ -161,5 +141,3 @@ if __name__ == "__main__":
         stats = compute_dataset_stats(args.dataset)
         with open(FRAGMENTS_DIR / f"{args.dataset}.pkl", "wb") as f:
             pickle.dump(stats, f)
-
-# python src/utils/generate_dataset_table.py --merge

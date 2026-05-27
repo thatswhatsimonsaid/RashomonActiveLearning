@@ -47,13 +47,26 @@ def calibrate_hyperparameters(
 
     ### STAGE 2: RASHOMON EXPANSION ###
     has_rashomon = "rashomon_multiplier" in sig.parameters
+    fixed_epsilon = base_params.get("rashomon_threshold") 
+    
     current_epsilon_adder = 0.0
     min_loss_proxy = 1.0 - best_acc
 
     if not has_rashomon:
         final_pilot_model = model_class(**{**base_params, "max_depth": best_d})
         final_pilot_model.fit(X, y)
+    elif fixed_epsilon is not None:
+        # 1. USE FIXED EPSILON MODE
+        current_epsilon_adder = float(fixed_epsilon)
+        eff_multiplier = (min_loss_proxy + current_epsilon_adder) / max(min_loss_proxy, 1e-6)
+        final_pilot_model = model_class(**{
+            **base_params, "max_depth": best_d, 
+            "regularization": best_lambda, "rashomon_multiplier": eff_multiplier
+        })
+        final_pilot_model.fit(X, y)
+        print(f"--- Calibration: Using FIXED epsilon {current_epsilon_adder} ---")
     else:
+        # 2. AUTO-CALIBRATION MODE (Original logic)
         current_epsilon_adder = 0.05 
         while True:
             eff_multiplier = (min_loss_proxy + current_epsilon_adder) / max(min_loss_proxy, 1e-6)

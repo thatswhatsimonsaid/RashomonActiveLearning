@@ -1,0 +1,2 @@
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Ablation_Bimodal_Study"/*/error/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Ablation_Bimodal_Study"/*/out/*.out
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Ablation_Bimodal_Study"/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Ablation_Bimodal_Study"/*.out

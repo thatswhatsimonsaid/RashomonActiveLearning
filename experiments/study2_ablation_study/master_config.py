@@ -4,14 +4,14 @@ import numpy as np
 ### SLURM Configuration ###
 SLURM_CONFIG = {
     "partition": "short",
-    "time": "2:59:00",
+    "time": "7:59:00",
     "mem_per_cpu": "30G",
     "mail_type": "FAIL",
     "mail_user": 'simondn@uw.edu'
 }
 
 ### GLOBAL PARAMETERS ###
-N_REPLICATIONS = 3
+N_REPLICATIONS = 25
 TASK_TYPE = "classification"
 DATASETS = [
     'monk2',                 
@@ -25,10 +25,10 @@ DATASETS = [
 # PREDICTION PARAMETERS #
 PREDICTION_PARAMS = {
     "max_depth": 5, 
-    # "regularization": 0.001,
     "regularization": 0.1,
     "time_limit": 30,
 }
+
 
 # SELECTION PARAMS #
 SELECTION_PARAMS = {

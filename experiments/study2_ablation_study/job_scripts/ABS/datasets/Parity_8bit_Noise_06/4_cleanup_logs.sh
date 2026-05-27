@@ -1,0 +1,2 @@
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Parity_8bit_Noise_06"/*/error/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Parity_8bit_Noise_06"/*/out/*.out
+rm -f "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Parity_8bit_Noise_06"/*.err "/mnt/beegfs/homes/simondn/RashomonActiveLearning/experiments/study2_ablation_study/slurm_logs/ABS/Parity_8bit_Noise_06"/*.out

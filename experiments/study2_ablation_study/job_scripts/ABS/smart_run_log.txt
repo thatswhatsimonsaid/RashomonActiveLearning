@@ -1,0 +1,6 @@
+Checking: Ablation_Bimodal_Study
+Checking: monk2
+Checking: Parity_8bit_Noise_00
+Checking: Parity_8bit_Noise_06
+Checking: Parity_8bit_Noise_16
+Checking: Parity_8bit_Noise_26

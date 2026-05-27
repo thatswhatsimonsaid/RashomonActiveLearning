@@ -187,6 +187,7 @@ class PySORTDWrapper(ModelWrapper):
             "max_num_trees": max_num_trees,
             "max_depth": max_depth,
             "time_limit": time_limit,
+            "ignore_trivial_extensions": True,
             "verbose": False
         }
         self.model = SORTDClassifier(**self.config)
