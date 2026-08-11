@@ -102,24 +102,25 @@ def merge_and_generate_latex():
     
     if not rows: return
     
-    # Updated table structure with 3 fewer columns (8 total r/l/r parameters)
+    # 1. Updated Header: Only 6 columns now
     latex = r"""\begin{table*}[htbp]
     \centering
-    \scriptsize
-    \begin{tabular}{rllrrrrr}
+    \begin{tabular}{rllrrrr}
         \toprule
-        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & \textbf{Orc\%} & $|\hat{\mathcal{R}}|$ & \textbf{ECS} \\ 
+        \textbf{No.} & \textbf{Dataset} & \textbf{Src} & $N$ & $d$ & $|\hat{\mathcal{R}}|$ & \textbf{ECS} \\ 
         \midrule
 """
     prev_source = None
     for row in rows:
+        # Keep your line-break logic for the Synthetic group
         if prev_source and row["source"] == "Synthetic" and prev_source != "Synthetic":
             latex += r"        \midrule" + "\n"
-        prev_source = row["source"]        
+        prev_source = row["source"]
+        
+        # 2. Updated Row String: Removed {row['oracle_acc']:.1f}
         latex += (f"        {row['no']} & {row['name']} & {row['source'][:3]} & "
-              f"{row['n_samples']:,} & {row['n_features']} & "
-              f"{row['oracle_acc']:.1f} & "
-              f"{row['rashomon_size']:,} & {row['ecs']:,.1f} \\\\\n")
+                  f"{row['n_samples']:,} & {row['n_features']} & "
+                  f"{row['rashomon_size']:,} & {row['ecs']:,.1f} \\\\\n")
               
     latex += r"""        \bottomrule
     \end{tabular}
@@ -127,7 +128,7 @@ def merge_and_generate_latex():
 """
     with open(OUTPUT_DIR / "Tables" / OUTPUT_FILENAME, "w") as f:
         f.write(latex)
-        
+          
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str)
