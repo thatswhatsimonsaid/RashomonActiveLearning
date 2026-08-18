@@ -1,0 +1,7 @@
+results/**/*.pkl
+src/data/*.pkl
+**/__pycache__/
+*.pyc
+slurm_logs/
+*.pkl
+*.npy
