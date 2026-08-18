@@ -1,5 +1,8 @@
 # Rashomon Active Learning (RAL)
 
+[![PMLR v337](https://img.shields.io/badge/PMLR-v337%2Fnguyen26a-blue.svg)](https://proceedings.mlr.press/v337/nguyen26a.html)
+[![Paper](https://img.shields.io/badge/Paper-Proceedings%20Link-success.svg)](https://proceedings.mlr.press/v337/nguyen26a.html)
+
 ## Abstract
 
 Active learning reduces labeling costs by selecting samples that maximize information gain. A dominant framework, Query-by-Committee (QBC), typically relies on \textit{synthetic diversity} by inducing model disagreement through random feature subsetting or data blinding. While this approximates one notion of epistemic uncertainty, it sacrifices direct characterization of the version space to do so. We propose the complementary approach: \textit{Rashomon Ensembled Active Learning} (\textit{REAL}) which constructs a committee by exhaustively enumerating the Rashomon Set of all near-optimal models. To address functional redundancy within this set, we adopt a PAC-Bayesian framework using a Gibbs posterior to weight committee members by their empirical risk. Leveraging recent algorithmic advances, we exactly enumerate this set for the class of sparse decision trees. Across synthetic and real-world benchmarks, REAL outperforms randomized ensembles, particularly in moderately noisy environments where it strategically leverages expanded version-space diversity to achieve faster convergence.
