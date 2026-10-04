@@ -29,26 +29,28 @@ except ImportError:
 
 ### PySORTD Import & Compatibility Patch ###
 try:
-    from pysortd import SORTDClassifier
+    from pysortd import SORTDClassifier, SORTDRegressor
+    from pysortd.base import BaseSORTDSolver
 
-    # Scikit-Learn 1.6+ removed _validate_data
-    if hasattr(SORTDClassifier, "fit") and not hasattr(SORTDClassifier, "_validate_data"):
+    # Scikit-Learn 1.7 removed BaseEstimator._validate_data, which pysortd still calls.
+    # Patch the shared base class so SORTDClassifier AND SORTDRegressor both work.
+    if not hasattr(BaseSORTDSolver, "_validate_data"):
         from sklearn.utils.validation import check_array, check_X_y
-        
+
         def _patch_validate_data(self, X, y="no_validation", **check_params):
             # 1. Remove 'reset' argument #
-            if "reset" in check_params:
-                del check_params["reset"]
-            
+            check_params.pop("reset", None)
+
             # 2. Redirect to correct validation function #
-            if y == "no_validation":
+            if isinstance(y, str) and y == "no_validation":
                 return check_array(X, **check_params)
             return check_X_y(X, y, **check_params)
-            
-        setattr(SORTDClassifier, "_validate_data", _patch_validate_data)
+
+        setattr(BaseSORTDSolver, "_validate_data", _patch_validate_data)
 
 except ImportError:
     SORTDClassifier = None
+    SORTDRegressor = None
 
 ### MODEL WRAPPER INTERFACE ###
 class ModelWrapper(ABC):
