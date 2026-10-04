@@ -32,13 +32,20 @@ results/study1_active_learning/Tables
 
 ## Setup
 
-This project requires **Python 3.10+**. The use of a virtual environment is strongly recommended.
+This project targets **Python 3.10** (the cluster run environment `.RAL_CL` uses Python 3.10.8). `requirements.txt` pins the exact package versions from that environment. A virtual environment is strongly recommended.
+
+### Prerequisites
+
+`pysortd` is installed from source (pinned Git commit), so a **C++17 compiler** (e.g. `g++`/`clang++`) and **cmake** must be available. On the cluster, load Python first:
+
+```bash
+module load Python/3.10.8-GCCcore-12.2.0
+```
 
 ### Create and Activate Environment
 
 ```bash
-# Using venv
-python3 -m venv .RAL_CL
+python3.10 -m venv .RAL_CL
 source .RAL_CL/bin/activate
 ```
 
@@ -48,7 +55,13 @@ source .RAL_CL/bin/activate
 pip install -r requirements.txt
 ```
 
-> **Note:** This project relies on `pysortd`. Ensure C++ build tools are available on your system or cluster for the solver components.
+> **Note:** pysortd still calls scikit-learn's removed `_validate_data`; `src/utils/models.py` patches `pysortd.base.BaseSORTDSolver` on import, so import `src.utils.models` before fitting pysortd models directly.
+
+### Run Tests
+
+```bash
+python -m pytest
+```
 
 ---
 
