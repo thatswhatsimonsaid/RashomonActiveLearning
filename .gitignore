@@ -5,3 +5,7 @@ src/data/*.pkl
 slurm_logs/
 *.pkl
 *.npy
+
+# Local virtual environments
+.RAL*/
+.venv/
