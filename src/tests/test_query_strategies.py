@@ -34,6 +34,9 @@ def test_qbc_selector_uncertainty(dummy_candidates):
     
     model = MockQBCModel(votes, indices)
     selector = QBCSelector(use_unique_trees=False)
+
+    # QBC needs a labeled set (used for Gibbs losses; mock has none -> uniform weights)
+    df_train = pd.DataFrame({'Y': [0, 1]}, index=[100, 101])
     
-    res = selector.select(model, None, df_cand)
+    res = selector.select(model, df_train, df_cand)
     assert res["IndexRecommendation"] == 1
