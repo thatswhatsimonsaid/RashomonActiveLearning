@@ -103,7 +103,10 @@ METRICS_TO_PLOT = [
     ("tree_edit_distance_history", "Tree Edit Distance (TED)", "upper right"),
     ("rashomon_size_history", "Rashomon Set Size", "upper right"),
     ("committee_size_history", r"Effective Committee Size ($\exp(H)$)", "upper right"),
-    ("oracle_agreement_history", "Oracle Agreement", "lower right")
+    ("oracle_agreement_history", "Oracle Agreement", "lower right"),
+    ("mse_history", "Mean Squared Error", "upper right"),
+    ("rmse_history", "Root Mean Squared Error", "upper right"),
+    ("r2_history", "R²", "lower right"),
 ]
 
 ### Load aggregated data ###
@@ -350,9 +353,12 @@ def main():
         plot_metric(data, metric_key, y_label, img_dir / f"{metric_key}.png", 
                     dataset_title, leg_loc, show_legend=args.show_legend) 
         
-    ## Accuracy bariance plots ##
+    ## Variance plots. Each call skips a metric the study did not record. ##
     plot_variance_metric(data, "accuracy_history", "Accuracy", 
                          img_dir / "accuracy_variance.png", 
+                         dataset_title, show_legend=args.show_legend)
+    plot_variance_metric(data, "mse_history", "Mean Squared Error",
+                         img_dir / "mse_variance.png",
                          dataset_title, show_legend=args.show_legend)
         
     ## Bar charts ##

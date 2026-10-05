@@ -16,15 +16,20 @@ from src.utils.models import (
     RandomForestWrapper, 
     GOSDTWrapper,
     PySORTDWrapper,
+    PySORTDRegressorWrapper,
     LogisticRegressionWrapper,
     GreedyDecisionTreeWrapper,
+    GreedyRegressionTreeWrapper,
+    RandomForestRegressorWrapper,
     BMARandomForestWrapper
 )
 from src.utils.query_strategies import (
     Selector, 
     PassiveSelector, 
     QBCSelector,
+    RegressionQBCSelector,
     UncertaintySelector,
+    RegressionUncertaintySelector,
     HammingDiversitySelector,
     ModelChangeSelector
 )
@@ -35,27 +40,35 @@ warnings.filterwarnings("ignore", category=FutureWarning, message=".*force_all_f
 
 ### Registeries ###
 SELECTOR_MODEL_REGISTRY = {
-    "PySORTDWrapper": PySORTDWrapper, 
+    "PySORTDWrapper": PySORTDWrapper,
+    "PySORTDRegressor": PySORTDRegressorWrapper,
     "RandomForest": RandomForestWrapper,
+    "RandomForestRegressor": RandomForestRegressorWrapper,
     "LogisticRegression": LogisticRegressionWrapper,
     "GreedyTree": GreedyDecisionTreeWrapper,
+    "GreedyRegressionTree": GreedyRegressionTreeWrapper,
     "BMARandomForest": BMARandomForestWrapper
 }
 
 PREDICTOR_MODEL_REGISTRY = {
     "PySORTDWrapper": PySORTDWrapper,
+    "PySORTDRegressor": PySORTDRegressorWrapper,
     "GOSDT": GOSDTWrapper,
     "LogisticRegression": LogisticRegressionWrapper,
     "GreedyTree": GreedyDecisionTreeWrapper,
+    "GreedyRegressionTree": GreedyRegressionTreeWrapper,
     "RandomForest": RandomForestWrapper,
+    "RandomForestRegressor": RandomForestRegressorWrapper,
     "BMARandomForest": BMARandomForestWrapper
 }
 
 SELECTOR_REGISTRY = {
     "Passive": PassiveSelector,
     "Random": PassiveSelector,
-    "QBC": QBCSelector, 
+    "QBC": QBCSelector,
+    "RegressionQBC": RegressionQBCSelector,
     "Uncertainty": UncertaintySelector,
+    "RegressionUncertainty": RegressionUncertaintySelector,
     "HammingDiversity": HammingDiversitySelector,
     "RashomonExpectedModelChange": ModelChangeSelector
 }
@@ -87,6 +100,7 @@ def main():
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--method_number", type=int, required=True)
     parser.add_argument("--rashomon_threshold", type=float, default=0.05)
+    parser.add_argument("--task_type", type=str, default="classification", choices=["classification", "regression"])
     parser.add_argument("--study_dir", type=str, default="study1_active_learning")
     args, unknown_args = parser.parse_known_args()    
     additional_config = parse_additional_args(unknown_args)
@@ -113,7 +127,8 @@ def main():
     initial_indices = get_random_initial_indices(
         y_train=df_working_pool["Y"].values,
         n_initial=initial_train_size,
-        random_state=args.seed
+        random_state=args.seed,
+        stratify=(args.task_type != "regression"),
     )
     df_train = df_working_pool.iloc[initial_indices]
     df_candidate = df_working_pool.drop(df_train.index)
@@ -129,7 +144,8 @@ def main():
     calibration_results = calibrate_hyperparameters(
         df_pilot=df_train,
         model_class=predictor_model_class,
-        base_params=calib_base_params
+        base_params=calib_base_params,
+        task=args.task_type,
     )
 
     ## 3. Instantiate Models with Calibrated Params ##
@@ -139,10 +155,15 @@ def main():
     current_selector_params = selector_params.copy()
     strategy_params = selector_params.copy()
 
-    # 3a. Convert Calibrated Adder to Effective Multiplier
+    # 3a. Rashomon bound.
+    # Classification keeps the published (loss + ε) / loss conversion.
+    # Regression passes ε itself: SORTD keeps trees up to (1 + ε) times optimal.
     min_loss = calibration_results["pilot_loss_proxy"]
     eps_adder = calibration_results["rashomon_epsilon_adder"]
-    effective_multiplier = (min_loss + eps_adder) / max(min_loss, 1e-6)
+    if args.task_type == "regression":
+        effective_multiplier = float(eps_adder)
+    else:
+        effective_multiplier = (min_loss + eps_adder) / max(min_loss, 1e-6)
 
     ## 3b. Update Shared Params
     shared_updates = {
@@ -162,11 +183,16 @@ def main():
         current_selector_params["rashomon_multiplier"] = effective_multiplier
         strategy_params["beta"] = calibration_results.get("beta", 0.0)
 
-    # 3d. Update Predictor Params 
+    # 3d. Update Predictor Params
+    # Classification reports a depth-5 tree. Regression uses the calibrated depth.
+    # The reported regression tree is the single optimum, so its Rashomon excess is 0.
+    predictor_depth = calibration_results["max_depth"] if args.task_type == "regression" else 5
     predictor_params.update({
         "regularization": calibration_results["regularization"],
-        "max_depth": 5 
+        "max_depth": predictor_depth,
     })
+    if args.task_type == "regression":
+        predictor_params["rashomon_multiplier"] = 0.0
 
     # 3e. Instantiate everything
     selector_model = selector_model_class(**current_selector_params)
@@ -186,7 +212,8 @@ def main():
         selector=selector, 
         df_train=df_train,
         df_candidate=df_candidate,
-        df_test=df_test
+        df_test=df_test,
+        task=args.task_type,
     )    
     results = run_learning_procedure(sim_config, calibrated_params=calibration_results)
 
