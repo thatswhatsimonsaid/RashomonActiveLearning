@@ -50,7 +50,13 @@ def create_sbatch_file(dataset_name, config, method_number, full_study_path, sba
 
 cd {PROJECT_ROOT}
 
-module load Python/3.10.8-GCCcore-12.2.0
+# Batch shells on this cluster do not define `module`. Point at the same
+# EasyBuild Python that built .RAL_CL, then load the module when it exists.
+export LD_LIBRARY_PATH=/sw/ebpkgs/software/Python/3.10.8-GCCcore-12.2.0/lib:${{LD_LIBRARY_PATH}}
+export PATH=/sw/ebpkgs/software/Python/3.10.8-GCCcore-12.2.0/bin:${{PATH}}
+if type module >/dev/null 2>&1; then
+    module load Python/3.10.8-GCCcore-12.2.0
+fi
 source .RAL_CL/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 export PYTHONDONTWRITEBYTECODE=1

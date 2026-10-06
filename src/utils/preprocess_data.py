@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import io
 import requests
-import pickle
 from pathlib import Path
 
 ### Paths ###
@@ -182,9 +181,11 @@ def _ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
 
 def _save_pickle(df: pd.DataFrame, path: Path):
-    with open(path, 'wb') as f:
-        pickle.dump(df, f)
-    print(f"    > Saved to {path.name} | Shape: {df.shape}")
+    # Protocol 4 and a plain object index stay readable by the cluster's pandas.
+    saved = df.copy()
+    saved.columns = pd.Index([str(column) for column in saved.columns], dtype=object)
+    saved.to_pickle(path, protocol=4)
+    print(f"    > Saved to {path.name} | Shape: {saved.shape}")
 
 ### Download and process datasets ###
 def process_dataset_url(filename: str):
