@@ -8,6 +8,7 @@ slurm_logs/
 *.npy
 .RAL_VISION/
 /None/
+/models/
 wandb/
 experiments/study3_vision_classification/protopnet_verify_*.out
 experiments/study3_vision_classification/protopnet_verify_*.err
