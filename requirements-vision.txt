@@ -1,0 +1,5 @@
+# Extra packages for the vision study. The tree studies keep requirements.txt.
+# proto-rset itself is the third_party/proto-rset submodule.
+torch
+torchvision
+tqdm
