@@ -1,5 +1,13 @@
-# Extra packages for the vision study. The tree studies keep requirements.txt.
-# proto-rset itself is the third_party/proto-rset submodule.
+# Packages for the vision study and proto-rset's own ProtoPNet check.
+# The tree studies keep requirements.txt. proto-rset is the third_party/proto-rset submodule.
 torch
 torchvision
 tqdm
+numpy
+pandas
+pillow
+matplotlib
+scikit-learn
+torchmetrics
+wandb
+opencv-python-headless
