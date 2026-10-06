@@ -1,9 +1,9 @@
 ### Libraries ###
+import argparse
 import pandas as pd
 import numpy as np
 import io
 import requests
-import pickle
 from pathlib import Path
 
 ### Paths ###
@@ -181,9 +181,11 @@ def _ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
 
 def _save_pickle(df: pd.DataFrame, path: Path):
-    with open(path, 'wb') as f:
-        pickle.dump(df, f)
-    print(f"    > Saved to {path.name} | Shape: {df.shape}")
+    # Protocol 4 and a plain object index stay readable by the cluster's pandas.
+    saved = df.copy()
+    saved.columns = pd.Index([str(column) for column in saved.columns], dtype=object)
+    saved.to_pickle(path, protocol=4)
+    print(f"    > Saved to {path.name} | Shape: {saved.shape}")
 
 ### Download and process datasets ###
 def process_dataset_url(filename: str):
@@ -208,8 +210,102 @@ def process_dataset_url(filename: str):
     except Exception as e:
         print(f"  [ERROR] {e}")
 
+REGRESSION_URL_BASE = "https://raw.githubusercontent.com/ConSol-Lab/pysortd/main/data/regression"
+REGRESSION_DATASETS = [
+    "airfoil.csv",
+    "airquality.csv",
+    "enb-cool.csv",
+    "enb-heat.csv",
+    "optical.csv",
+    "real-estate.csv",
+    "seoul-bike.csv",
+    "servo.csv",
+    "sync.csv",
+    "yacht.csv",
+]
+
+
+def generate_synthetic_regression(
+    n_samples=400,
+    n_features=8,
+    alpha=0.0,
+    phi=0.0,
+    random_state=42,
+):
+    """
+    Continuous analogue of the classification stress test.
+
+    The tree signal is an axis-aligned interaction. The non-tree signal is linear
+    in the same two features. alpha blends them. phi scales Gaussian label noise.
+    """
+    rng = np.random.default_rng(random_state)
+    X = rng.normal(size=(n_samples, n_features))
+    y_tree = np.where((X[:, 0] > 0) & (X[:, 1] > 0), 1.0, -1.0)
+    y_linear = 0.5 * X[:, 0] + 0.5 * X[:, 1]
+    y = (1.0 - alpha) * y_tree + alpha * y_linear
+    if phi > 0:
+        y = y + phi * rng.normal(size=n_samples)
+
+    df = pd.DataFrame(X, columns=[f"X{i}" for i in range(n_features)])
+    df["Y"] = y
+    return df
+
+
+def process_regression_dataset(filename: str):
+    name = filename.replace(".csv", "")
+    url = f"{REGRESSION_URL_BASE}/{filename}"
+    print(f"\n[{name}] Fetching regression data...")
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        raw = pd.read_csv(io.StringIO(response.text), sep=r"\s+", header=None, engine="python")
+        if raw.shape[1] < 2:
+            print(f"  [ERROR] Parsed only {raw.shape[1]} column. Skipping.")
+            return
+        features = raw.iloc[:, 1:].astype(float)
+        features.columns = [f"V{i}" for i in range(features.shape[1])]
+        features["Y"] = raw.iloc[:, 0].astype(float).to_numpy()
+        _save_pickle(features, DATA_DIR / f"{name}.pkl")
+    except Exception as e:
+        print(f"  [ERROR] {e}")
+
+
+def preprocess_regression():
+    print(f"--- PREPROCESSING REGRESSION DATASETS TO {DATA_DIR} ---")
+    _ensure_dir(DATA_DIR)
+    for filename in REGRESSION_DATASETS:
+        process_regression_dataset(filename)
+
+    print("\nGenerating baseline regression signal...")
+    _save_pickle(
+        generate_synthetic_regression(alpha=0.0, phi=0.0),
+        DATA_DIR / "Synthetic_Regression_Baseline.pkl",
+    )
+    for alpha in (0.25, 0.50, 0.75, 1.0):
+        name = f"Synthetic_Regression_Alpha_{int(alpha * 100):02d}"
+        print(f"Generating {name}...")
+        _save_pickle(
+            generate_synthetic_regression(alpha=alpha, phi=0.0),
+            DATA_DIR / f"{name}.pkl",
+        )
+    for phi in (0.05, 0.10, 0.25, 0.45):
+        name = f"Synthetic_Regression_Phi_{int(phi * 100):02d}"
+        print(f"Generating {name}...")
+        _save_pickle(
+            generate_synthetic_regression(alpha=0.0, phi=phi),
+            DATA_DIR / f"{name}.pkl",
+        )
+
+
 ### Main ###
 def main():
+    parser = argparse.ArgumentParser(description="Build the pickled datasets used by the studies.")
+    parser.add_argument("--task", choices=["classification", "regression"], default="classification")
+    args = parser.parse_args()
+    if args.task == "regression":
+        preprocess_regression()
+        return
+
     print(f"--- PREPROCESSING DATASETS TO {DATA_DIR} ---")
     _ensure_dir(DATA_DIR)
     
@@ -222,10 +318,6 @@ def main():
         process_treefarms_dataset(name, url)
         
     ## 2. Generate Synthetic Datasets ##
-    alpha=0.0, 
-    phi=0.0, 
-    random_state=42
-
     # 2a. Baseline (Standard XOR - Alpha=0, Phi=0)
     print("\nGenerating Baseline XOR...")
     df_base = generate_synthetic_study(alpha=0.0, phi=0.0, n_samples=500, n_features=20)

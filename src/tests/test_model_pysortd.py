@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 import pytest
 from unittest.mock import MagicMock, patch
-import sys
-sys.modules["pysortd"] = MagicMock()
+pytest.importorskip("pysortd")
 from src.utils.models import PySORTDWrapper
 
 @pytest.fixture
@@ -28,14 +27,14 @@ def test_pysortd_config_mapping():
 def test_pysortd_fit_predict(dummy_data):
     """Tests fit and predict logic with mocked backend."""
     X, y = dummy_data
-    model = PySORTDWrapper()
-    
-    # Mock the internal C++ model
+
+    # Mock the internal C++ model. The wrapper builds it in __init__.
     mock_cpp = MagicMock()
     mock_cpp.rashomon_set_size = 5
     mock_cpp.predict.return_value = np.array([0, 1, 0, 1])
-    
+
     with patch("src.utils.models.SORTDClassifier", return_value=mock_cpp):
+        model = PySORTDWrapper()
         model.fit(X, y)
         assert model.is_fitted_
         assert model.get_rashomon_size() == 5

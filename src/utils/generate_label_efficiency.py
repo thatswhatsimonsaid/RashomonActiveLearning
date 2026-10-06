@@ -62,13 +62,14 @@ ORDER = [
     "Uncertainty", 
     "Coreset"
 ]
-def calculate_n_rel(study_root):
+def calculate_n_rel(study_root, metric_key="accuracy_history", higher_is_better=True, included_datasets=None):
     if not study_root.exists():
         print(f"Error: {study_root} not found.")
         return pd.DataFrame()
 
     dataset_dirs = [d for d in study_root.iterdir() if d.is_dir() and (d / "aggregated").exists()]
-    dataset_dirs = [d for d in dataset_dirs if d.name in INCLUDED_DATASETS]
+    allowed = INCLUDED_DATASETS if included_datasets is None else included_datasets
+    dataset_dirs = [d for d in dataset_dirs if d.name in allowed]
     baseline_label = NAME_MAPPING.get(BASELINE_ID, BASELINE_ID)
     print(f"Found {len(dataset_dirs)} datasets with aggregated results relative to {baseline_label}.")
     
@@ -87,10 +88,10 @@ def calculate_n_rel(study_root):
             with open(bl_path, "rb") as f:
                 bl_data = pickle.load(f)
             
-            bl_trace = np.nanmean(bl_data["accuracy_history"], axis=0)
+            bl_trace = np.nanmean(bl_data[metric_key], axis=0)
             acc_start = bl_trace[0]
             acc_final = bl_trace[-1]
-            total_growth = acc_final - acc_start
+            total_growth = (acc_final - acc_start) if higher_is_better else (acc_start - acc_final)
             if total_growth <= 0:
                 print(f"      [Skipping] {ds_dir.name} has negative or zero growth ({total_growth:.4f})")
                 continue
@@ -105,7 +106,7 @@ def calculate_n_rel(study_root):
                 with open(m_path, "rb") as f:
                     m_data = pickle.load(f)
                 
-                m_hist = m_data.get("accuracy_history")
+                m_hist = m_data.get(metric_key)
                 if m_hist is None or np.all(np.isnan(m_hist)): continue
                 
                 m_trace = np.nanmean(m_hist, axis=0)
@@ -113,12 +114,15 @@ def calculate_n_rel(study_root):
                 # 3. Calculate N_rel for each target milestone
                 found_points = False
                 for k in TARGET_PERCENTAGES:
-                    target_acc = acc_start + (k * total_growth)
-                    
-                    bl_crossings = np.where(bl_trace >= target_acc)[0]
+                    if higher_is_better:
+                        target_acc = acc_start + (k * total_growth)
+                        bl_crossings = np.where(bl_trace >= target_acc)[0]
+                        m_crossings = np.where(m_trace >= target_acc)[0]
+                    else:
+                        target_acc = acc_start - (k * total_growth)
+                        bl_crossings = np.where(bl_trace <= target_acc)[0]
+                        m_crossings = np.where(m_trace <= target_acc)[0]
                     n_baseline = bl_crossings[0] if len(bl_crossings) > 0 else len(bl_trace)
-                    
-                    m_crossings = np.where(m_trace >= target_acc)[0]
                     n_method = m_crossings[0] if len(m_crossings) > 0 else len(m_trace)
                     if len(m_crossings) == 0:
                         print(f"      [Fail] {method_label} never hit {int(k*100)}% target ({target_acc:.4f})")

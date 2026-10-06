@@ -80,15 +80,13 @@ class QBCSelector(Selector):
             return {"IndexRecommendation": None}
 
         X_candidate = df_candidate.drop(columns="Y")
-        X_train = df_train.drop(columns="Y")
-        y_train = df_train["Y"]
-        
+
         # 1. Get raw predictions (N_samples, N_trees)
         raw_preds_df = model.get_raw_ensemble_predictions(X_candidate)
         
         # 2. Get losses for Gibbs weighting
-        if hasattr(model, "get_ensemble_losses"):
-            losses = model.get_ensemble_losses(X_train, y_train)
+        if df_train is not None and hasattr(model, "get_ensemble_losses"):
+            losses = model.get_ensemble_losses(df_train.drop(columns="Y"), df_train["Y"])
         else:
             # Fallback for models that don't support ensembles
             losses = np.zeros(raw_preds_df.shape[1])
@@ -124,7 +122,102 @@ class QBCSelector(Selector):
             "IndexRecommendation": int(recommended_index),
             "AllEntropies": pd.Series(uncertainty_scores, index=df_candidate.index)
         }
-    
+
+def _gibbs_weights(losses: np.ndarray, beta: float) -> np.ndarray:
+    adj_losses = np.asarray(losses, dtype=float) - np.min(losses)
+    weights = np.exp(-beta * adj_losses)
+    total = np.sum(weights)
+    if not np.isfinite(total) or total <= 0:
+        return np.full(len(adj_losses), 1.0 / len(adj_losses))
+    return weights / total
+
+
+def _weighted_prediction_variance(predictions: np.ndarray, weights: np.ndarray) -> np.ndarray:
+    """Variance of the Gibbs-weighted committee prediction at each row."""
+    mean = predictions @ weights
+    centered = predictions - mean.reshape(-1, 1)
+    return (centered ** 2) @ weights
+
+
+### REGRESSION QUERY-BY-COMMITTEE ###
+class RegressionQBCSelector(Selector):
+    """
+    Regression analogue of QBCSelector.
+
+    Committee members are weighted by a Gibbs posterior on their squared-error
+    loss. beta = 0 is a uniform Rashomon committee. The query is the unlabeled
+    point with the largest weighted predictive variance.
+    """
+
+    def __init__(self, beta: float = 0.0, **kwargs):
+        super().__init__(**kwargs)
+        self.beta = float(beta) if beta != "calibrated" else 0.0
+
+    def select(
+        self,
+        model: Any,
+        df_train: pd.DataFrame,
+        df_candidate: pd.DataFrame) -> Dict[str, Any]:
+
+        if len(df_candidate) == 0:
+            return {"IndexRecommendation": None}
+
+        X_candidate = df_candidate.drop(columns="Y")
+        raw_preds_df = model.get_raw_ensemble_predictions(X_candidate)
+
+        if df_train is not None and hasattr(model, "get_ensemble_losses"):
+            losses = model.get_ensemble_losses(df_train.drop(columns="Y"), df_train["Y"])
+        else:
+            losses = np.zeros(raw_preds_df.shape[1])
+
+        if raw_preds_df.shape[1] < 2:
+            self.effective_committee_size_ = 1.0
+            recommended_index = df_candidate.sample(n=1).index[0]
+            return {
+                "IndexRecommendation": int(recommended_index),
+                "AllEntropies": pd.Series(0.0, index=df_candidate.index)
+            }
+
+        weights = _gibbs_weights(losses, self.beta)
+        shannon_entropy = -np.sum(weights * np.log(weights + 1e-12))
+        self.effective_committee_size_ = float(np.exp(shannon_entropy))
+
+        scores = _weighted_prediction_variance(raw_preds_df.values.astype(float), weights)
+        top_local_index = int(np.argmax(scores))
+        recommended_index = df_candidate.index[top_local_index]
+        return {
+            "IndexRecommendation": int(recommended_index),
+            "AllEntropies": pd.Series(scores, index=df_candidate.index)
+        }
+
+
+### REGRESSION UNCERTAINTY ###
+class RegressionUncertaintySelector(Selector):
+    """Queries the pool point whose leaf has the largest training variance."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def select(
+        self,
+        model: ModelWrapper,
+        df_train: pd.DataFrame,
+        df_candidate: pd.DataFrame) -> Dict[str, Any]:
+
+        if len(df_candidate) == 0:
+            return {"IndexRecommendation": None}
+        if not hasattr(model, "leaf_variance"):
+            raise AttributeError("The selected model does not expose leaf_variance.")
+
+        X_candidate = df_candidate.drop(columns="Y")
+        scores = np.asarray(model.leaf_variance(X_candidate), dtype=float).reshape(-1)
+        top_local_index = int(np.argmax(scores))
+        recommended_index = df_candidate.index[top_local_index]
+        return {
+            "IndexRecommendation": int(recommended_index),
+            "AllEntropies": pd.Series(scores, index=df_candidate.index)
+        }
+
 ### UNCERTAINTY SELECTOR ###
 class UncertaintySelector(Selector):
     def __init__(self, **kwargs):

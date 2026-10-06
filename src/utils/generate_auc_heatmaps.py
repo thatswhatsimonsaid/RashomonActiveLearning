@@ -79,9 +79,19 @@ def calculate_auc(history_arr, fraction):
         auc_val = np.trapezoid(truncated_curve, x)
     return auc_val, t_max
 
+def _dataset_names(study_root):
+    if not study_root.exists():
+        return list(DATASET_ORDER)
+    present = {path.name for path in study_root.iterdir() if (path / "aggregated").exists()}
+    ordered = [name for name in DATASET_ORDER if name in present]
+    if ordered:
+        return ordered
+    return sorted(present)
+
+
 def load_auc_data(study_root, metric_key, budget_fraction): 
     records = []
-    for ds_name in DATASET_ORDER:
+    for ds_name in _dataset_names(study_root):
         ds_path = study_root / ds_name / "aggregated"
         
         if not ds_path.exists():
@@ -116,6 +126,8 @@ def plot_relative_heatmap(auc_df, output_path, metric_key, budget_fraction):
     # 1. Pivot and Filter
     pivot = auc_df.pivot(index='Method', columns='Dataset', values='AUC')
     existing_columns = [ds for ds in DATASET_ORDER if ds in pivot.columns]
+    if not existing_columns:
+        existing_columns = list(pivot.columns)
     pivot = pivot[existing_columns]
     
     # 2. Calculate Relative Efficiency
@@ -127,7 +139,11 @@ def plot_relative_heatmap(auc_df, output_path, metric_key, budget_fraction):
     relative_pivot = relative_pivot.reindex(unique_method_labels)
 
     # 3. Define Aesthetics based on Metric
-    lower_is_better = "distance" in metric_key.lower()
+    lower_is_better = (
+        "distance" in metric_key.lower()
+        or metric_key.startswith("mse")
+        or metric_key.startswith("rmse")
+    )
     if lower_is_better:
         # Green is good (below baseline), Red is bad
         cmap = sns.diverging_palette(10, 130, as_cmap=True, s=90, l=60, center="light")
@@ -182,17 +198,19 @@ def plot_relative_heatmap(auc_df, output_path, metric_key, budget_fraction):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--budget_fraction", type=float, default=1.0, help="Fraction of the budget to truncate AUC at (0.0 to 1.0)")
+    parser.add_argument("--study_dir", type=str, default="study1_active_learning/tree_predictor")
+    parser.add_argument("--metric", action="append", default=None)
     args = parser.parse_args()
 
     project_root = Path(__file__).resolve().parent.parent.parent
-    study_root = project_root / "results" / "study1_active_learning/tree_predictor"
+    study_root = project_root / "results" / args.study_dir
     output_dir = project_root / "results"/ "study1_active_learning" / "PLOTS" / "AUC_Plots"
     output_dir.mkdir(parents=True, exist_ok=True)
     
     budget_pct = int(args.budget_fraction * 100)
     print(f" Starting Budget-Based AUC Analysis ({budget_pct}% Truncation)...")
     
-    for metric in METRICS_TO_AUC:
+    for metric in (args.metric or METRICS_TO_AUC):
         print(f"--- Processing {metric} ---")
         auc_df = load_auc_data(study_root, metric, args.budget_fraction)
         if not auc_df.empty:

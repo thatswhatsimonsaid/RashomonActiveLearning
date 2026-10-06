@@ -12,10 +12,18 @@ except ImportError:
 # ==========================================
 # 1. TREE CONVERTERS (PySORTD / Sklearn -> ZSS)
 # ==========================================
+def _format_leaf_label(label) -> str:
+    """Integer class labels stay Class:k. Real-valued leaves stay numeric."""
+    value = float(np.asarray(label).reshape(-1)[0])
+    if np.isfinite(value) and abs(value - round(value)) < 1e-8:
+        return f"Class:{int(round(value))}"
+    return f"Leaf:{value:.6g}"
+
+
 def pysortd_to_zss(node):
     """Converts a live PySORTD C++ node to a ZSS Node."""
     if node.is_leaf_node():
-        return Node(f"Class:{int(node.label)}")
+        return Node(_format_leaf_label(node.label))
     else:
         zss_node = Node(f"Feat:{int(node.feature)}")
         if hasattr(node, 'left_child'):
@@ -31,8 +39,11 @@ def sklearn_to_zss(tree, node_id=0):
 
     if left == -1:  # Leaf
         try:
-            class_label = np.argmax(tree.value[node_id])
-        except IndexError:
+            value = np.asarray(tree.value[node_id])
+            if value.shape[-1] == 1:
+                return Node(_format_leaf_label(value.reshape(-1)[0]))
+            class_label = int(np.argmax(value))
+        except (IndexError, TypeError, ValueError):
             class_label = 0
         return Node(f"Class:{class_label}")
     else: # Split
@@ -62,15 +73,19 @@ def _extract_root(model):
 # 2. METRIC CALCULATORS
 # ==========================================
 
-def calculate_oracle_agreement(current_model, oracle_model, df_test):
+def calculate_oracle_agreement(current_model, oracle_model, df_test, task="classification"):
     """
-    Calculates the percentage of test instances where the Current Model 
-    agrees with the Oracle Model (Prediction matching).
+    Classification: fraction of test rows where the two models predict the same class.
+    Regression: correlation between the two models' predictions.
     """
     X_test = df_test.drop(columns="Y")
-    pred_current = current_model.predict(X_test)
-    pred_oracle = oracle_model.predict(X_test)
-    return np.mean(pred_current == pred_oracle)
+    pred_current = np.asarray(current_model.predict(X_test), dtype=float).reshape(-1)
+    pred_oracle = np.asarray(oracle_model.predict(X_test), dtype=float).reshape(-1)
+    if task == "regression":
+        if np.std(pred_current) < 1e-12 or np.std(pred_oracle) < 1e-12:
+            return 0.0
+        return float(np.corrcoef(pred_current, pred_oracle)[0, 1])
+    return float(np.mean(pred_current == pred_oracle))
 
 def calculate_ted_score(model, oracle):
     """
