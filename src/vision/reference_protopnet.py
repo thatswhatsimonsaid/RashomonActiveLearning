@@ -17,12 +17,17 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
 
+def proto_rset_root() -> Path:
+    """Directory of the proto-rset submodule."""
+    return Path(__file__).resolve().parents[2] / "third_party" / "proto-rset"
+
+
 def _ensure_proto_rset_on_path() -> Path:
-    root = Path(__file__).resolve().parents[2] / "third_party" / "proto-rset"
-    if not root.is_dir():
+    root = proto_rset_root()
+    if not (root / "protopnet" / "models" / "vanilla_protopnet.py").is_file():
         raise ImportError(
             f"proto-rset is not checked out at {root}. "
-            "Initialize submodules so third_party/proto-rset is present."
+            "Run: git submodule update --init third_party/proto-rset"
         )
     root_str = str(root)
     if root_str not in sys.path:
@@ -87,14 +92,19 @@ def build_cosine_protopnet(
     num_classes: int,
     num_prototypes_per_class: int,
     backbone: Optional[nn.Module] = None,
+    backbone_name: Optional[str] = None,
+    pretrained_backbone: bool = True,
     image_size: Tuple[int, int, int] = (3, 32, 32),
     num_addon_layers: int = 1,
     proto_channel_multiplier: float = 1.0,
 ) -> nn.Module:
     """Build the cosine Vanilla ProtoPNet from proto-rset.
 
-    The last layer is initialized the way proto-rset initializes it: weight 1
-    from each prototype to its own class, and weight 0 to every other class.
+    Pass ``backbone`` for a module this repository owns, or ``backbone_name``
+    for a trunk proto-rset already knows (``squeezenet1_0``, ``resnet18``,
+    ``vgg16``, and the other names in ``protopnet.backbones``). The last layer
+    is initialized the way proto-rset initializes it: weight 1 from each
+    prototype to its own class, and weight 0 to every other class.
     """
     _ensure_proto_rset_on_path()
     from protopnet.activations import CosPrototypeActivation
@@ -105,9 +115,20 @@ def build_cosine_protopnet(
         raise ValueError("num_classes must be at least 2.")
     if num_prototypes_per_class < 1:
         raise ValueError("num_prototypes_per_class must be at least 1.")
+    if backbone is not None and backbone_name is not None:
+        raise ValueError("Pass backbone or backbone_name, not both.")
 
-    feature_extractor = backbone if backbone is not None else TinyConvBackbone()
-    embedded = EmbeddedBackbone(feature_extractor, input_channels=image_size)
+    if backbone_name is not None:
+        from protopnet.backbones import construct_backbone
+
+        embedded = construct_backbone(
+            backbone_name,
+            pretrained=pretrained_backbone,
+            input_channels=image_size,
+        )
+    else:
+        feature_extractor = backbone if backbone is not None else TinyConvBackbone()
+        embedded = EmbeddedBackbone(feature_extractor, input_channels=image_size)
     latent_channels = int(embedded.latent_dimension[0])
     add_on_layers = AddonLayers(
         num_prototypes=num_classes * num_prototypes_per_class,

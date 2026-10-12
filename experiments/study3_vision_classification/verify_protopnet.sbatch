@@ -18,15 +18,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 module load Python/3.10.8-GCCcore-12.2.0
 
-if [[ ! -d .RAL_VISION ]]; then
-  python3 -m venv .RAL_VISION
-  source .RAL_VISION/bin/activate
-  python -m pip install --upgrade pip
-  python -m pip install -r requirements-vision.txt
-else
-  source .RAL_VISION/bin/activate
-fi
-
-git submodule update --init third_party/proto-rset
+bash experiments/study3_vision_classification/install_protopnet.sh
+# shellcheck disable=SC1091
+source .RAL_VISION/bin/activate
 
 bash experiments/study3_vision_classification/run_protopnet_verify.sh

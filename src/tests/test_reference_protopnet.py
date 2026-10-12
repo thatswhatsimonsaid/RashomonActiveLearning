@@ -13,6 +13,19 @@ from src.vision.reference_protopnet import (
 )
 
 
+def test_proto_rset_vanilla_class_is_used():
+    from src.vision.reference_protopnet import _ensure_proto_rset_on_path
+
+    _ensure_proto_rset_on_path()
+    from protopnet.models.vanilla_protopnet import VanillaProtoPNet
+
+    images, _ = class_colored_images(2, images_per_class=2, image_size=32, seed=0)
+    model = build_cosine_protopnet(num_classes=2, num_prototypes_per_class=1, image_size=(3, 32, 32))
+    assert isinstance(model, VanillaProtoPNet)
+    logits = predict_logits(model, images)
+    assert logits.shape == (images.shape[0], 2)
+
+
 def test_default_backbone_returns_class_logits():
     images, _ = class_colored_images(2, images_per_class=2, image_size=32, seed=0)
     model = build_cosine_protopnet(num_classes=2, num_prototypes_per_class=1, image_size=(3, 32, 32))
