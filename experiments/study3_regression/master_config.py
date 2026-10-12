@@ -13,6 +13,7 @@ TASK_TYPE = "regression"
 # SORTD keeps a tree when its objective is at most (1 + ε) times optimal.
 RASHOMON_THRESHOLD = 0.10
 
+# seoul-bike is left out. Labeling its full pool is about 7,000 PySORTD refits.
 DATASETS = [
     "airfoil",
     "airquality",
@@ -20,7 +21,6 @@ DATASETS = [
     "enb-heat",
     "optical",
     "real-estate",
-    "seoul-bike",
     "servo",
     "sync",
     "yacht",
@@ -45,7 +45,7 @@ SELECTION_PARAMS = {
     "max_depth": 3,
     "regularization": 0.01,
     "time_limit": 30,
-    "max_num_trees": 100,
+    "max_num_trees": 10000,
     "beta": 0.0,
 }
 
