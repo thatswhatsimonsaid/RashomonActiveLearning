@@ -44,11 +44,23 @@ def split_test_pool(
     df_pool_remaining = pd.concat([y_pool, X_pool], axis=1)
     return df_test, df_pool_remaining
 
-def get_random_initial_indices(y_train: np.ndarray, n_initial: int, random_state: int = 42) -> np.ndarray:
+def get_random_initial_indices(
+    y_train: np.ndarray,
+    n_initial: int,
+    random_state: int = 42,
+    stratify: bool = True,
+) -> np.ndarray:
     """
     Selects n_initial indices randomly from the training set.
-    Ensures that at least one example of each class is included if possible.
+    Classification keeps at least one row of each class when that is possible.
+    Regression draws a plain random sample.
     """
+
+    if not stratify:
+        if n_initial > len(y_train):
+            raise ValueError(f"Not enough data to pick {n_initial} samples.")
+        rng = np.random.default_rng(random_state)
+        return rng.choice(len(y_train), size=n_initial, replace=False)
 
     # Initialize #
     np.random.seed(random_state)

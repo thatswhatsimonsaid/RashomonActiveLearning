@@ -24,13 +24,17 @@ class SimulationConfig:
     selector: Selector
     df_train: pd.DataFrame
     df_candidate: pd.DataFrame
-    df_test: pd.DataFrame 
+    df_test: pd.DataFrame
+    task: str = "classification"
 
 @dataclass
 class SimulationResult:
     """A structured class to hold the metrics of a simulation."""
     accuracy_history: List[float] = field(default_factory=list)
     f1_history: List[float] = field(default_factory=list)
+    mse_history: List[float] = field(default_factory=list)
+    rmse_history: List[float] = field(default_factory=list)
+    r2_history: List[float] = field(default_factory=list)
     oracle_agreement_history: List[float] = field(default_factory=list)
     tree_edit_distance_history: List[float] = field(default_factory=list)
     calibrated_params: Dict[str, Any] = field(default_factory=dict)
@@ -42,7 +46,7 @@ class SimulationResult:
     entropy_history: List[Dict[int, float]] = field(default_factory=list)
 
 ### Learning Procedure Function ###
-def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str, Any] = None) -> SimulationResult:
+def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str, Any] = None, checkpoint=None) -> SimulationResult:
     """
     Runs the full active learning loop, including the final evaluation.
     """
@@ -68,15 +72,22 @@ def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str
         config.selector_model.fit(X_train, y_train)
         
         # 3. Evaluate Everything #
+        task = getattr(config, "task", "classification")
         metrics = evaluate_models(
             predictor_model=config.predictor_model,
             oracle_model=config.oracle_model,
-            df_test=config.df_test
+            df_test=config.df_test,
+            task=task,
         )
         
         # 4. Save Metrics Immediately #
-        results.accuracy_history.append(metrics["accuracy"])
-        results.f1_history.append(metrics["f1_micro"])
+        if task == "regression":
+            results.mse_history.append(metrics["mse"])
+            results.rmse_history.append(metrics["rmse"])
+            results.r2_history.append(metrics["r2"])
+        else:
+            results.accuracy_history.append(metrics["accuracy"])
+            results.f1_history.append(metrics["f1_micro"])
         results.oracle_agreement_history.append(metrics["oracle_agreement"])
         results.tree_edit_distance_history.append(metrics["tree_edit_distance"])
         if hasattr(config.selector_model, "epsilon"):
@@ -117,9 +128,14 @@ def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str
         
         # Cleanup
         gc.collect()
+        if checkpoint is not None:
+            results.elapsed_time = time.time() - start_time
+            checkpoint(results)
 
     ## Finalize ##
     results.elapsed_time = time.time() - start_time
+    if checkpoint is not None:
+        checkpoint(results)
     
     ## Return ##
     return results

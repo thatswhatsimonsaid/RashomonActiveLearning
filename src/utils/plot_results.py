@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 ### CONFIGURATION ###
 FONT_SIZE = 16
-METHODS_TO_PLOT = ["M1", "M3", "M4", "M6", "M9", "M10", "M7", "M5", "M8"]
+METHODS_TO_PLOT = ["M1", "M3", "M4", "M6", "M9", "M10", "M7", "M11", "M12", "M13", "M5", "M8"]
 METHOD_LABELS = {
     "M1": "Random",
     # "M2": "QBC-RF (p=3)",
@@ -18,6 +18,9 @@ METHOD_LABELS = {
     "M5": "UNREAL",
     "M6": "Uncertainty",
     "M7": "Coreset",
+    "M11": "GSx",
+    "M12": "GSy",
+    "M13": "iGS",
     "M8": "BREAL",
     "M9": "QBC-RF (Weighted, p=sqrt)",
     "M10": "QBC-RF (Weighted, p=d)",
@@ -79,6 +82,9 @@ METHOD_COLORS = {
     "M5": "#1f77b4",  # UNREAL (Uniform)
     "M6": "#9467bd",  # Uncertainty
     "M7": "#8c564b",  # Coreset — brown
+    "M11": "#e377c2",  # GSx
+    "M12": "#c49c94",  # GSy
+    "M13": "#393b79",  # iGS
     "M8": "#d62728",  # UNREAL (Weighted)
     "M9": "#17becf",  # QBC-RF (Weighted, p=√d)
     "M10": "#bcbd22", # QBC-RF (Weighted, p=d)
@@ -92,6 +98,9 @@ METHOD_STYLES = {
     "M5": "-",    # UNREAL — solid 
     "M6": "--",   # Uncertainty
     "M7": "--",   # Coreset
+    "M11": "-.",  # GSx
+    "M12": ":",   # GSy
+    "M13": "-",   # iGS
     "M8": "-",    # UNREAL — solid 
     "M9": "-.",   # QBC-RF Weighted 
     "M10": "-.",  # QBC-RF Weighted 
@@ -103,7 +112,10 @@ METRICS_TO_PLOT = [
     ("tree_edit_distance_history", "Tree Edit Distance (TED)", "upper right"),
     ("rashomon_size_history", "Rashomon Set Size", "upper right"),
     ("committee_size_history", r"Effective Committee Size ($\exp(H)$)", "upper right"),
-    ("oracle_agreement_history", "Oracle Agreement", "lower right")
+    ("oracle_agreement_history", "Oracle Agreement", "lower right"),
+    ("mse_history", "Mean Squared Error", "upper right"),
+    ("rmse_history", "Root Mean Squared Error", "upper right"),
+    ("r2_history", "R²", "lower right"),
 ]
 
 ### Load aggregated data ###
@@ -134,7 +146,8 @@ def plot_metric(data, metric_key, y_label, save_path, dataset_name, legend_loc="
     for method in METHODS_TO_PLOT:
 
         # Set up #
-        if method not in METHODS_TO_PLOT: continue
+        if method not in data:
+            continue
 
         # Restrict Size/Committee plots to only UNREAL variants (M5, M8)
         if metric_key in ["rashomon_size_history", "committee_size_history"]:
@@ -202,7 +215,8 @@ def plot_time_bar_chart(data, save_path, dataset_name):
     for method in METHODS_TO_PLOT:
 
         # Calculate statistics #
-        if method not in METHODS_TO_PLOT: continue
+        if method not in data:
+            continue
         time_mean = data[method].get("elapsed_time_mean")
         time_std = data[method].get("elapsed_time_std")
         if time_mean is not None:
@@ -268,7 +282,8 @@ def plot_variance_metric(data, metric_key, y_label, save_path, dataset_name, sho
     has_data = False
 
     for method in METHODS_TO_PLOT:
-        if method not in METHODS_TO_PLOT: continue
+        if method not in data:
+            continue
         history = data[method].get(metric_key)        
         if history is None or (isinstance(history, np.ndarray) and history.size == 0): 
             continue        
@@ -350,9 +365,12 @@ def main():
         plot_metric(data, metric_key, y_label, img_dir / f"{metric_key}.png", 
                     dataset_title, leg_loc, show_legend=args.show_legend) 
         
-    ## Accuracy bariance plots ##
+    ## Variance plots. Each call skips a metric the study did not record. ##
     plot_variance_metric(data, "accuracy_history", "Accuracy", 
                          img_dir / "accuracy_variance.png", 
+                         dataset_title, show_legend=args.show_legend)
+    plot_variance_metric(data, "mse_history", "Mean Squared Error",
+                         img_dir / "mse_variance.png",
                          dataset_title, show_legend=args.show_legend)
         
     ## Bar charts ##
