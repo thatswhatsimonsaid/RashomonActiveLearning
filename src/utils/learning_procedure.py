@@ -46,7 +46,7 @@ class SimulationResult:
     entropy_history: List[Dict[int, float]] = field(default_factory=list)
 
 ### Learning Procedure Function ###
-def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str, Any] = None) -> SimulationResult:
+def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str, Any] = None, checkpoint=None) -> SimulationResult:
     """
     Runs the full active learning loop, including the final evaluation.
     """
@@ -128,9 +128,14 @@ def run_learning_procedure(config: SimulationConfig, calibrated_params: Dict[str
         
         # Cleanup
         gc.collect()
+        if checkpoint is not None:
+            results.elapsed_time = time.time() - start_time
+            checkpoint(results)
 
     ## Finalize ##
     results.elapsed_time = time.time() - start_time
+    if checkpoint is not None:
+        checkpoint(results)
     
     ## Return ##
     return results

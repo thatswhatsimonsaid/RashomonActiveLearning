@@ -6,6 +6,9 @@ Main entry point for running active learning simulations.
 ### Libraries ###
 import argparse
 import pickle
+import signal
+import sys
+import time
 from pathlib import Path
 from typing import Dict, Any
 import warnings
@@ -215,19 +218,43 @@ def main():
         df_test=df_test,
         task=args.task_type,
     )    
-    results = run_learning_procedure(sim_config, calibrated_params=calibration_results)
-
     ## 6. Save Results ##
+    # Regression jobs can hit the 12-hour limit before the pool is exhausted.
+    # Each iteration overwrites the same pickle so a killed job still leaves a curve.
     output_dir = Path("results") / args.study_dir / args.dataset / f"M{args.method_number}"
     output_dir.mkdir(parents=True, exist_ok=True)
-    
     filename = f"M{args.method_number}_S{args.seed}.pkl"
     output_path = output_dir / filename
-    
-    with open(output_path, "wb") as f:
-        print(f"Saving results to {output_path}...")
-        pickle.dump(results, f)
-        print("Save successful.")
+    holder = {}
+
+    def save_results(partial_results):
+        holder["results"] = partial_results
+        temporary = output_path.with_suffix(".pkl.tmp")
+        with open(temporary, "wb") as handle:
+            pickle.dump(partial_results, handle)
+        temporary.replace(output_path)
+
+    def stop_and_save(signum, frame):
+        partial_results = holder.get("results")
+        if partial_results is not None:
+            partial_results.elapsed_time = time.time() - holder["started"]
+            save_results(partial_results)
+            print(f"Saved partial results to {output_path} after signal {signum}.", flush=True)
+        sys.exit(0)
+
+    if args.task_type == "regression":
+        signal.signal(signal.SIGTERM, stop_and_save)
+        holder["started"] = time.time()
+
+    results = run_learning_procedure(
+        sim_config,
+        calibrated_params=calibration_results,
+        checkpoint=save_results if args.task_type == "regression" else None,
+    )
+    holder["results"] = results
+    save_results(results)
+    print(f"Saving results to {output_path}...")
+    print("Save successful.")
 
 ### RUN MAIN ####
 if __name__ == "__main__":
