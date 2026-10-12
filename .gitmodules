@@ -1,0 +1,3 @@
+[submodule "third_party/proto-rset"]
+	path = third_party/proto-rset
+	url = https://github.com/jdonnelly36/proto-rset.git

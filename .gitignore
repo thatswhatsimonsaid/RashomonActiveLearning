@@ -1,7 +1,15 @@
 results/**/*.pkl
 src/data/*.pkl
+src/data/CIFAR10/
 **/__pycache__/
 *.pyc
 slurm_logs/
 *.pkl
 *.npy
+.RAL_VISION/
+/None/
+/models/
+wandb/
+experiments/study3_vision_classification/protopnet_verify_*.out
+experiments/study3_vision_classification/protopnet_verify_*.err
+experiments/study3_vision_classification/logs/
