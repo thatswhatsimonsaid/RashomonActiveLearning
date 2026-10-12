@@ -9,6 +9,9 @@ SLURM_CONFIG = {
 
 ### GLOBAL PARAMETERS ###
 N_REPLICATIONS = 25
+# Running plus waiting tasks for this user. The smart launcher will not
+# submit another dataset once the queue is at this size.
+MAX_QUEUED_JOBS = 1000
 TASK_TYPE = "regression"
 # SORTD keeps a tree when its objective is at most (1 + ε) times optimal.
 RASHOMON_THRESHOLD = 0.10
@@ -33,6 +36,27 @@ DATASETS = [
     "Synthetic_Regression_Phi_10",
     "Synthetic_Regression_Phi_25",
     "Synthetic_Regression_Phi_45",
+]
+
+# This wave labels each pool to the end. airfoil is about 1,200 refits, so it waits.
+SUBMIT_DATASETS = [
+    "airquality",
+    "servo",
+    "yacht",
+    "real-estate",
+    "Synthetic_Regression_Baseline",
+    "Synthetic_Regression_Alpha_25",
+    "Synthetic_Regression_Alpha_50",
+    "Synthetic_Regression_Alpha_75",
+    "Synthetic_Regression_Alpha_100",
+    "Synthetic_Regression_Phi_05",
+    "Synthetic_Regression_Phi_10",
+    "Synthetic_Regression_Phi_25",
+    "Synthetic_Regression_Phi_45",
+    "sync",
+    "optical",
+    "enb-cool",
+    "enb-heat",
 ]
 
 PREDICTION_PARAMS = {
@@ -124,5 +148,20 @@ BASE_SELECTORS = [
             "max_features": 1.0,
             "beta": "calibrated",
         },
+    },
+    {
+        "selector_model": "GreedyRegressionTree",
+        "selector": "GSx",
+        "params": {"max_depth": 3},
+    },
+    {
+        "selector_model": "GreedyRegressionTree",
+        "selector": "GSy",
+        "params": {"max_depth": 3},
+    },
+    {
+        "selector_model": "GreedyRegressionTree",
+        "selector": "iGS",
+        "params": {"max_depth": 3},
     },
 ]

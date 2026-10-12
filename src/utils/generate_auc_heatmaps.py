@@ -58,11 +58,14 @@ METHOD_LABELS = {
     "M5": "UNREAL",
     "M6": "Uncertainty",
     "M7": "Coreset",
+    "M11": "GSx",
+    "M12": "GSy",
+    "M13": "iGS",
     "M8": "BREAL",
     "M9": "QBC-RF (Weighted, p=sqrt)",
     "M10": "QBC-RF (Weighted, p=d)",
 }
-PREFERRED_METHOD_ORDER = ["M8", "M5", "M3", "M4", "M9", "M10", "M6", "M7", "M1",]
+PREFERRED_METHOD_ORDER = ["M8", "M5", "M3", "M4", "M9", "M10", "M6", "M7", "M11", "M12", "M13", "M1",]
 
 def calculate_auc(history_arr, fraction):
     if history_arr is None or len(history_arr) == 0:

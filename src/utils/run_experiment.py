@@ -34,6 +34,9 @@ from src.utils.query_strategies import (
     UncertaintySelector,
     RegressionUncertaintySelector,
     HammingDiversitySelector,
+    GSxSelector,
+    GSySelector,
+    ImprovedGreedySelector,
     ModelChangeSelector
 )
 from src.utils.learning_procedure import SimulationConfig, run_learning_procedure
@@ -73,6 +76,9 @@ SELECTOR_REGISTRY = {
     "Uncertainty": UncertaintySelector,
     "RegressionUncertainty": RegressionUncertaintySelector,
     "HammingDiversity": HammingDiversitySelector,
+    "GSx": GSxSelector,
+    "GSy": GSySelector,
+    "iGS": ImprovedGreedySelector,
     "RashomonExpectedModelChange": ModelChangeSelector
 }
 

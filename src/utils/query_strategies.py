@@ -12,6 +12,7 @@ from src.utils.models import ModelWrapper
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial.distance import cdist
+from sklearn.linear_model import Ridge
 from scipy.stats import entropy
 from sklearn.ensemble import RandomForestClassifier
 
@@ -255,6 +256,96 @@ class UncertaintySelector(Selector):
             "IndexRecommendation": int(recommended_index),
             "AllEntropies": all_entropies_series
         }
+
+def _ridge_predictions(df_train: pd.DataFrame, X_candidate: pd.DataFrame) -> np.ndarray:
+    """Ridge regression used by GSy and iGS (Wu, Lin, and Huang, 2019), with λ = 0.01."""
+    X_train = df_train.drop(columns="Y")
+    y_train = df_train["Y"].to_numpy(dtype=float)
+    ridge = Ridge(alpha=0.01)
+    ridge.fit(X_train, y_train)
+    return np.asarray(ridge.predict(X_candidate), dtype=float).reshape(-1)
+
+
+def _output_gaps(predictions: np.ndarray, y_train: np.ndarray) -> np.ndarray:
+    """For each candidate, distance from its prediction to the nearest labeled output."""
+    gaps = np.abs(predictions.reshape(-1, 1) - y_train.reshape(1, -1))
+    return gaps.min(axis=1)
+
+
+### GREEDY SAMPLING ON THE INPUTS (GSx) ###
+class GSxSelector(Selector):
+    """
+    Furthest-first traversal in the input space.
+
+    The candidate that maximizes the Euclidean distance to the nearest labeled
+    row is queried. This is GSx from Wu, Lin, and Huang (2019). On binary
+    features it ranks rows the same way Hamming coreset does.
+    """
+
+    def select(self, model, df_train, df_candidate) -> Dict[str, Any]:
+        if len(df_candidate) == 0:
+            return {"IndexRecommendation": None}
+
+        X_train = df_train.drop(columns="Y").to_numpy(dtype=float)
+        X_cand = df_candidate.drop(columns="Y").to_numpy(dtype=float)
+        distances = cdist(X_cand, X_train, metric="euclidean")
+        scores = distances.min(axis=1)
+        chosen = int(np.argmax(scores))
+        return {
+            "IndexRecommendation": int(df_candidate.index[chosen]),
+            "AllEntropies": pd.Series(scores, index=df_candidate.index),
+        }
+
+
+### GREEDY SAMPLING ON THE OUTPUT (GSy) ###
+class GSySelector(Selector):
+    """
+    Query the candidate whose ridge prediction is farthest from every labeled output.
+
+    d_n = min_m |f(x_n) - y_m|, and the maximum d_n is labeled. f is ridge
+    regression with λ = 0.01, as in Wu, Lin, and Huang (2019).
+    """
+
+    def select(self, model, df_train, df_candidate) -> Dict[str, Any]:
+        if len(df_candidate) == 0:
+            return {"IndexRecommendation": None}
+
+        X_cand = df_candidate.drop(columns="Y")
+        predictions = _ridge_predictions(df_train, X_cand)
+        y_train = df_train["Y"].to_numpy(dtype=float)
+        scores = _output_gaps(predictions, y_train)
+        chosen = int(np.argmax(scores))
+        return {
+            "IndexRecommendation": int(df_candidate.index[chosen]),
+            "AllEntropies": pd.Series(scores, index=df_candidate.index),
+        }
+
+
+### IMPROVED GREEDY SAMPLING (iGS) ###
+class ImprovedGreedySelector(Selector):
+    """
+    Query the candidate farthest from the labeled set in input and output together.
+
+    d_n = min_m ||x_n - x_m|| |f(x_n) - y_m|. f is the same ridge regression as GSy.
+    """
+
+    def select(self, model, df_train, df_candidate) -> Dict[str, Any]:
+        if len(df_candidate) == 0:
+            return {"IndexRecommendation": None}
+
+        X_train = df_train.drop(columns="Y").to_numpy(dtype=float)
+        X_cand = df_candidate.drop(columns="Y")
+        input_distances = cdist(X_cand.to_numpy(dtype=float), X_train, metric="euclidean")
+        predictions = _ridge_predictions(df_train, X_cand)
+        y_train = df_train["Y"].to_numpy(dtype=float)
+        output_distances = np.abs(predictions.reshape(-1, 1) - y_train.reshape(1, -1))
+        scores = (input_distances * output_distances).min(axis=1)
+        chosen = int(np.argmax(scores))
+        return {
+            "IndexRecommendation": int(df_candidate.index[chosen]),
+            "AllEntropies": pd.Series(scores, index=df_candidate.index),
+        }
+
 
 ### Coreset/Hamming Diversity ###
 class HammingDiversitySelector(Selector):

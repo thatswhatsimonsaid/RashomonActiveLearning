@@ -46,6 +46,9 @@ NAME_MAPPING = {
     "M5": "UNREAL",
     "M6": "Uncertainty",
     "M7": "Coreset",
+    "M11": "GSx",
+    "M12": "GSy",
+    "M13": "iGS",
     "M8": "BREAL",
     "M9": "QBC-RF (Weighted, p=sqrt)",
     "M10": "QBC-RF (Weighted, p=d)",
@@ -59,8 +62,11 @@ ORDER = [
     "QBC-RF (Uniform, p=d)",
     "QBC-RF (Weighted, p=sqrt)",
     "QBC-RF (Weighted, p=d)",
-    "Uncertainty", 
-    "Coreset"
+    "Uncertainty",
+    "Coreset",
+    "GSx",
+    "GSy",
+    "iGS",
 ]
 def calculate_n_rel(study_root, metric_key="accuracy_history", higher_is_better=True, included_datasets=None):
     if not study_root.exists():

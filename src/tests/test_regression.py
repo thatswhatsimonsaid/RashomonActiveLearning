@@ -9,7 +9,13 @@ from src.utils.calibration import calibrate_hyperparameters
 from src.utils.data_handler import get_random_initial_indices
 from src.utils.models import GreedyRegressionTreeWrapper, RandomForestRegressorWrapper
 from src.utils.preprocess_data import generate_synthetic_regression
-from src.utils.query_strategies import RegressionQBCSelector, RegressionUncertaintySelector
+from src.utils.query_strategies import (
+    GSxSelector,
+    GSySelector,
+    ImprovedGreedySelector,
+    RegressionQBCSelector,
+    RegressionUncertaintySelector,
+)
 from src.utils.learning_procedure import SimulationConfig, run_learning_procedure
 
 
@@ -52,6 +58,28 @@ def test_regression_uncertainty_uses_leaf_variance():
     result = RegressionUncertaintySelector().select(model, frame.iloc[:10], frame)
     chosen = frame.loc[result["IndexRecommendation"], "X0"]
     assert chosen > 0
+
+
+def test_gsx_picks_the_farthest_input():
+    labeled = pd.DataFrame({"X0": [0.0], "Y": [0.0]})
+    pool = pd.DataFrame({"X0": [0.2, 5.0], "Y": [0.0, 0.0]})
+    result = GSxSelector().select(None, labeled, pool)
+    assert result["IndexRecommendation"] == 1
+
+
+def test_gsy_picks_the_farthest_prediction():
+    labeled = pd.DataFrame({"X0": [0.0, 1.0], "Y": [0.0, 1.0]})
+    pool = pd.DataFrame({"X0": [0.5, 3.0], "Y": [0.0, 0.0]})
+    result = GSySelector().select(None, labeled, pool)
+    assert result["IndexRecommendation"] == 1
+    assert result["AllEntropies"].loc[1] > result["AllEntropies"].loc[0]
+
+
+def test_igs_combines_input_and_output_distance():
+    labeled = pd.DataFrame({"X0": [0.0, 1.0], "Y": [0.0, 1.0]})
+    pool = pd.DataFrame({"X0": [0.5, 4.0], "Y": [0.0, 0.0]})
+    result = ImprovedGreedySelector().select(None, labeled, pool)
+    assert result["IndexRecommendation"] == 1
 
 
 def test_initial_regression_sample_is_not_stratified_by_value():
