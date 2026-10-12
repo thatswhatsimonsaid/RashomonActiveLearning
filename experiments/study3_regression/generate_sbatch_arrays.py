@@ -84,7 +84,7 @@ STUDY_DIR="{full_study_path}"
 N_REPLICATIONS={N_REPLICATIONS}
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${{BASH_SOURCE[0]}}" )" &> /dev/null && pwd )
-PROJECT_ROOT=$(realpath "$SCRIPT_DIR/../../../")
+PROJECT_ROOT=$(realpath "$SCRIPT_DIR/../../../../")
 DATASETS_DIR="$SCRIPT_DIR/datasets"
 PYTHON="$PROJECT_ROOT/.RAL_CL/bin/python"
 
@@ -93,6 +93,11 @@ export LD_LIBRARY_PATH=/sw/ebpkgs/software/Python/3.10.8-GCCcore-12.2.0/lib:${{L
 export PATH=/sw/ebpkgs/software/Python/3.10.8-GCCcore-12.2.0/bin:${{PATH}}
 export PYTHONPATH="$PROJECT_ROOT:${{PYTHONPATH}}"
 export PYTHONDONTWRITEBYTECODE=1
+
+if [ ! -x "$PYTHON" ]; then
+    echo "Python not found at $PYTHON"
+    exit 1
+fi
 
 echo "--------------------------------------------------------"
 echo "Smart Launcher: regression"
@@ -115,6 +120,10 @@ for dataset_name in "${{DATASETS[@]}}"; do
     for sbatch_file in "$dataset_path"/submit_*.sbatch; do
         [ -e "$sbatch_file" ] || continue
         method_number=$(sed -n 's/.*_M\\([0-9][0-9]*\\)\\.sbatch/\\1/p' <<< "$sbatch_file")
+        if squeue -u "$USER" -h -o %j | grep -qx "${{dataset_name}}_M${{method_number}}"; then
+            echo "   Already queued: $dataset_name M$method_number"
+            continue
+        fi
         if "$PYTHON" src/utils/method_complete.py \\
             --dataset "$dataset_name" \\
             --method_number "$method_number" \\
