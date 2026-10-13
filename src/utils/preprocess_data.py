@@ -251,6 +251,192 @@ def generate_synthetic_regression(
     return df
 
 
+# Active-learning regression benchmarks used by Wu, Lin, and Huang (2019)
+# and the pool-based ALR papers that share that suite. They are not in the
+# PySORTD regression folder. Continuous columns stay numeric; PySORTD cuts
+# those into quantile indicators. Categorical columns are one-hot encoded
+# here so they arrive as {0, 1} and are not cut a second time.
+ALR_DATASET_NAMES = [
+    "concrete-slump",
+    "concrete-flow",
+    "concrete-cs",
+    "autompg",
+    "no2",
+    "pm10",
+    "cps",
+    "concrete",
+]
+_SLUMP_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/slump/slump_test.data"
+_AUTOMPG_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data"
+_NO2_URL = "http://lib.stat.cmu.edu/datasets/NO2.dat"
+_PM10_URL = "http://lib.stat.cmu.edu/datasets/PM10.dat"
+_CPS_URL = "http://lib.stat.cmu.edu/datasets/CPS_85_Wages"
+_CONCRETE_STRENGTH_PATH = DATA_DIR / "alr" / "concrete_compressive_strength.csv"
+
+
+def regression_frame(features: pd.DataFrame, target: pd.Series) -> pd.DataFrame:
+    """Numeric covariates named V0, V1, ... and a continuous response Y."""
+    values = features.reset_index(drop=True).to_numpy(dtype=float)
+    frame = pd.DataFrame(values, columns=[f"V{i}" for i in range(values.shape[1])])
+    frame["Y"] = np.asarray(target, dtype=float)
+    if frame.isna().any().any():
+        raise ValueError("Regression frame contains missing values.")
+    return frame
+
+
+def one_hot(series: pd.Series) -> pd.DataFrame:
+    """One column per observed level, stored as 0/1 so PySORTD keeps it binary."""
+    codes = series.astype(int)
+    levels = sorted(codes.unique().tolist())
+    return pd.DataFrame(
+        {f"level_{level}": (codes.to_numpy() == level).astype(float) for level in levels}
+    )
+
+
+def frames_from_concrete_slump(table: pd.DataFrame) -> dict:
+    """Seven mixture ingredients and three responses from the UCI slump test."""
+    values = table.copy()
+    if values.shape[1] == 11:
+        values = values.iloc[:, 1:]
+    if values.shape[1] != 10:
+        raise ValueError(f"Concrete slump table has {values.shape[1]} columns, expected 10.")
+    features = values.iloc[:, :7]
+    targets = {
+        "concrete-slump": values.iloc[:, 7],
+        "concrete-flow": values.iloc[:, 8],
+        "concrete-cs": values.iloc[:, 9],
+    }
+    return {name: regression_frame(features, target) for name, target in targets.items()}
+
+
+def frame_from_autompg(table: pd.DataFrame) -> pd.DataFrame:
+    """
+    UCI Auto MPG. Drops the car name and rows with missing horsepower.
+    Origin is one-hot encoded. The published table has 392 complete cars.
+    """
+    values = table.copy()
+    if values.shape[1] < 8:
+        raise ValueError(f"Auto MPG table has {values.shape[1]} columns, expected at least 8.")
+    horsepower = pd.to_numeric(values.iloc[:, 3], errors="coerce")
+    keep = horsepower.notna()
+    cylinders = pd.to_numeric(values.loc[keep, 1], errors="raise")
+    displacement = pd.to_numeric(values.loc[keep, 2], errors="raise")
+    weight = pd.to_numeric(values.loc[keep, 4], errors="raise")
+    acceleration = pd.to_numeric(values.loc[keep, 5], errors="raise")
+    year = pd.to_numeric(values.loc[keep, 6], errors="raise")
+    numeric = pd.DataFrame(
+        {
+            "cylinders": cylinders.to_numpy(dtype=float),
+            "displacement": displacement.to_numpy(dtype=float),
+            "horsepower": horsepower.loc[keep].to_numpy(dtype=float),
+            "weight": weight.to_numpy(dtype=float),
+            "acceleration": acceleration.to_numpy(dtype=float),
+            "year": year.to_numpy(dtype=float),
+        }
+    )
+    origin = one_hot(values.loc[keep, 7]).reset_index(drop=True)
+    features = pd.concat([numeric.reset_index(drop=True), origin], axis=1)
+    return regression_frame(features, values.loc[keep, 0])
+
+
+def frame_from_pollution(table: pd.DataFrame) -> pd.DataFrame:
+    """StatLib NO2 or PM10. Column 0 is the log concentration; seven covariates follow."""
+    if table.shape[1] != 8:
+        raise ValueError(f"Pollution table has {table.shape[1]} columns, expected 8.")
+    numeric = table.apply(pd.to_numeric, errors="raise")
+    return regression_frame(numeric.iloc[:, 1:], numeric.iloc[:, 0])
+
+
+def frame_from_cps(table: pd.DataFrame) -> pd.DataFrame:
+    """
+    StatLib CPS 1985 wages. Race is omitted. Occupation and sector are one-hot
+    encoded; the remaining covariates stay numeric, including indicators that
+    are already 0/1.
+    """
+    if table.shape[1] != 11:
+        raise ValueError(f"CPS table has {table.shape[1]} columns, expected 11.")
+    values = table.apply(pd.to_numeric, errors="raise")
+    education, south, sex, experience, union, wage, age, _race, occupation, sector, marr = (
+        values.iloc[:, index] for index in range(11)
+    )
+    base = pd.DataFrame(
+        {
+            "education": education.to_numpy(dtype=float),
+            "south": south.to_numpy(dtype=float),
+            "sex": sex.to_numpy(dtype=float),
+            "experience": experience.to_numpy(dtype=float),
+            "union": union.to_numpy(dtype=float),
+            "age": age.to_numpy(dtype=float),
+            "marr": marr.to_numpy(dtype=float),
+        }
+    )
+    features = pd.concat(
+        [base, one_hot(occupation).reset_index(drop=True), one_hot(sector).reset_index(drop=True)],
+        axis=1,
+    )
+    return regression_frame(features, wage)
+
+
+def frame_from_concrete_strength(table: pd.DataFrame) -> pd.DataFrame:
+    """UCI concrete compressive strength. Eight ingredients and age, strength last."""
+    if table.shape[1] != 9:
+        raise ValueError(f"Concrete strength table has {table.shape[1]} columns, expected 9.")
+    numeric = table.apply(pd.to_numeric, errors="raise")
+    return regression_frame(numeric.iloc[:, :8], numeric.iloc[:, 8])
+
+
+def _download_text(url: str) -> str:
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
+    return response.text
+
+
+def _data_lines(text: str) -> str:
+    """Keep lines that start with a number, which drops StatLib prose headers."""
+    kept = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped and (stripped[0].isdigit() or stripped[0] == "-"):
+            kept.append(stripped)
+    if not kept:
+        raise ValueError("No numeric rows found.")
+    return "\n".join(kept)
+
+
+def preprocess_alr_datasets():
+    """Download the ALR benchmarks and write one pickle per response."""
+    print("\n--- PREPROCESSING ALR REGRESSION DATASETS ---")
+    _ensure_dir(DATA_DIR)
+    slump = pd.read_csv(io.StringIO(_download_text(_SLUMP_URL)))
+    for name, frame in frames_from_concrete_slump(slump).items():
+        _save_pickle(frame, DATA_DIR / f"{name}.pkl")
+
+    autompg_rows = []
+    for line in _download_text(_AUTOMPG_URL).splitlines():
+        parts = line.split()
+        if len(parts) >= 8:
+            autompg_rows.append(parts[:8])
+    autompg = pd.DataFrame(autompg_rows)
+    _save_pickle(frame_from_autompg(autompg), DATA_DIR / "autompg.pkl")
+
+    for name, url in (("no2", _NO2_URL), ("pm10", _PM10_URL)):
+        table = pd.read_csv(io.StringIO(_download_text(url)), sep=r"\s+", header=None, engine="python")
+        _save_pickle(frame_from_pollution(table), DATA_DIR / f"{name}.pkl")
+
+    cps = pd.read_csv(
+        io.StringIO(_data_lines(_download_text(_CPS_URL))),
+        sep=r"\s+",
+        header=None,
+        engine="python",
+    )
+    _save_pickle(frame_from_cps(cps), DATA_DIR / "cps.pkl")
+
+    if not _CONCRETE_STRENGTH_PATH.exists():
+        raise FileNotFoundError(f"Missing concrete strength table at {_CONCRETE_STRENGTH_PATH}")
+    concrete = pd.read_csv(_CONCRETE_STRENGTH_PATH)
+    _save_pickle(frame_from_concrete_strength(concrete), DATA_DIR / "concrete.pkl")
+
+
 def process_regression_dataset(filename: str):
     name = filename.replace(".csv", "")
     url = f"{REGRESSION_URL_BASE}/{filename}"
@@ -295,6 +481,7 @@ def preprocess_regression():
             generate_synthetic_regression(alpha=0.0, phi=phi),
             DATA_DIR / f"{name}.pkl",
         )
+    preprocess_alr_datasets()
 
 
 ### Main ###

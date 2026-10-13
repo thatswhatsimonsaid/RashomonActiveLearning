@@ -38,7 +38,24 @@ DATASETS = [
     "Synthetic_Regression_Phi_45",
 ]
 
+# Wu, Lin, and Huang (2019) benchmarks that are not in the PySORTD folder.
+# concrete-cs is the 28-day strength from the slump test, not the 1,030-row
+# concrete table. CPS wages omit the race column.
+ALR_DATASETS = [
+    "concrete-slump",
+    "concrete-flow",
+    "concrete-cs",
+    "autompg",
+    "no2",
+    "pm10",
+    "cps",
+    "concrete",
+]
+
+DATASETS = DATASETS + ALR_DATASETS
+
 # This wave labels each pool to the end. airfoil is about 1,200 refits, so it waits.
+# ALR_DATASETS is the next wave. It is not in SUBMIT_DATASETS until that wave is launched.
 SUBMIT_DATASETS = [
     "airquality",
     "servo",

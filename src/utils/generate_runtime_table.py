@@ -85,6 +85,14 @@ DATASET_ORDER = [
     "optical",
     "enb-cool",
     "enb-heat",
+    "concrete-slump",
+    "concrete-flow",
+    "concrete-cs",
+    "autompg",
+    "no2",
+    "pm10",
+    "cps",
+    "concrete",
 ]
 
 SYNTHETIC_DATASETS = {
