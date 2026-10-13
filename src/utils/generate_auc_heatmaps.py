@@ -49,6 +49,25 @@ DATASET_ORDER = [
     "tic-tac-toe",                          # Dataset 18
     "vote",                                 # Dataset 19
     "yeast"                                 # Dataset 20
+]
+REGRESSION_DATASET_ORDER = [
+    "airquality",
+    "servo",
+    "yacht",
+    "real-estate",
+    "Synthetic_Regression_Baseline",
+    "Synthetic_Regression_Phi_05",
+    "Synthetic_Regression_Phi_10",
+    "Synthetic_Regression_Phi_25",
+    "Synthetic_Regression_Phi_45",
+    "Synthetic_Regression_Alpha_25",
+    "Synthetic_Regression_Alpha_50",
+    "Synthetic_Regression_Alpha_75",
+    "Synthetic_Regression_Alpha_100",
+    "sync",
+    "optical",
+    "enb-cool",
+    "enb-heat",
 ] 
 METHOD_LABELS = {
     "M1": "Random",
@@ -79,17 +98,24 @@ def calculate_auc(history_arr, fraction):
     try:
         auc_val = np.trapezoid(truncated_curve, x)
     except AttributeError:
-        auc_val = np.trapezoid(truncated_curve, x)
+        auc_val = np.trapz(truncated_curve, x)
     return auc_val, t_max
+
+def _ordered_names(present):
+    for order in (DATASET_ORDER, REGRESSION_DATASET_ORDER):
+        ordered = [name for name in order if name in present]
+        if ordered:
+            return ordered
+    return sorted(present)
+
 
 def _dataset_names(study_root):
     if not study_root.exists():
         return list(DATASET_ORDER)
     present = {path.name for path in study_root.iterdir() if (path / "aggregated").exists()}
-    ordered = [name for name in DATASET_ORDER if name in present]
-    if ordered:
-        return ordered
-    return sorted(present)
+    if not present:
+        return list(DATASET_ORDER)
+    return _ordered_names(present)
 
 
 def load_auc_data(study_root, metric_key, budget_fraction): 
@@ -128,9 +154,7 @@ def plot_relative_heatmap(auc_df, output_path, metric_key, budget_fraction):
     
     # 1. Pivot and Filter
     pivot = auc_df.pivot(index='Method', columns='Dataset', values='AUC')
-    existing_columns = [ds for ds in DATASET_ORDER if ds in pivot.columns]
-    if not existing_columns:
-        existing_columns = list(pivot.columns)
+    existing_columns = _ordered_names(set(pivot.columns))
     pivot = pivot[existing_columns]
     
     # 2. Calculate Relative Efficiency
@@ -207,7 +231,9 @@ def main():
 
     project_root = Path(__file__).resolve().parent.parent.parent
     study_root = project_root / "results" / args.study_dir
-    output_dir = project_root / "results"/ "study1_active_learning" / "PLOTS" / "AUC_Plots"
+    study_parts = Path(args.study_dir).parts
+    study_root_name = study_parts[0] if study_parts else args.study_dir
+    output_dir = project_root / "results" / study_root_name / "PLOTS" / "AUC_Plots"
     output_dir.mkdir(parents=True, exist_ok=True)
     
     budget_pct = int(args.budget_fraction * 100)
