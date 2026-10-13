@@ -68,6 +68,14 @@ REGRESSION_DATASET_ORDER = [
     "optical",
     "enb-cool",
     "enb-heat",
+    "concrete-slump",
+    "concrete-flow",
+    "concrete-cs",
+    "autompg",
+    "no2",
+    "pm10",
+    "cps",
+    "concrete",
 ] 
 METHOD_LABELS = {
     "M1": "Random",

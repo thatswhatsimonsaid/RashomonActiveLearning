@@ -38,8 +38,25 @@ DATASETS = [
     "Synthetic_Regression_Phi_45",
 ]
 
-# This wave labels each pool to the end. airfoil is about 1,200 refits, so it waits.
-SUBMIT_DATASETS = [
+# Wu, Lin, and Huang (2019) benchmarks that are not in the PySORTD folder.
+# concrete-cs is the 28-day strength from the slump test, not the 1,030-row
+# concrete table. CPS wages omit the race column.
+ALR_DATASETS = [
+    "concrete-slump",
+    "concrete-flow",
+    "concrete-cs",
+    "autompg",
+    "no2",
+    "pm10",
+    "cps",
+    "concrete",
+]
+
+DATASETS = DATASETS + ALR_DATASETS
+
+# The first regression wave. Kept so those names stay recorded. The launcher
+# below does not resubmit them.
+FIRST_WAVE_DATASETS = [
     "airquality",
     "servo",
     "yacht",
@@ -58,6 +75,9 @@ SUBMIT_DATASETS = [
     "enb-cool",
     "enb-heat",
 ]
+
+# Current launcher target. airfoil and seoul-bike stay out.
+SUBMIT_DATASETS = list(ALR_DATASETS)
 
 PREDICTION_PARAMS = {
     "max_depth": 3,
