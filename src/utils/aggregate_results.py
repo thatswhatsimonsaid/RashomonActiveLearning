@@ -23,6 +23,14 @@ def extract_seed_id(filename: str) -> str:
     match = re.search(r'_(S\d+)\.pkl$', filename)
     return match.group(1) if match else None
 
+def history_length(result_obj) -> int:
+    """Length of the curve used to decide whether a seed finished."""
+    for key in ("rmse_history", "accuracy_history", "mse_history"):
+        value = get_metric_value(result_obj, key)
+        if isinstance(value, (list, np.ndarray)) and len(value) > 0:
+            return len(value)
+    return 0
+
 ### Aggregate results functions ###
 def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
     """
@@ -30,7 +38,7 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
     and aggregates them into summary files.
     """
 
-    ALLOWED_METHODS = {"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", "M10"}    
+    ALLOWED_METHODS = {f"M{index}" for index in range(1, 14)}    
 
     ## 1. Define paths ##
     results_dir = project_root / "results" / study_dir / dataset_subdir
@@ -67,20 +75,44 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
         method_seeds[m_name] = set(seeds.keys())
         method_file_map[m_name] = seeds
 
-    # Calculate Intersection (Seeds present in EVERY found method)
-    if not method_seeds:
+    # A timed-out seed still has a pickle. Keep a seed only when every method
+    # finished the full curve, so one short run cannot truncate the traces.
+    method_lengths = {}
+    observed_lengths = []
+    for m_name, seeds in method_file_map.items():
+        lengths = {}
+        for sid, path in seeds.items():
+            try:
+                with open(path, "rb") as handle:
+                    length = history_length(pickle.load(handle))
+            except Exception as exc:
+                print(f"    - Error loading {path.name}: {exc}")
+                length = 0
+            lengths[sid] = length
+            if length:
+                observed_lengths.append(length)
+        method_lengths[m_name] = lengths
+
+    if not method_seeds or not observed_lengths:
         print("  > No seeds found.")
         return
 
-    common_seeds = set.intersection(*method_seeds.values())
-    common_seeds = sorted(list(common_seeds), key=lambda x: int(x[1:]))
+    full_length = max(observed_lengths)
+    complete_seeds = {
+        m_name: {sid for sid, length in lengths.items() if length == full_length}
+        for m_name, lengths in method_lengths.items()
+    }
+    common_seeds = set.intersection(*complete_seeds.values())
+    common_seeds = sorted(common_seeds, key=lambda x: int(x[1:]))
 
     print(f"  > Detected {len(method_dirs)} methods.")
+    print(f"  > Full curve length: {full_length}")
     print(f"  > Consistency Check:")
-    for m in method_seeds:
-        count = len(method_seeds[m])
-        status = "OK" if count == len(common_seeds) else f"DIFF ({count})"
-        print(f"    - {m:<4}: {count:<3} seeds found | Status: {status}")
+    for m in sorted(complete_seeds, key=lambda name: int(name[1:])):
+        count = len(complete_seeds[m])
+        raw = len(method_seeds[m])
+        status = "OK" if count == len(common_seeds) else f"DIFF ({count} full / {raw} files)"
+        print(f"    - {m:<4}: {count:<3} full curves | Status: {status}")
     
     print(f"\n  > Found {len(common_seeds)} common seeds across all methods.")
     if not common_seeds:
@@ -100,7 +132,8 @@ def aggregate_results(dataset_subdir: str, project_root: Path, study_dir: str):
         "rashomon_size_history",
         "committee_size_history",        
         "tree_edit_distance_history",
-        "runtime_history"     
+        "runtime_history",
+        "elapsed_time",
     ]
 
     ## 4. Run Aggregation ##

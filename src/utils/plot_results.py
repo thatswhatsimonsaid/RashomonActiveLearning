@@ -334,7 +334,9 @@ def main():
 
     ## Legend-only mode ##
     if args.legend_only:
-        legend_dir = project_root / "results" / "study1_active_learning" / "PLOTS"
+        study_parts = Path(args.study_dir).parts
+        study_root_name = study_parts[0] if study_parts else "study1_active_learning"
+        legend_dir = project_root / "results" / study_root_name / "PLOTS"
         legend_dir.mkdir(parents=True, exist_ok=True)
         generate_legend(output_path=legend_dir / "benchmark_legend.png")
         return

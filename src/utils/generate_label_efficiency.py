@@ -1,5 +1,5 @@
 ### Libraries ###
-import os
+import argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -75,7 +75,9 @@ def calculate_n_rel(study_root, metric_key="accuracy_history", higher_is_better=
 
     dataset_dirs = [d for d in study_root.iterdir() if d.is_dir() and (d / "aggregated").exists()]
     allowed = INCLUDED_DATASETS if included_datasets is None else included_datasets
-    dataset_dirs = [d for d in dataset_dirs if d.name in allowed]
+    filtered = [d for d in dataset_dirs if d.name in allowed]
+    # A regression study has none of the classification names. Use every aggregated dataset.
+    dataset_dirs = filtered if filtered or included_datasets is not None else dataset_dirs
     baseline_label = NAME_MAPPING.get(BASELINE_ID, BASELINE_ID)
     print(f"Found {len(dataset_dirs)} datasets with aggregated results relative to {baseline_label}.")
     
@@ -157,7 +159,7 @@ def calculate_n_rel(study_root, metric_key="accuracy_history", higher_is_better=
             
     return pd.DataFrame(efficiency_data)
 
-def plot_efficiency_boxplot(df, output_path):
+def plot_efficiency_boxplot(df, output_path, target_name="Accuracy"):
     if df.empty:
         print("No valid data points collected.")
         return
@@ -184,22 +186,42 @@ def plot_efficiency_boxplot(df, output_path):
     # plt.title("Relative Label Efficiency ($N_{rel}$) Across Benchmarks", fontsize=20, pad=20)
     plt.xlabel(f"Labels Required Relative to {baseline_label} (Clipped at 2.5)", fontsize=16)
     plt.ylabel("")
-    plt.legend(title="Accuracy Target", loc="upper right", fontsize=18, title_fontsize=20)
+    plt.legend(title=f"{target_name} Target", loc="upper right", fontsize=18, title_fontsize=20)
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     print(f"\nPlot saved to: {output_path}")
 
+def _lower_is_better(metric_key: str) -> bool:
+    return metric_key.startswith(("rmse", "mse")) or "distance" in metric_key.lower()
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--study_dir", type=str, default="study1_active_learning/tree_predictor")
+    parser.add_argument("--metric", type=str, default="accuracy_history")
+    args = parser.parse_args()
+
     project_root = Path(__file__).resolve().parent.parent.parent
-    study_root = project_root / "results" / "study1_active_learning" / "tree_predictor"
-    output_dir = project_root / "results" / "study1_active_learning" / "PLOTS" / "Efficiency_Plots"
+    study_root = project_root / "results" / args.study_dir
+    study_parts = Path(args.study_dir).parts
+    study_root_name = study_parts[0] if study_parts else args.study_dir
+    output_dir = project_root / "results" / study_root_name / "PLOTS" / "Efficiency_Plots"
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Use the configuration toggle
-    df_results = calculate_n_rel(study_root)
-    
+
+    higher_is_better = not _lower_is_better(args.metric)
+    df_results = calculate_n_rel(
+        study_root,
+        metric_key=args.metric,
+        higher_is_better=higher_is_better,
+    )
+
+    metric_tag = "RMSE" if args.metric.startswith("rmse") else "Accuracy"
     if not df_results.empty:
-        plot_efficiency_boxplot(df_results, output_dir / f"Relative_Label_Efficiency.png")
+        plot_efficiency_boxplot(
+            df_results,
+            output_dir / "Relative_Label_Efficiency.png",
+            target_name=metric_tag,
+        )
         
         unreal_id = "M5"
         unreal_label = NAME_MAPPING[unreal_id]
