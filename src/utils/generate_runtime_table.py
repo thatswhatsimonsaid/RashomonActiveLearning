@@ -67,7 +67,7 @@ DATASET_ORDER = [
     # "spect",
     "tic-tac-toe",                          # Dataset 18
     "vote",                                 # Dataset 19
-    "yeast"                                 # Dataset 20
+    "yeast",                                # Dataset 20
     "airquality",
     "servo",
     "yacht",
@@ -266,8 +266,8 @@ def main(study_dir="study1_active_learning/tree_predictor"):
     latex += r"        \bottomrule" + "\n"
     latex += r"    \end{tabular}" + "\n"
     latex += (
-        r"    \caption{Median experiment runtime (seconds) across 25 simulation seeds. "
-        r"UNR and UNR-B denote the standard and Bayesian variants of the UNREAL algorithm, respectively.}"
+        r"    \caption{Median experiment runtime (seconds) across the complete simulation seeds. "
+        r"UNREAL and BREAL are the uniform and Gibbs Rashomon committees.}"
         + "\n"
     )
     latex += r"    \label{tab:RuntimeComparison}" + "\n"
