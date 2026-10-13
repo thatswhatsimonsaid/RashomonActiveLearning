@@ -54,9 +54,9 @@ ALR_DATASETS = [
 
 DATASETS = DATASETS + ALR_DATASETS
 
-# This wave labels each pool to the end. airfoil is about 1,200 refits, so it waits.
-# ALR_DATASETS is the next wave. It is not in SUBMIT_DATASETS until that wave is launched.
-SUBMIT_DATASETS = [
+# The first regression wave. Kept so those names stay recorded. The launcher
+# below does not resubmit them.
+FIRST_WAVE_DATASETS = [
     "airquality",
     "servo",
     "yacht",
@@ -75,6 +75,9 @@ SUBMIT_DATASETS = [
     "enb-cool",
     "enb-heat",
 ]
+
+# Current launcher target. airfoil and seoul-bike stay out.
+SUBMIT_DATASETS = list(ALR_DATASETS)
 
 PREDICTION_PARAMS = {
     "max_depth": 3,
