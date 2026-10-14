@@ -1,4 +1,4 @@
-from src.utils.retry_plan import classify_seed, rewrite_sbatch
+from src.utils.retry_plan import classify_seed, parse_queue_task, rewrite_sbatch
 
 
 ORIGINAL = """#!/bin/bash
@@ -31,6 +31,15 @@ def test_hung_timeout_and_other_failures_are_not_retried():
     assert classify_seed("TIMEOUT", 2, 381, running=False) is None
     assert classify_seed("FAILED", 40, 63, running=False) is None
     assert classify_seed("", 40, 63, running=False) is None
+
+
+def test_queue_parser_uses_the_array_task_id_not_the_account():
+    datasets = {"concrete", "concrete-slump"}
+    methods = {"M5"}
+    assert parse_queue_task("concrete_M5", "14", datasets, methods) == ("concrete", "M5", 14)
+    assert parse_queue_task("concrete_M5_retry", "14", datasets, methods) == ("concrete", "M5", 14)
+    assert parse_queue_task("concrete_M5", "clusters_sponsor", datasets, methods) is None
+    assert parse_queue_task("vreal_proto_cars", "0", datasets, methods) is None
 
 
 def test_rewrite_sets_the_resources_that_are_charged():

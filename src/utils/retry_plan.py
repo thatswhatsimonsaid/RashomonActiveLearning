@@ -14,6 +14,22 @@ MEDIUM_MEMORY = "30G"
 RETRY_TIME = "48:00:00"
 
 
+def parse_queue_task(
+    job_name: str,
+    array_id: str,
+    datasets: set[str],
+    methods: set[str],
+) -> tuple[str, str, int] | None:
+    """Read one expanded squeue row. array_id is the SLURM %K field, not the account."""
+    if not str(array_id).isdigit() or "_M" not in job_name:
+        return None
+    dataset, method_number = job_name.removesuffix("_retry").rsplit("_M", 1)
+    method = f"M{method_number}"
+    if dataset not in datasets or method not in methods:
+        return None
+    return dataset, method, int(array_id)
+
+
 def classify_seed(state: str, n_points: int, expected: int, running: bool) -> str | None:
     """Return the partition for a retry, or None when the seed should stay put."""
     if expected <= 0:

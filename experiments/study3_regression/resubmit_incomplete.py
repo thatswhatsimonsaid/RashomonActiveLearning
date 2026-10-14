@@ -30,6 +30,7 @@ from src.utils.retry_plan import (
     MEDIUM_MEMORY,
     RETRY_TIME,
     classify_seed,
+    parse_queue_task,
     rewrite_sbatch,
 )
 
@@ -95,17 +96,15 @@ def latest_states() -> dict[tuple[str, str, int], str]:
 
 
 def running_seeds() -> set[tuple[str, str, int]]:
-    raw = _run(["squeue", "-u", "simondn", "-h", "-r", "-o", "%j|%a"])
+    raw = _run(["squeue", "-u", "simondn", "-h", "-r", "-o", "%j|%K"])
     running: set[tuple[str, str, int]] = set()
     allowed = set(DATASETS)
+    known_methods = set(METHODS)
     for line in raw.splitlines():
         name, array_id = line.split("|", 1)
-        if not array_id.isdigit() or "_M" not in name:
-            continue
-        dataset, method = name.removesuffix("_retry").rsplit("_M", 1)
-        method = f"M{method}"
-        if dataset in allowed and method in METHODS:
-            running.add((dataset, method, int(array_id)))
+        task = parse_queue_task(name, array_id, allowed, known_methods)
+        if task is not None:
+            running.add(task)
     return running
 
 
