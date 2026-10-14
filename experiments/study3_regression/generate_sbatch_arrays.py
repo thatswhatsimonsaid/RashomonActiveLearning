@@ -40,12 +40,15 @@ def create_sbatch_file(dataset_name, config, method_number, full_study_path, sba
 """
     sbatch_content = f"""#!/bin/bash
 #SBATCH --job-name={job_name}
+#SBATCH --account={SLURM_CONFIG['account']}
 #SBATCH --partition={SLURM_CONFIG['partition']}
 #SBATCH --array=0-{N_REPLICATIONS - 1}
 #SBATCH --output={LOG_DIR}/{full_study_path.split('/')[-1]}/{dataset_name}/out/M{method_number}_S%a.out
 #SBATCH --error={LOG_DIR}/{full_study_path.split('/')[-1]}/{dataset_name}/error/M{method_number}_S%a.err
 #SBATCH --time={SLURM_CONFIG['time']}
-#SBATCH --mem-per-cpu={SLURM_CONFIG['mem_per_cpu']}
+#SBATCH --mem={SLURM_CONFIG['mem']}
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks=1
 #SBATCH --mail-type={SLURM_CONFIG['mail_type']}
 #SBATCH --mail-user={SLURM_CONFIG['mail_user']}
 
