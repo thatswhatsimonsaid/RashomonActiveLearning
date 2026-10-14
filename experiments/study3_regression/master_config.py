@@ -2,7 +2,11 @@
 SLURM_CONFIG = {
     "partition": "short",
     "time": "11:59:00",
-    "mem_per_cpu": "30G",
+    # Job memory, not memory-per-cpu. short and medium bill this 30G
+    # request as 2 CPUs. largemem is the only partition above 30G, and
+    # a 60G job there is billed as 1 CPU.
+    "mem": "30G",
+    "account": "clusters_sponsor",
     "mail_type": "FAIL",
     "mail_user": "simondn@uw.edu",
 }
