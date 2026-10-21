@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, Any
 import warnings
 from src.utils.data_handler import load_data, split_test_pool, get_random_initial_indices
-from src.utils.calibration import calibrate_hyperparameters
+from src.utils.calibration import calibrate_hyperparameters, rashomon_multiplier_from_adder
 from src.utils.models import (
     ModelWrapper, 
     RandomForestWrapper, 
@@ -165,14 +165,13 @@ def main():
     strategy_params = selector_params.copy()
 
     # 3a. Rashomon bound.
-    # Classification keeps the published (loss + ε) / loss conversion.
-    # Regression passes ε itself: SORTD keeps trees up to (1 + ε) times optimal.
+    # Study 1 converts its configured adder with (loss + ε) / loss and passes
+    # that number to SORTD as rashomon_multiplier. Regression uses the same
+    # conversion. The Study 1 adder is 0, so a positive loss yields 1.0, and
+    # SORTD reads 1.0 as a twice-optimal bound.
     min_loss = calibration_results["pilot_loss_proxy"]
     eps_adder = calibration_results["rashomon_epsilon_adder"]
-    if args.task_type == "regression":
-        effective_multiplier = float(eps_adder)
-    else:
-        effective_multiplier = (min_loss + eps_adder) / max(min_loss, 1e-6)
+    effective_multiplier = rashomon_multiplier_from_adder(min_loss, eps_adder)
 
     ## 3b. Update Shared Params
     shared_updates = {

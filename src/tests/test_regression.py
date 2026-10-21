@@ -3,9 +3,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from sklearn.model_selection import LeaveOneOut
 from sklearn.tree import DecisionTreeRegressor
 
-from src.utils.calibration import calibrate_hyperparameters
+from src.utils.calibration import calibrate_hyperparameters, rashomon_multiplier_from_adder
 from src.utils.data_handler import get_random_initial_indices
 from src.utils.models import GreedyRegressionTreeWrapper, RandomForestRegressorWrapper
 from src.utils.preprocess_data import generate_synthetic_regression
@@ -218,8 +219,9 @@ def test_regression_calibration_keeps_epsilon_and_beta():
     )
     assert fixed["max_depth"] in (1, 2)
     assert fixed["rashomon_epsilon_adder"] == 0.0
+    assert fixed["pilot_loss_proxy"] > 0
+    assert fixed["rashomon_multiplier"] == 1.0
     assert fixed["beta"] == 0.0
-    assert np.isfinite(fixed["pilot_loss_proxy"])
     assert fixed["task"] == "regression"
 
     tuned = calibrate_hyperparameters(
@@ -232,4 +234,68 @@ def test_regression_calibration_keeps_epsilon_and_beta():
         task="regression",
     )
     assert tuned["rashomon_epsilon_adder"] == 0.10
+    assert tuned["rashomon_multiplier"] == pytest.approx(
+        rashomon_multiplier_from_adder(tuned["pilot_loss_proxy"], 0.10)
+    )
     assert tuned["beta"] in (1e-4, 1e-3, 1e-2, 0.1, 1.0, 10.0)
+
+
+def _leave_one_out_mse(pilot: pd.DataFrame) -> float:
+    X = pilot.drop(columns="Y")
+    y = pilot["Y"]
+    squared_errors = []
+    for train_idx, val_idx in LeaveOneOut().split(X):
+        model = DecisionTreeRegressor(max_depth=1, random_state=0)
+        model.fit(X.iloc[train_idx], y.iloc[train_idx])
+        pred = float(model.predict(X.iloc[val_idx])[0])
+        squared_errors.append((pred - float(y.iloc[val_idx].values[0])) ** 2)
+    return float(np.mean(squared_errors))
+
+
+def test_regression_epsilon_matches_study1():
+    """Study 1's adder is 0. The solver receives (L + 0) / L = 1.0."""
+    assert rashomon_multiplier_from_adder(0.2, 0.0) == 1.0
+    assert rashomon_multiplier_from_adder(0.0, 0.0) == 0.0
+    assert rashomon_multiplier_from_adder(0.2, 0.10) == pytest.approx(1.5)
+
+    frame = generate_synthetic_regression(n_samples=24, n_features=3, alpha=0.0, phi=0.2, random_state=0)
+    pilot = frame.iloc[:10]
+    loo_mse = _leave_one_out_mse(pilot)
+    assert loo_mse > 0
+    seen = []
+
+    class RecordingStub(_RashomonStub):
+        def __init__(self, rashomon_multiplier=0.1, **kwargs):
+            seen.append(float(rashomon_multiplier))
+            super().__init__(rashomon_multiplier=rashomon_multiplier, **kwargs)
+
+    study1 = calibrate_hyperparameters(
+        pilot,
+        RecordingStub,
+        base_params={"random_state": 0, "rashomon_threshold": 0.0, "beta": 0.0},
+        depth_grid=[1],
+        lambda_grid=[0.01],
+        task="regression",
+    )
+    assert study1["rashomon_epsilon_adder"] == 0.0
+    assert study1["pilot_loss_proxy"] == pytest.approx(loo_mse)
+    assert study1["rashomon_multiplier"] == 1.0
+    # Stage 1 scores the optimal tree. The last fit is the committee pilot.
+    assert seen[0] == 0.0
+    assert seen[-1] == 1.0
+
+    seen.clear()
+    wider = calibrate_hyperparameters(
+        pilot,
+        RecordingStub,
+        base_params={"random_state": 0, "rashomon_threshold": 0.10, "beta": 0.0},
+        depth_grid=[1],
+        lambda_grid=[0.01],
+        task="regression",
+    )
+    expected = rashomon_multiplier_from_adder(loo_mse, 0.10)
+    assert wider["rashomon_epsilon_adder"] == 0.10
+    assert wider["pilot_loss_proxy"] == pytest.approx(loo_mse)
+    assert wider["rashomon_multiplier"] == pytest.approx(expected)
+    assert seen[-1] == pytest.approx(expected)
+    assert seen[-1] != pytest.approx(0.10)
