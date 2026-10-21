@@ -8,6 +8,19 @@ from typing import Dict, Any, Type, List
 from scipy.stats import spearmanr
 from sklearn.ensemble import RandomForestClassifier
 
+def rashomon_multiplier_from_adder(loss_proxy: float, epsilon_adder: float) -> float:
+    """
+    Map Study 1's configured adder ε to the number SORTD receives.
+
+    Study 1 stores ε as fixed_threshold and fits with (L + ε) / L. That
+    quotient is passed through as rashomon_multiplier. ε = 0 and L > 0
+    yields 1.0. PySORTD reads the argument as the paper's ε in the bound
+    (1 + ε) * optimal, so 1.0 keeps trees up to twice the optimal objective.
+    """
+    loss = float(loss_proxy)
+    return (loss + float(epsilon_adder)) / max(loss, 1e-6)
+
+
 ### Calibrate Function ###
 def calibrate_hyperparameters(
     df_pilot: pd.DataFrame,
@@ -70,7 +83,7 @@ def calibrate_hyperparameters(
     elif fixed_epsilon is not None:
         # 1. USE FIXED EPSILON MODE
         current_epsilon_adder = float(fixed_epsilon)
-        eff_multiplier = (min_loss_proxy + current_epsilon_adder) / max(min_loss_proxy, 1e-6)
+        eff_multiplier = rashomon_multiplier_from_adder(min_loss_proxy, current_epsilon_adder)
         final_pilot_model = model_class(**{
             **base_params, "max_depth": best_d, 
             "regularization": best_lambda, "rashomon_multiplier": eff_multiplier
@@ -81,7 +94,7 @@ def calibrate_hyperparameters(
         # 2. AUTO-CALIBRATION MODE (Original logic)
         current_epsilon_adder = 0.05 
         while True:
-            eff_multiplier = (min_loss_proxy + current_epsilon_adder) / max(min_loss_proxy, 1e-6)
+            eff_multiplier = rashomon_multiplier_from_adder(min_loss_proxy, current_epsilon_adder)
             final_pilot_model = model_class(**{
                 **base_params, "max_depth": best_d, 
                 "regularization": best_lambda, "rashomon_multiplier": eff_multiplier
@@ -128,6 +141,7 @@ def calibrate_hyperparameters(
         "max_depth": best_d,
         "regularization": best_lambda,
         "rashomon_epsilon_adder": current_epsilon_adder,
+        "rashomon_multiplier": rashomon_multiplier_from_adder(min_loss_proxy, current_epsilon_adder),
         "beta": best_beta, 
         "pilot_accuracy": best_acc,
         "pilot_loss_proxy": min_loss_proxy
@@ -159,9 +173,13 @@ def _calibrate_regression(
     """
     Same three stages as classification, on squared error.
 
-    Stage 1 minimizes leave-one-out MSE.
-    Stage 2 sets the Rashomon excess ε. SORTD keeps trees whose objective is
-    at most (1 + ε) times the optimal objective, so ε is passed through directly.
+    Stage 1 minimizes leave-one-out MSE of the optimal tree.
+    Stage 2 uses Study 1's epsilon rule. The configured adder ε is converted
+    with (L + ε) / L, where L is that leave-one-out MSE, and the quotient is
+    what SORTD receives as rashomon_multiplier. Study 1 sets ε to 0, so the
+    quotient is 1.0 when L is positive. SORTD reads that argument as the
+    paper's ε in the bound (1 + ε) * optimal, which makes 1.0 a twice-optimal
+    bound. The pilot used for β is fit at that same multiplier.
     Stage 3 picks β so that committee variance ranks in-sample squared error.
     """
     X = df_pilot.drop(columns="Y")
@@ -191,22 +209,33 @@ def _calibrate_regression(
 
     fixed_epsilon = base_params.get("rashomon_threshold")
     current_epsilon = 0.0
+    # L in Study 1's conversion is the stage-1 loss, not the later in-sample error.
+    loss_proxy = float(best_mse)
+    eff_multiplier = rashomon_multiplier_from_adder(loss_proxy, current_epsilon)
     if not has_rashomon:
         final_pilot_model = _fit_pilot(model_class, base_params, best_d, best_lambda, None, X, y)
     elif fixed_epsilon is not None:
         current_epsilon = float(fixed_epsilon)
-        final_pilot_model = _fit_pilot(model_class, base_params, best_d, best_lambda, current_epsilon, X, y)
-        print(f"--- Calibration: Using FIXED regression epsilon {current_epsilon} ---")
+        eff_multiplier = rashomon_multiplier_from_adder(loss_proxy, current_epsilon)
+        final_pilot_model = _fit_pilot(model_class, base_params, best_d, best_lambda, eff_multiplier, X, y)
+        print(
+            f"--- Calibration: Using FIXED regression epsilon {current_epsilon} "
+            f"(rashomon_multiplier {eff_multiplier}) ---"
+        )
     else:
         current_epsilon = 0.05
         while True:
-            final_pilot_model = _fit_pilot(model_class, base_params, best_d, best_lambda, current_epsilon, X, y)
+            eff_multiplier = rashomon_multiplier_from_adder(loss_proxy, current_epsilon)
+            final_pilot_model = _fit_pilot(model_class, base_params, best_d, best_lambda, eff_multiplier, X, y)
             if final_pilot_model.get_rashomon_size() >= min_rashomon_size or current_epsilon >= 0.25:
                 break
             current_epsilon += 0.05
+        print(
+            f"--- Calibration: regression epsilon {current_epsilon} "
+            f"(rashomon_multiplier {eff_multiplier}) ---"
+        )
 
     in_sample = np.asarray(final_pilot_model.predict(X), dtype=float).reshape(-1)
-    pilot_mse = float(np.mean((in_sample - y.to_numpy(dtype=float)) ** 2))
 
     requested_beta = base_params.get("beta", 0.0)
     if requested_beta != "calibrated":
@@ -245,9 +274,10 @@ def _calibrate_regression(
         "max_depth": best_d,
         "regularization": best_lambda,
         "rashomon_epsilon_adder": current_epsilon,
+        "rashomon_multiplier": eff_multiplier,
         "beta": best_beta,
         "pilot_accuracy": float("nan"),
-        "pilot_loss_proxy": pilot_mse,
+        "pilot_loss_proxy": loss_proxy,
         "task": "regression",
     }
 
