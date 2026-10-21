@@ -248,7 +248,7 @@ def _leave_one_out_mse(pilot: pd.DataFrame) -> float:
         model = DecisionTreeRegressor(max_depth=1, random_state=0)
         model.fit(X.iloc[train_idx], y.iloc[train_idx])
         pred = float(model.predict(X.iloc[val_idx])[0])
-        squared_errors.append((pred - float(y.iloc[val_idx])) ** 2)
+        squared_errors.append((pred - float(y.iloc[val_idx].values[0])) ** 2)
     return float(np.mean(squared_errors))
 
 
