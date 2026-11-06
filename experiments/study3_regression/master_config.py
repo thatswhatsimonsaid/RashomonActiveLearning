@@ -1,7 +1,9 @@
 ### SLURM Configuration ###
 SLURM_CONFIG = {
-    "partition": "short",
-    "time": "11:59:00",
+    # The 12-hour short queue and a later 48-hour retry both left unfinished
+    # curves. medium allows 7 days. The 45-day long limit stays unused.
+    "partition": "medium",
+    "time": "7-00:00:00",
     # Job memory, not memory-per-cpu. short and medium bill this 30G
     # request as 2 CPUs. largemem is the only partition above 30G, and
     # a 60G job there is billed as 1 CPU.
@@ -17,8 +19,11 @@ N_REPLICATIONS = 25
 # submit another dataset once the queue is at this size.
 MAX_QUEUED_JOBS = 1000
 TASK_TYPE = "regression"
-# SORTD keeps a tree when its objective is at most (1 + ε) times optimal.
-RASHOMON_THRESHOLD = 0.10
+# Same adder Study 1 passes as fixed_threshold. The launcher converts it
+# with (loss + ε) / loss and gives that number to SORTD as rashomon_multiplier.
+# ε = 0 and a positive loss produce 1.0. SORTD reads that as the paper's ε,
+# so the committee bound is twice the optimal objective.
+RASHOMON_THRESHOLD = 0.0
 
 # seoul-bike is left out. Labeling its full pool is about 7,000 PySORTD refits.
 DATASETS = [
@@ -80,8 +85,8 @@ FIRST_WAVE_DATASETS = [
     "enb-heat",
 ]
 
-# Current launcher target. airfoil and seoul-bike stay out.
-SUBMIT_DATASETS = list(ALR_DATASETS)
+# Full Study 1 epsilon rerun. airfoil and seoul-bike stay out.
+SUBMIT_DATASETS = list(FIRST_WAVE_DATASETS) + list(ALR_DATASETS)
 
 PREDICTION_PARAMS = {
     "max_depth": 3,
