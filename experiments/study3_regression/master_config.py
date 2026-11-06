@@ -1,7 +1,9 @@
 ### SLURM Configuration ###
 SLURM_CONFIG = {
-    "partition": "short",
-    "time": "11:59:00",
+    # The 12-hour short queue and a later 48-hour retry both left unfinished
+    # curves. medium allows 7 days. The 45-day long limit stays unused.
+    "partition": "medium",
+    "time": "7-00:00:00",
     # Job memory, not memory-per-cpu. short and medium bill this 30G
     # request as 2 CPUs. largemem is the only partition above 30G, and
     # a 60G job there is billed as 1 CPU.
@@ -83,8 +85,8 @@ FIRST_WAVE_DATASETS = [
     "enb-heat",
 ]
 
-# Current launcher target. airfoil and seoul-bike stay out.
-SUBMIT_DATASETS = list(ALR_DATASETS)
+# Full Study 1 epsilon rerun. airfoil and seoul-bike stay out.
+SUBMIT_DATASETS = list(FIRST_WAVE_DATASETS) + list(ALR_DATASETS)
 
 PREDICTION_PARAMS = {
     "max_depth": 3,
