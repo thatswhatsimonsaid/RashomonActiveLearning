@@ -1,0 +1,122 @@
+{
+  "study_id": "study3_pattern_diversity",
+  "title": "Pattern Disambiguation \u2014 Synthetic XOR Only",
+  "results_root": "results/study3_pattern_diversity/",
+  "distinguishes_from": [
+    "results/study1_active_learning/",
+    "results/study2_ablation_study/"
+  ],
+  "n_datasets": 9,
+  "n_methods": 7,
+  "n_replications": 25,
+  "n_jobs": 1575,
+  "datasets": [
+    "Synthetic_XOR_Baseline",
+    "Synthetic_XOR_Phi_05",
+    "Synthetic_XOR_Phi_10",
+    "Synthetic_XOR_Phi_25",
+    "Synthetic_XOR_Phi_45",
+    "Synthetic_XOR_Alpha_25",
+    "Synthetic_XOR_Alpha_50",
+    "Synthetic_XOR_Alpha_75",
+    "Synthetic_XOR_Alpha_100"
+  ],
+  "methods": [
+    {
+      "method_number": 1,
+      "folder": "M1",
+      "selector_model": "RandomForest",
+      "selector": "Random",
+      "params": {
+        "max_depth": 3,
+        "regularization": 0.001,
+        "time_limit": 30,
+        "max_num_trees": 10000,
+        "beta": 0.0
+      }
+    },
+    {
+      "method_number": 2,
+      "folder": "M2",
+      "selector_model": "RandomForest",
+      "selector": "QBC",
+      "params": {
+        "n_estimators": 100,
+        "use_unique_trees": false,
+        "time_limit": 30,
+        "max_features": "sqrt"
+      }
+    },
+    {
+      "method_number": 3,
+      "folder": "M3",
+      "selector_model": "PySORTDWrapper",
+      "selector": "QBC",
+      "params": {
+        "max_depth": 3,
+        "regularization": 0.001,
+        "time_limit": 30,
+        "max_num_trees": 10000,
+        "beta": 0.0,
+        "use_unique_trees": false
+      }
+    },
+    {
+      "method_number": 4,
+      "folder": "M4",
+      "selector_model": "PySORTDWrapper",
+      "selector": "QBC",
+      "params": {
+        "max_depth": 3,
+        "regularization": 0.001,
+        "time_limit": 30,
+        "max_num_trees": 10000,
+        "beta": 0.0,
+        "use_unique_trees": true
+      }
+    },
+    {
+      "method_number": 5,
+      "folder": "M5",
+      "selector_model": "PySORTDWrapper",
+      "selector": "PatternDisambiguation",
+      "params": {
+        "max_depth": 3,
+        "regularization": 0.001,
+        "time_limit": 30,
+        "max_num_trees": 10000,
+        "beta": 0.0,
+        "score_mode": "count"
+      }
+    },
+    {
+      "method_number": 6,
+      "folder": "M6",
+      "selector_model": "PySORTDWrapper",
+      "selector": "PatternDisambiguation",
+      "params": {
+        "max_depth": 3,
+        "regularization": 0.001,
+        "time_limit": 30,
+        "max_num_trees": 10000,
+        "beta": 0.0,
+        "score_mode": "effective"
+      }
+    },
+    {
+      "method_number": 7,
+      "folder": "M7",
+      "selector_model": "PySORTDWrapper",
+      "selector": "PatternDisambiguation",
+      "params": {
+        "max_depth": 3,
+        "regularization": 0.001,
+        "time_limit": 30,
+        "max_num_trees": 10000,
+        "beta": "calibrated",
+        "score_mode": "count"
+      }
+    }
+  ],
+  "seed_pickle_pattern": "results/study3_pattern_diversity/tree_predictor/<Dataset>/M{k}/M{k}_S{seed}.pkl"
+}

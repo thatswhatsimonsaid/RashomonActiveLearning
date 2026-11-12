@@ -278,12 +278,69 @@ echo "Done! All figures and tables generated."
         os.chmod(path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH)
 
 ### MAIN SCRIPT ###
+def write_results_manifest(datasets, n_methods: int):
+    """Write a clearly labeled manifest under the dedicated results root."""
+    import json
+
+    results_root = PROJECT_ROOT / "results" / "study3_pattern_diversity"
+    results_root.mkdir(parents=True, exist_ok=True)
+    method_rows = []
+    for idx, cfg in enumerate(BASE_SELECTORS, start=1):
+        method_rows.append(
+            {
+                "method_number": idx,
+                "folder": f"M{idx}",
+                "selector_model": cfg["selector_model"],
+                "selector": cfg["selector"],
+                "params": cfg["params"],
+            }
+        )
+    manifest = {
+        "study_id": "study3_pattern_diversity",
+        "title": "Pattern Disambiguation — Synthetic XOR Only",
+        "results_root": "results/study3_pattern_diversity/",
+        "distinguishes_from": [
+            "results/study1_active_learning/",
+            "results/study2_ablation_study/",
+        ],
+        "n_datasets": len(datasets),
+        "n_methods": n_methods,
+        "n_replications": N_REPLICATIONS,
+        "n_jobs": len(datasets) * n_methods * N_REPLICATIONS,
+        "datasets": datasets,
+        "methods": method_rows,
+        "seed_pickle_pattern": (
+            "results/study3_pattern_diversity/tree_predictor/"
+            "<Dataset>/M{k}/M{k}_S{seed}.pkl"
+        ),
+    }
+    manifest_path = results_root / "SIMULATION_MANIFEST.json"
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+    readme_path = results_root / "README.md"
+    with open(readme_path, "w") as f:
+        f.write(
+            "# results/study3_pattern_diversity\n\n"
+            "Dedicated output tree for the **synthetic-only** pattern-disambiguation "
+            "study. Do not mix with Study 1 / Study 2 artifacts.\n\n"
+            f"- Jobs: **{manifest['n_jobs']}** "
+            f"({manifest['n_datasets']} datasets × {manifest['n_methods']} methods "
+            f"× {manifest['n_replications']} seeds)\n"
+            "- Manifest: `SIMULATION_MANIFEST.json`\n"
+            "- Design notes: `experiments/study3_pattern_diversity/STUDY_OVERVIEW.md`\n"
+        )
+    print(f"Wrote {manifest_path}")
+    print(f"Wrote {readme_path}")
+
+
 if __name__ == "__main__":
     available = {f.stem for f in DATA_DIR.glob("*.pkl") if not f.stem.startswith(".")}
     datasets = [d for d in DATASETS if d in available]
     missing = [d for d in DATASETS if d not in available]
     if missing:
         print(f"WARNING: missing synthetic pickles (run preprocess_data.py): {missing}")
+
+    write_results_manifest(datasets, n_methods=len(BASE_SELECTORS))
     
     for study in STUDIES:
         study_name = study["name"]
