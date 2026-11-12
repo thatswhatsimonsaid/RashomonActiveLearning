@@ -334,13 +334,35 @@ def write_results_manifest(datasets, n_methods: int):
 
 
 if __name__ == "__main__":
+    # Hard guards: synthetic-only + short partition (Study 3 must not touch UCI/real data).
+    if SLURM_CONFIG.get("partition") != "short":
+        raise SystemExit(
+            f"Refusing to generate jobs: expected partition 'short', "
+            f"got {SLURM_CONFIG.get('partition')!r}"
+        )
+    non_synthetic = [d for d in DATASETS if not d.startswith("Synthetic_")]
+    if non_synthetic:
+        raise SystemExit(
+            f"Refusing to generate jobs: non-synthetic datasets in DATASETS: {non_synthetic}"
+        )
+
     available = {f.stem for f in DATA_DIR.glob("*.pkl") if not f.stem.startswith(".")}
     datasets = [d for d in DATASETS if d in available]
     missing = [d for d in DATASETS if d not in available]
     if missing:
         print(f"WARNING: missing synthetic pickles (run preprocess_data.py): {missing}")
+    if not datasets:
+        raise SystemExit("No synthetic datasets available under src/data/; nothing to generate.")
+
+    # Extra belt-and-suspenders: never emit jobs for anything outside DATASETS.
+    datasets = [d for d in datasets if d.startswith("Synthetic_") and d in DATASETS]
 
     write_results_manifest(datasets, n_methods=len(BASE_SELECTORS))
+    print(
+        f"Study 3 guards OK: partition=short | "
+        f"{len(datasets)} synthetic datasets | {len(BASE_SELECTORS)} methods | "
+        f"{N_REPLICATIONS} seeds"
+    )
     
     for study in STUDIES:
         study_name = study["name"]

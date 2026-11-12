@@ -8,6 +8,7 @@ that point is appended to its labeled-set prediction vector.
 """
 
 ### SLURM Configuration ###
+# Study 3 runs ONLY on the short partition.
 SLURM_CONFIG = {
     "partition": "short",
     "time": "11:59:00",
@@ -19,7 +20,9 @@ SLURM_CONFIG = {
 ### GLOBAL PARAMETERS ###
 N_REPLICATIONS = 25
 
-# Synthetic XOR / Phi / Alpha stress tests only (no UCI / TreeFarms).
+# Synthetic XOR / Phi / Alpha stress tests ONLY.
+# generate_sbatch_arrays.py refuses to emit jobs unless every name starts with
+# "Synthetic_" and SLURM partition is exactly "short". No UCI / TreeFarms / Parity.
 DATASETS = [
     "Synthetic_XOR_Baseline",
     "Synthetic_XOR_Phi_05",
