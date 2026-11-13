@@ -26,7 +26,8 @@ from src.utils.query_strategies import (
     QBCSelector,
     UncertaintySelector,
     HammingDiversitySelector,
-    ModelChangeSelector
+    ModelChangeSelector,
+    PatternDisambiguationSelector,
 )
 from src.utils.learning_procedure import SimulationConfig, run_learning_procedure
 
@@ -57,7 +58,8 @@ SELECTOR_REGISTRY = {
     "QBC": QBCSelector, 
     "Uncertainty": UncertaintySelector,
     "HammingDiversity": HammingDiversitySelector,
-    "RashomonExpectedModelChange": ModelChangeSelector
+    "RashomonExpectedModelChange": ModelChangeSelector,
+    "PatternDisambiguation": PatternDisambiguationSelector,
 }
 
 ### ARGUMENT PARSING HELPERS ###
@@ -144,9 +146,17 @@ def main():
     eps_adder = calibration_results["rashomon_epsilon_adder"]
     effective_multiplier = (min_loss + eps_adder) / max(min_loss, 1e-6)
 
+    # Resolve beta: numeric configs (e.g. 0.0 uniform) are kept;
+    # the sentinel "calibrated" (or missing beta) uses the pilot-tuned value.
+    requested_beta = strategy_params.get("beta", "calibrated")
+    if requested_beta == "calibrated" or requested_beta is None:
+        resolved_beta = calibration_results.get("beta", 10.0)
+    else:
+        resolved_beta = float(requested_beta)
+
     ## 3b. Update Shared Params
     shared_updates = {
-        "beta": calibration_results.get("beta", 10.0),
+        "beta": resolved_beta,
         "max_depth": calibration_results["max_depth"],
         "regularization": calibration_results["regularization"],
         "rashomon_multiplier": effective_multiplier
@@ -160,7 +170,7 @@ def main():
     # 3c. Specific Logic for UNREAL / PySORTD
     if "PySORTD" in args.selector_model:
         current_selector_params["rashomon_multiplier"] = effective_multiplier
-        strategy_params["beta"] = calibration_results.get("beta", 0.0)
+        strategy_params["beta"] = shared_updates["beta"]
 
     # 3d. Update Predictor Params 
     predictor_params.update({

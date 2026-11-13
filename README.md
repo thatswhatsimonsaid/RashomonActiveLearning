@@ -145,6 +145,7 @@ results/            # Output directory for raw seeds, aggregated data, and plots
 | M5 | `UNREAL` | Our proposed strategy. Uses the PySORTD Rashomon set to calculate entropy over the space of near-optimal trees |
 | M6 | `UncertaintySelector` | Traditional entropy sampling using a single greedy decision tree |
 | M7 | `HammingDiversitySelector` | Coreset strategy maximizing the minimum Hamming distance to the labeled set |
+| — | `PatternDisambiguationSelector` | Selects the unlabeled point that maximizes the number of distinct classification patterns among Rashomon trees (disambiguates previously identical committee members). Synthetic study: `experiments/study3_pattern_diversity/` |
 
 ### Analysis & Reporting (`src/utils/`)
 
