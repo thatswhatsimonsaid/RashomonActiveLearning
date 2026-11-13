@@ -61,7 +61,12 @@ def create_sbatch_file(dataset_name: str,
 cd {PROJECT_ROOT}
 
 # --- ENVIRONMENT SETUP ---
-module load Python/3.10.8-GCCcore-12.2.0
+# Some short-partition nodes do not ship `module` in non-login bash.
+# Load Lmod if present, then always export libpython for the project venv.
+source /usr/share/lmod/lmod/init/bash 2>/dev/null || true
+source /etc/profile.d/z00_lmod.sh 2>/dev/null || true
+module load Python/3.10.8-GCCcore-12.2.0 2>/dev/null || true
+export LD_LIBRARY_PATH=/sw/ebpkgs/software/Python/3.10.8-GCCcore-12.2.0/lib:${{LD_LIBRARY_PATH:-}}
 source .RAL_CL/bin/activate
 export PYTHONPATH=$PYTHONPATH:.
 # -------------------------
