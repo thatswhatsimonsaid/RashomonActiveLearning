@@ -1,0 +1,28 @@
+{
+  "dataset": "iris",
+  "n": 150,
+  "p": 4,
+  "delta": 0.05,
+  "k_eval": 10,
+  "cne_epochs": 100,
+  "pacmap_epochs": 450,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "lambdas": [
+    0.0,
+    0.5,
+    5.0
+  ],
+  "methods": [
+    "umap",
+    "infonce",
+    "pacmap"
+  ],
+  "loco_tau": 0.1,
+  "loco_percentile": 0.5,
+  "vote_entropy": 2.6042284248014695,
+  "note": "Rashomon membership is a relative probe-loss threshold on the trained candidates. It is not an exhaustive Rashomon set."
+}

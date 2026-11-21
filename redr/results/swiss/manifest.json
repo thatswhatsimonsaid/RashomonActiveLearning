@@ -1,0 +1,26 @@
+{
+  "dataset": "swiss",
+  "n": 300,
+  "p": 3,
+  "delta": 0.05,
+  "k_eval": 10,
+  "cne_epochs": 80,
+  "pacmap_epochs": 220,
+  "seeds": [
+    0,
+    1
+  ],
+  "lambdas": [
+    0.0,
+    5.0
+  ],
+  "methods": [
+    "umap",
+    "infonce",
+    "pacmap"
+  ],
+  "loco_tau": 0.1,
+  "loco_percentile": 0.5,
+  "vote_entropy": 2.6607474866775247,
+  "note": "Rashomon membership is a relative probe-loss threshold on the trained candidates. It is not an exhaustive Rashomon set."
+}

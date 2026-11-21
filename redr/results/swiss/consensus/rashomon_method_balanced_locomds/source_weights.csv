@@ -1,0 +1,8 @@
+embedding_id,method,weight
+umap_s0_l0_e80,umap,0.16666666666666666
+umap_s0_l5_e80,umap,0.16666666666666666
+infonce_s0_l0_e80,infonce,0.08333333333333333
+infonce_s0_l5_e80,infonce,0.08333333333333333
+infonce_s1_l0_e80,infonce,0.08333333333333333
+infonce_s1_l5_e80,infonce,0.08333333333333333
+pacmap_s0_l5_e220,pacmap,0.3333333333333333

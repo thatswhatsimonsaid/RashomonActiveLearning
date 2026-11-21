@@ -1,0 +1,5 @@
+# Pinned upstream checkouts. setup_vendor.sh clones these commits.
+# Neither tree is modified by this project.
+
+RashomonDR https://github.com/williamsyy/RashomonDR 0ab277dd5c7d68651d9c647bf333dd1667480875
+coMDS https://github.com/tiffanymtang/coMDS 0570fe242e249733fb49236762c4ef8ce82c295f

@@ -1,0 +1,4 @@
+embedding_id,method,weight
+infonce_s1_l5_e40,infonce,1.0
+pacmap_s0_l5_e120,pacmap,1.0
+umap_s1_l5_e40,umap,1.0
