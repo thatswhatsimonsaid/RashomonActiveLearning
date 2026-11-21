@@ -5,8 +5,3 @@ src/data/*.pkl
 slurm_logs/
 *.pkl
 *.npy
-.redr-venv/
-redr/vendor/
-redr/results/**/payload.bin
-redr/results/**/rscript.log
-redr/results/*_run.log
