@@ -1,13 +1,13 @@
 """Ten-class image datasets for the vision active-learning study.
 
-CIFAR-10 stays on its existing loader. These four are the same shape: 10
-classes, an official train split for the pool, and an official test split.
-Every image is resized to a 3-channel tensor so Fashion-MNIST and the CHW
-archives (SVHN, STL-10) enter the ProtoPNet the same way CIFAR-10 does.
+CIFAR-10 stays on its existing loader. Every dataset here has the same shape:
+10 classes, a train split for the pool, and a held-out split for the test set.
+Every image is resized to a 3-channel tensor so grayscale digits and the CHW
+archives enter the ProtoPNet the same way CIFAR-10 does.
 
-Imagenette is the FastAI 160px release. Torchvision 0.14, which the cluster
-environment uses, does not ship that dataset, so this module downloads the
-archive itself.
+Imagenette and Imagewoof are FastAI 160px releases. Torchvision 0.14, which the
+cluster environment uses, does not ship those datasets, so this module downloads
+the archives itself.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from torchvision import datasets, transforms
 
 
 IMAGENETTE_URL = "https://s3.amazonaws.com/fast-ai-imageclas/imagenette2-160.tgz"
+IMAGEWOOF_URL = "https://s3.amazonaws.com/fast-ai-imageclas/imagewoof2-160.tgz"
 # The HTTP host named in torchvision 0.14 refuses connections from the cluster.
 # The same archive is served over HTTPS by the STL-10 site.
 STL10_URL = "https://cs.stanford.edu/~acoates/stl10/stl10_binary.tar.gz"
@@ -54,6 +55,42 @@ IMAGENETTE_NAMES = {
     "n03445777": "golf ball",
     "n03888257": "parachute",
 }
+IMAGEWOOF_CLASSES = (
+    "n02086240",
+    "n02087394",
+    "n02088364",
+    "n02089973",
+    "n02093754",
+    "n02096294",
+    "n02099601",
+    "n02105641",
+    "n02111889",
+    "n02115641",
+)
+IMAGEWOOF_NAMES = {
+    "n02086240": "Shih-Tzu",
+    "n02087394": "Rhodesian ridgeback",
+    "n02088364": "beagle",
+    "n02089973": "English foxhound",
+    "n02093754": "Border terrier",
+    "n02096294": "golden retriever",
+    "n02099601": "Labrador retriever",
+    "n02105641": "Old English sheepdog",
+    "n02111889": "Samoyed",
+    "n02115641": "dingo",
+}
+KMNIST_NAMES = (
+    "o",
+    "ki",
+    "su",
+    "tsu",
+    "na",
+    "ha",
+    "ma",
+    "ya",
+    "re",
+    "wo",
+)
 
 # Defaults match the finished CIFAR-10 simulation: 56px images, 100 pool
 # images per class, 50 test images per class, 4 labeled seeds per class, and
@@ -125,6 +162,50 @@ OPEN_DATASETS: Dict[str, Dict[str, object]] = {
         "initial_size": 40,
         "queries": 40,
     },
+    "mnist": {
+        "classes": 10,
+        "class_names": tuple(str(digit) for digit in range(10)),
+        "native_size": 28,
+        "root": "data/mnist",
+        "image_size": 56,
+        "per_class_pool": 100,
+        "per_class_test": 50,
+        "initial_size": 40,
+        "queries": 40,
+    },
+    "kmnist": {
+        "classes": 10,
+        "class_names": KMNIST_NAMES,
+        "native_size": 28,
+        "root": "data/kmnist",
+        "image_size": 56,
+        "per_class_pool": 100,
+        "per_class_test": 50,
+        "initial_size": 40,
+        "queries": 40,
+    },
+    "usps": {
+        "classes": 10,
+        "class_names": tuple(str(digit) for digit in range(10)),
+        "native_size": 16,
+        "root": "data/usps",
+        "image_size": 56,
+        "per_class_pool": 100,
+        "per_class_test": 50,
+        "initial_size": 40,
+        "queries": 40,
+    },
+    "imagewoof": {
+        "classes": 10,
+        "class_names": tuple(IMAGEWOOF_NAMES[name] for name in IMAGEWOOF_CLASSES),
+        "native_size": 160,
+        "root": "data/imagewoof2-160",
+        "image_size": 56,
+        "per_class_pool": 100,
+        "per_class_test": 50,
+        "initial_size": 40,
+        "queries": 40,
+    },
 }
 
 
@@ -154,25 +235,35 @@ class _FolderSplit:
         self.targets = np.asarray(targets, dtype=int)
 
 
-def ensure_imagenette(root: Path) -> Path:
-    """Return the directory that contains Imagenette ``train`` and ``val``."""
+def _ensure_fastai(root: Path, folder_name: str, url: str) -> Path:
+    """Return the directory that contains a FastAI ``train`` and ``val`` split."""
     root = Path(root)
     if (root / "train").is_dir() and (root / "val").is_dir():
         return root
-    nested = root / "imagenette2-160"
+    nested = root / folder_name
     if (nested / "train").is_dir() and (nested / "val").is_dir():
         return nested
     root.mkdir(parents=True, exist_ok=True)
-    archive = root / "imagenette2-160.tgz"
+    archive = root / f"{folder_name}.tgz"
     if not archive.is_file():
-        urllib.request.urlretrieve(IMAGENETTE_URL, archive)
+        urllib.request.urlretrieve(url, archive)
     with tarfile.open(archive, "r:gz") as handle:
         handle.extractall(root)
     if (nested / "train").is_dir():
         return nested
     if (root / "train").is_dir():
         return root
-    raise FileNotFoundError(f"Imagenette archive did not contain a train split under {root}")
+    raise FileNotFoundError(f"{folder_name} archive did not contain a train split under {root}")
+
+
+def ensure_imagenette(root: Path) -> Path:
+    """Return the directory that contains Imagenette ``train`` and ``val``."""
+    return _ensure_fastai(root, "imagenette2-160", IMAGENETTE_URL)
+
+
+def ensure_imagewoof(root: Path) -> Path:
+    """Return the directory that contains Imagewoof ``train`` and ``val``."""
+    return _ensure_fastai(root, "imagewoof2-160", IMAGEWOOF_URL)
 
 
 def _targets(dataset) -> np.ndarray:
@@ -261,6 +352,20 @@ def _load_splits(name: str, data_dir: Path, download: bool):
         root = ensure_imagenette(data_dir)
         train = _FolderSplit(root, "train", IMAGENETTE_CLASSES)
         test = _FolderSplit(root, "val", IMAGENETTE_CLASSES)
+        return train, test, _read_folder_image
+    if name in {"mnist", "kmnist", "usps"}:
+        dataset_cls = {
+            "mnist": datasets.MNIST,
+            "kmnist": datasets.KMNIST,
+            "usps": datasets.USPS,
+        }[name]
+        train = dataset_cls(root=str(data_dir), train=True, download=download)
+        test = dataset_cls(root=str(data_dir), train=False, download=download)
+        return train, test, _read_array_image
+    if name == "imagewoof":
+        root = ensure_imagewoof(data_dir)
+        train = _FolderSplit(root, "train", IMAGEWOOF_CLASSES)
+        test = _FolderSplit(root, "val", IMAGEWOOF_CLASSES)
         return train, test, _read_folder_image
     raise KeyError(f"unknown open dataset {name}")
 

@@ -1,7 +1,7 @@
 """Load checks for the ten-class vision datasets.
 
-These hit the real archives. Fashion-MNIST, SVHN, STL-10, and Imagenette each
-have to come back as a balanced 3-channel batch that a ProtoPNet can score.
+These hit the real archives. Each ten-class dataset has to come back as a
+balanced 3-channel batch that a ProtoPNet can score.
 """
 
 from pathlib import Path
@@ -28,11 +28,24 @@ OFFICIAL_SPLIT_SIZES = {
     "svhn": (73257, 26032),
     "stl10": (5000, 8000),
     "imagenette": (9469, 3925),
+    "mnist": (60000, 10000),
+    "kmnist": (60000, 10000),
+    "usps": (7291, 2007),
+    "imagewoof": (9025, 3929),
 }
 
 
 def test_catalog_uses_the_cifar10_budget():
-    assert list(OPEN_DATASETS) == ["stl10", "svhn", "fashion_mnist", "imagenette"]
+    assert list(OPEN_DATASETS) == [
+        "stl10",
+        "svhn",
+        "fashion_mnist",
+        "imagenette",
+        "mnist",
+        "kmnist",
+        "usps",
+        "imagewoof",
+    ]
     for spec in OPEN_DATASETS.values():
         assert spec["classes"] == 10
         assert len(spec["class_names"]) == 10
